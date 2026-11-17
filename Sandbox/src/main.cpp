@@ -22,6 +22,10 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Scripting/PythonScriptComponent.h"
+#include "Xora2D/Scripting/PythonScriptEngine.h"
+#include "Xora2D/Scripting/ScriptServices.h"
+#include "Xora2D/Scripting/ScriptTypes.h"
 #include "Xora2D/Serialization/SceneSerializer.h"
 
 #include <glm/vec2.hpp>
@@ -71,6 +75,7 @@ public:
         InitializeAssetSystem();
         m_scene->SetAssetManager(&m_assetManager);
         m_scene->SetAudioEngine(&GetAudioEngine());
+        m_scene->SetPythonScriptEngine(&GetPythonScriptEngine());
 
         m_scene->SetPhysicsEventCallback([](const Xora2D::PhysicsCollisionEvent& event) {
             const char* kind = event.Kind == Xora2D::PhysicsCollisionKind::Sensor ? "Sensor" : "Collision";
@@ -80,6 +85,7 @@ public:
 
         LoadInputMapping();
         BuildScene();
+        InitializePythonDemo();
         InitializeAudioDemo();
         m_scene->SetSceneName("SandboxPhysicsDemo");
         DemonstrateSceneSerialization();
@@ -97,6 +103,16 @@ protected:
 
     void OnUpdate(double deltaSeconds) override {
         const float delta = static_cast<float>(deltaSeconds);
+
+        if (GetPythonScriptEngine().IsAvailable()) {
+            Xora2D::ScriptServices services{};
+            services.Scene = m_scene.get(); // NOLINT
+            services.Input = &GetInputManager();
+            services.Audio = &GetAudioEngine();
+            services.Assets = &m_assetManager;
+            GetPythonScriptEngine().SetServices(services);
+        }
+
         // Step physics first so SyncSceneBodies creates bodies before gameplay applies forces.
         m_scene->OnUpdate(delta);
         UpdateInputGameplay(delta);
@@ -255,6 +271,7 @@ private:
         if (m_playerEntity.IsValid()) {
             auto& playerSprite = m_playerEntity.GetComponent<Xora2D::SpriteRendererComponent>();
             playerSprite.Color = {0.20f, 0.85f, 0.55f, 1.0f};
+            m_playerPythonControl = m_playerEntity.HasComponent<Xora2D::PythonScriptComponent>();
         }
         m_ecsMusicEntity = m_scene->FindEntityByName("EcsMusicEmitter");
         XORA_LOG_INFO("Active scene after reload: {} entities, camera UUID match: {}", m_scene->GetEntityCount(),
@@ -317,6 +334,70 @@ private:
         sprite.Color = {0.92f, 0.40f + restitution * 0.3f, 0.28f, 1.0f};
         sprite.Size = {radius * 2.0f, radius * 2.0f};
         entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void InitializePythonDemo() {
+        if (!GetPythonScriptEngine().IsScriptingCompiledIn()) {
+            XORA_LOG_INFO("Python scripting not compiled into this build");
+            return;
+        }
+        if (!GetPythonScriptEngine().IsAvailable()) {
+            XORA_LOG_WARN("Python scripting unavailable — C++ sandbox controls remain active");
+            return;
+        }
+
+        const auto registerScript = [this](const char* relative, const char* displayName) {
+            return m_assetManager.RegisterPythonScriptAtRelativePath(relative, displayName);
+        };
+
+        const Xora2D::AssetResult playerScript = registerScript("Scripts/PlayerController.py", "PlayerController");
+        const Xora2D::AssetResult rotatorScript = registerScript("Scripts/Rotator.py", "Rotator");
+        const Xora2D::AssetResult physicsScript = registerScript("Scripts/PhysicsController.py", "PhysicsController");
+        const Xora2D::AssetResult audioScript = registerScript("Scripts/AudioTrigger.py", "AudioTrigger");
+
+        if (playerScript.Success) {
+            (void)m_assetManager.LoadPythonScript(playerScript.Handle);
+        }
+
+        if (m_playerEntity.IsValid() && playerScript.Success) {
+            auto& script = m_playerEntity.AddComponent<Xora2D::PythonScriptComponent>();
+            script.ScriptAsset = playerScript.Handle;
+            script.ClassName = "PlayerController";
+            script.Properties = {
+                {Xora2D::ScriptProperty{.Name = "speed", .Type = Xora2D::ScriptPropertyType::Number,
+                                        .NumberValue = kPlayerSpeedMetersPerSecond}},
+                {Xora2D::ScriptProperty{.Name = "jump_impulse", .Type = Xora2D::ScriptPropertyType::Number,
+                                .NumberValue = kJumpImpulseMetersPerSecond}},
+                {Xora2D::ScriptProperty{.Name = "display_name", .Type = Xora2D::ScriptPropertyType::String,
+                                .StringValue = "SandboxPlayer"}},
+            };
+            (void)physicsScript;
+            m_playerPythonControl = true;
+        }
+
+        Xora2D::Entity rotatorA = m_scene->FindEntityByName("Box1");
+        Xora2D::Entity rotatorB = m_scene->FindEntityByName("Box2");
+        for (Xora2D::Entity entity : {rotatorA, rotatorB}) {
+            if (!entity.IsValid() || !rotatorScript.Success) {
+                continue;
+            }
+            auto& script = entity.AddComponent<Xora2D::PythonScriptComponent>();
+            script.ScriptAsset = rotatorScript.Handle;
+            script.ClassName = "Rotator";
+            script.Properties = {
+                {Xora2D::ScriptProperty{.Name = "radians_per_second", .Type = Xora2D::ScriptPropertyType::Number,
+                                .NumberValue = entity.GetName() == "Box1" ? 1.2 : -0.9}},
+            };
+        }
+
+        if (audioScript.Success) {
+            Xora2D::Entity listener = m_scene->CreateEntity("AudioTriggerEntity");
+            auto& script = listener.AddComponent<Xora2D::PythonScriptComponent>();
+            script.ScriptAsset = audioScript.Handle;
+            script.ClassName = "AudioTrigger";
+        }
+
+        XORA_LOG_INFO("Python gameplay demo attached (WASD physics move + Space jump + rotating boxes)");
     }
 
     void InitializeAudioDemo() {
@@ -447,6 +528,9 @@ private:
         if (!m_playerEntity.IsValid() || !m_scene->GetPhysicsWorld().HasPhysicsBody(m_playerEntity)) {
             return;
         }
+        if (m_playerPythonControl) {
+            return;
+        }
 
         auto& physics = m_scene->GetPhysicsWorld();
         glm::vec2 velocity = physics.GetLinearVelocity(m_playerEntity);
@@ -509,6 +593,7 @@ private:
     Xora2D::AssetHandle m_sfxClickHandle;
     Xora2D::AssetHandle m_musicHandle;
     bool m_sfxLooping = false;
+    bool m_playerPythonControl = false;
     float m_logCooldown = 0.0f;
 };
 

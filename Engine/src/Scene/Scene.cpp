@@ -1,6 +1,7 @@
 #include "Xora2D/Scene/Scene.h"
 
 #include "SceneAudioSystem.h"
+#include "Scripting/ScenePythonScriptSystem.h"
 
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Audio/AudioEngine.h"
@@ -38,7 +39,8 @@ std::shared_ptr<Scene> Scene::Create() {
 Scene::Scene()
     : m_registry(std::make_unique<Registry>()),
       m_physics(std::make_unique<PhysicsWorld2D>()),
-      m_audioSystem(std::make_unique<SceneAudioSystem>()) {}
+      m_audioSystem(std::make_unique<SceneAudioSystem>()),
+      m_scriptSystem(std::make_unique<ScenePythonScriptSystem>()) {}
 
 Scene::~Scene() {
     PrepareForShutdown();
@@ -114,6 +116,9 @@ void Scene::ReplaceContentsFrom(Scene& source) {
     if (m_audioSystem) {
         m_audioSystem->Clear();
     }
+    if (m_scriptSystem) {
+        m_scriptSystem->Clear();
+    }
 }
 
 void Scene::Clear() {
@@ -133,6 +138,9 @@ void Scene::Clear() {
     if (m_audioSystem) {
         m_audioSystem->Clear();
     }
+    if (m_scriptSystem) {
+        m_scriptSystem->Clear();
+    }
 }
 
 void Scene::DestroyEntity(Entity entity) {
@@ -141,6 +149,9 @@ void Scene::DestroyEntity(Entity entity) {
     }
     if (m_audioSystem) {
         m_audioSystem->OnEntityDestroyed(entity.m_handle);
+    }
+    if (m_scriptSystem) {
+        m_scriptSystem->OnEntityDestroyed(entity.m_handle);
     }
     m_physics->OnEntityDestroyed(*this, entity);
     UnindexEntity(entity.m_handle);
@@ -176,6 +187,9 @@ void Scene::PrepareForShutdown() {
     if (m_audioSystem) {
         m_audioSystem->PrepareForShutdown();
     }
+    if (m_scriptSystem) {
+        m_scriptSystem->PrepareForShutdown();
+    }
     if (!m_physics) {
         return;
     }
@@ -188,6 +202,21 @@ void Scene::OnUpdate(float deltaSeconds) {
     if (m_audioSystem) {
         m_audioSystem->OnSceneUpdate(*this, deltaSeconds);
     }
+    if (m_scriptSystem) {
+        m_scriptSystem->OnSceneUpdate(*this, deltaSeconds);
+    }
+}
+
+void Scene::SetAudioEngine(AudioEngine* audioEngine) {
+    if (m_audioSystem) {
+        m_audioSystem->SetAudioEngine(audioEngine);
+    }
+}
+
+void Scene::SetPythonScriptEngine(PythonScriptEngine* scriptEngine) {
+    if (m_scriptSystem) {
+        m_scriptSystem->SetScriptEngine(scriptEngine);
+    }
 }
 
 void Scene::SetAssetManager(AssetManager* assetManager) {
@@ -195,11 +224,8 @@ void Scene::SetAssetManager(AssetManager* assetManager) {
     if (m_audioSystem) {
         m_audioSystem->SetAssetManager(assetManager);
     }
-}
-
-void Scene::SetAudioEngine(AudioEngine* audioEngine) {
-    if (m_audioSystem) {
-        m_audioSystem->SetAudioEngine(audioEngine);
+    if (m_scriptSystem) {
+        m_scriptSystem->SetAssetManager(assetManager);
     }
 }
 

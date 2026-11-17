@@ -8,6 +8,7 @@ add_executable(Xora2D-Tests
     src/AssetTests.cpp
     src/InputTests.cpp
     src/AudioTests.cpp
+    src/ScriptingTests.cpp
 )
 
 find_package(SDL3 CONFIG REQUIRED)

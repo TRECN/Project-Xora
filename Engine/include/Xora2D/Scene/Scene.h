@@ -66,6 +66,7 @@ public:
 
     void SetAssetManager(AssetManager* assetManager);
     void SetAudioEngine(AudioEngine* audioEngine);
+    void SetPythonScriptEngine(PythonScriptEngine* scriptEngine);
     void StopAudioInGroup(AudioGroup group);
     void StopLoopingAudio();
     void StopEntityAudio(const Entity& entity);
@@ -84,6 +85,7 @@ private:
     friend struct PhysicsWorld2DDetail;
     friend class SceneSerializer;
     friend class SceneAudioSystem;
+    friend class ScenePythonScriptSystem;
 
     template <typename Component, typename... Args>
     Component& EmplaceComponent(std::uint32_t handle, Args&&... args);
@@ -117,6 +119,7 @@ private:
     std::string m_sceneName = "Untitled";
     AssetManager* m_assetManager = nullptr;
     std::unique_ptr<SceneAudioSystem> m_audioSystem;
+    std::unique_ptr<ScenePythonScriptSystem> m_scriptSystem;
 };
 
 } // namespace Xora2D

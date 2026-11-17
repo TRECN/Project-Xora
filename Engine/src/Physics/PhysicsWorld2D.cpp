@@ -614,8 +614,22 @@ void PhysicsWorld2D::ApplyForceAtPoint(const Entity& entity, const glm::vec2& fo
 }
 
 void PhysicsWorld2D::ApplyLinearImpulse(const Entity& entity, const glm::vec2& impulse) {
+    if (!HasPhysicsBody(entity)) {
+        return;
+    }
     b2Body* body = PhysicsWorld2DDetail::RequireBody(*m_impl, entity);
     body->ApplyLinearImpulseToCenter(b2Vec2(impulse.x, impulse.y), true);
+}
+
+void PhysicsWorld2D::SetGravityScale(Entity& entity, float scale) {
+    if (!entity.HasComponent<RigidBody2DComponent>()) {
+        return;
+    }
+    entity.GetComponent<RigidBody2DComponent>().GravityScale = scale;
+    if (HasPhysicsBody(entity)) {
+        b2Body* body = PhysicsWorld2DDetail::RequireBody(*m_impl, entity);
+        body->SetGravityScale(scale);
+    }
 }
 
 void PhysicsWorld2D::ApplyAngularImpulse(const Entity& entity, float impulse) {

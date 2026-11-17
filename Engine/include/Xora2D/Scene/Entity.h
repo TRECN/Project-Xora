@@ -9,6 +9,8 @@
 namespace Xora2D {
 
 class Scene;
+class PythonScriptEngine;
+class ScenePythonScriptSystem;
 struct PhysicsWorld2DDetail;
 
 // Lightweight, non-owning handle to an entity in a scene. Do not use after the
@@ -44,6 +46,8 @@ private:
     friend class Scene;
     friend class PhysicsWorld2D;
     friend struct PhysicsWorld2DDetail;
+    friend class PythonScriptEngine;
+    friend class ScenePythonScriptSystem;
 
     Entity(Scene* scene, std::uint32_t handle)
         : m_scene(scene), m_handle(handle) {}

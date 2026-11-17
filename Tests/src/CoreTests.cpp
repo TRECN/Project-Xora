@@ -336,6 +336,7 @@ int RunAssetTests();
 int RunInputTests();
 int RunAudioTests();
 int RunPhysicsTests();
+int RunScriptingTests();
 
 int main() {
     XORA_LOG_INFO("Xora2D tests starting");
@@ -352,6 +353,7 @@ int main() {
     g_failures += RunInputTests();
     g_failures += RunAudioTests();
     g_failures += RunPhysicsTests();
+    g_failures += RunScriptingTests();
 
     if (g_failures != 0) {
         XORA_LOG_ERROR("{} test check(s) failed", g_failures);

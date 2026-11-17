@@ -9,6 +9,7 @@
 #include "Xora2D/Renderer/Renderer2D.h"
 #include "Xora2D/Renderer/RendererAPI.h"
 #include "Xora2D/Input/Input.h"
+#include "Xora2D/Scripting/ScriptTypes.h"
 
 #include <cstdlib>
 
@@ -39,10 +40,17 @@ Application::Application()
     } else if (!audioInit.DeviceAvailable) {
         XORA_LOG_WARN("Audio output device unavailable; continuing without audible output");
     }
+
+    const ScriptLoadResult scriptInit = m_scriptEngine.Initialize();
+    if (!scriptInit.Success && m_scriptEngine.IsScriptingCompiledIn()) {
+        XORA_LOG_WARN("Python scripting failed to initialize: {}", scriptInit.Message);
+    }
+
     XORA_LOG_INFO("Xora2D Engine initialized");
 }
 
 Application::~Application() {
+    m_scriptEngine.Shutdown();
     m_audioEngine.PrepareShutdown();
     m_input.PrepareShutdown();
     Input::Attach(nullptr);
@@ -98,6 +106,7 @@ void Application::OnRender() {}
 void Application::OnEvent(Event& /*event*/) {}
 
 void Application::OnShutdownRequested() {
+    m_scriptEngine.PrepareShutdown();
     m_audioEngine.StopAll();
     m_input.ClearState();
 }

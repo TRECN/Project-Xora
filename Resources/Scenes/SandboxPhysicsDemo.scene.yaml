@@ -1,474 +1,7 @@
 Version: 2
 Name: SandboxPhysicsDemo
 Entities:
-  - Entity: 15847746b82db3da-95d3eaef824acc6
-    TagComponent:
-      Tag: EcsMusicEmitter
-    TransformComponent:
-      Translation:
-        - 0
-        - 0
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    AudioSourceComponent:
-      ClipAssetHandle: 874e978c9f80a94
-      Volume: 0.349999994
-      Pitch: 1
-      Loop: true
-      PlayOnStart: false
-      Muted: false
-      Group: Music
-      SpatialAudio: false
-  - Entity: 207cafeb3eedcaf-b9965732e3a52577
-    TagComponent:
-      Tag: LeftWall
-    TransformComponent:
-      Translation:
-        - 40
-        - 360
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.25
-        - 0.280000001
-        - 0.360000014
-        - 1
-      Size:
-        - 60
-        - 900
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Static
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 60
-        - 900
-      Density: 1
-      Friction: 0.699999988
-      Restitution: 0
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 245167f761771fb5-5108825d130e67e8
-    TagComponent:
-      Tag: MainCamera
-    TransformComponent:
-      Translation:
-        - 640
-        - 360
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    CameraComponent:
-      Enabled: true
-      Primary: true
-      Zoom: 1
-    AudioListenerComponent:
-      Active: true
-  - Entity: 5583f13a5fa44b71-6fd3f6f82d790839
-    TagComponent:
-      Tag: Ball2
-    TransformComponent:
-      Translation:
-        - 830
-        - 520
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.920000017
-        - 0.460000008
-        - 0.280000001
-        - 1
-      Size:
-        - 52
-        - 52
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    CircleCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Radius: 26
-      Density: 1
-      Friction: 0.349999994
-      Restitution: 0.200000003
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 57215b4f29f82850-786ed7f12e6f5b6f
-    TagComponent:
-      Tag: UpperPlatform
-    TransformComponent:
-      Translation:
-        - 520
-        - 220
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.300000012
-        - 0.419999987
-        - 0.560000002
-        - 1
-      Size:
-        - 260
-        - 24
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Static
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 260
-        - 24
-      Density: 1
-      Friction: 0.699999988
-      Restitution: 0
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 63606053d0b8f1c4-37a157ad5f9effc4
-    TagComponent:
-      Tag: Player
-    TransformComponent:
-      Translation:
-        - 640
-        - 120
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.200000003
-        - 0.850000024
-        - 0.550000012
-        - 1
-      Size:
-        - 48
-        - 48
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    CircleCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Radius: 24
-      Density: 1
-      Friction: 0.850000024
-      Restitution: 0
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 6c1aed0c149d9da1-8058ac1f64626a74
-    TagComponent:
-      Tag: Ground
-    TransformComponent:
-      Translation:
-        - 640
-        - 30
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.180000007
-        - 0.200000003
-        - 0.280000001
-        - 1
-      Size:
-        - 1400
-        - 60
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Static
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 1400
-        - 60
-      Density: 1
-      Friction: 0.699999988
-      Restitution: 0
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 80b9e6cdfc243eb9-8b0f0c10fa78cfd5
-    TagComponent:
-      Tag: Ball3
-    TransformComponent:
-      Translation:
-        - 900
-        - 540
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.920000017
-        - 0.460000008
-        - 0.280000001
-        - 1
-      Size:
-        - 60
-        - 60
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    CircleCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Radius: 30
-      Density: 1
-      Friction: 0.349999994
-      Restitution: 0.200000003
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: 80f77e1a790fa5ef-ca2030cf840efcc8
-    TagComponent:
-      Tag: DropSensor
-    TransformComponent:
-      Translation:
-        - 900
-        - 120
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.850000024
-        - 0.699999988
-        - 0.200000003
-        - 0.349999994
-      Size:
-        - 180
-        - 120
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Static
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 180
-        - 120
-      Density: 1
-      Friction: 0.400000006
-      Restitution: 0
-      RestitutionThreshold: 2
-      IsSensor: true
-  - Entity: c5f5d30b046e611d-96c411d726e99aa0
-    TagComponent:
-      Tag: Ball4
-    TransformComponent:
-      Translation:
-        - 970
-        - 560
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.920000017
-        - 0.460000008
-        - 0.280000001
-        - 1
-      Size:
-        - 68
-        - 68
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    CircleCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Radius: 34
-      Density: 1
-      Friction: 0.349999994
-      Restitution: 0.200000003
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: cd10679909fc004f-aad64881a89637c2
-    TagComponent:
-      Tag: Ball1
-    TransformComponent:
-      Translation:
-        - 760
-        - 500
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.920000017
-        - 0.640000045
-        - 0.280000001
-        - 1
-      Size:
-        - 44
-        - 44
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    CircleCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Radius: 22
-      Density: 1
-      Friction: 0.349999994
-      Restitution: 0.800000012
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: d331487dfaa24001-186c589d797499eb
-    TagComponent:
-      Tag: Box1
-    TransformComponent:
-      Translation:
-        - 260
-        - 420
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.375
-        - 0.550000012
-        - 0.899999976
-        - 1
-      Size:
-        - 48
-        - 48
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 48
-        - 48
-      Density: 1
-      Friction: 0.850000024
-      Restitution: 0.0500000007
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: db94b3f5c4ab80ea-6081ff7845297160
+  - Entity: 116574660a3baf50-d41ad84158e8a469
     TagComponent:
       Tag: RightWall
     TransformComponent:
@@ -512,51 +45,7 @@ Entities:
       Restitution: 0
       RestitutionThreshold: 2
       IsSensor: false
-  - Entity: eacc695be32960af-83f61d82c6fad18f
-    TagComponent:
-      Tag: Box4
-    TransformComponent:
-      Translation:
-        - 545
-        - 465
-      RotationRadians: 0
-      Scale:
-        - 1
-        - 1
-    SpriteRendererComponent:
-      Color:
-        - 0.674999952
-        - 0.550000012
-        - 0.899999976
-        - 1
-      Size:
-        - 48
-        - 48
-      TilingFactor: 1
-      Visible: true
-    RigidBody2DComponent:
-      Type: Dynamic
-      FixedRotation: false
-      GravityScale: 1
-      LinearDamping: 0
-      AngularDamping: 0.0500000007
-      AllowSleep: true
-      Bullet: false
-      Enabled: true
-      DriveTransformFromECS: false
-    BoxCollider2DComponent:
-      Offset:
-        - 0
-        - 0
-      Size:
-        - 48
-        - 48
-      Density: 1
-      Friction: 0.200000003
-      Restitution: 0.649999976
-      RestitutionThreshold: 2
-      IsSensor: false
-  - Entity: ed5c826fc09c9fed-6a5963eec99dea98
+  - Entity: 172273aada0da7a8-9ee81b899cbff335
     TagComponent:
       Tag: Box3
     TransformComponent:
@@ -600,7 +89,258 @@ Entities:
       Restitution: 0.0500000007
       RestitutionThreshold: 2
       IsSensor: false
-  - Entity: f65384f4793ee841-e16af73ce146a09b
+  - Entity: 1b649eec627923c3-2dda41f36a01478
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Translation:
+        - 640
+        - 120
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.200000003
+        - 0.850000024
+        - 0.550000012
+        - 1
+      Size:
+        - 48
+        - 48
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    CircleCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Radius: 24
+      Density: 1
+      Friction: 0.850000024
+      Restitution: 0
+      RestitutionThreshold: 2
+      IsSensor: false
+    PythonScriptComponent:
+      ScriptAssetHandle: 94918296161a010e
+      ClassName: PlayerController
+      Enabled: true
+      Properties:
+        - Name: speed
+          Type: Number
+          Value: 4.5
+        - Name: jump_impulse
+          Type: Number
+          Value: 7
+        - Name: display_name
+          Type: String
+          Value: SandboxPlayer
+  - Entity: 34b1b4bd0b31281f-35b20da4bffb92bb
+    TagComponent:
+      Tag: MainCamera
+    TransformComponent:
+      Translation:
+        - 640
+        - 360
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    CameraComponent:
+      Enabled: true
+      Primary: true
+      Zoom: 1
+    AudioListenerComponent:
+      Active: true
+  - Entity: 3e5e3a2b4542a614-71cbbe972d5b863e
+    TagComponent:
+      Tag: Ball1
+    TransformComponent:
+      Translation:
+        - 760
+        - 500
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.920000017
+        - 0.640000045
+        - 0.280000001
+        - 1
+      Size:
+        - 44
+        - 44
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    CircleCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Radius: 22
+      Density: 1
+      Friction: 0.349999994
+      Restitution: 0.800000012
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: 449109b1347da398-cf88067c38b189b4
+    TagComponent:
+      Tag: Box1
+    TransformComponent:
+      Translation:
+        - 260
+        - 420
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.375
+        - 0.550000012
+        - 0.899999976
+        - 1
+      Size:
+        - 48
+        - 48
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 48
+        - 48
+      Density: 1
+      Friction: 0.850000024
+      Restitution: 0.0500000007
+      RestitutionThreshold: 2
+      IsSensor: false
+    PythonScriptComponent:
+      ScriptAssetHandle: 6cdf1ddba7a6a75a
+      ClassName: Rotator
+      Enabled: true
+      Properties:
+        - Name: radians_per_second
+          Type: Number
+          Value: 1.2
+  - Entity: 468fbb481b093467-1804ecc53a33b7d
+    TagComponent:
+      Tag: Ball2
+    TransformComponent:
+      Translation:
+        - 830
+        - 520
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.920000017
+        - 0.460000008
+        - 0.280000001
+        - 1
+      Size:
+        - 52
+        - 52
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    CircleCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Radius: 26
+      Density: 1
+      Friction: 0.349999994
+      Restitution: 0.200000003
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: 5b1282a66f218318-d64f2606089225e5
+    TagComponent:
+      Tag: Ball3
+    TransformComponent:
+      Translation:
+        - 900
+        - 540
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.920000017
+        - 0.460000008
+        - 0.280000001
+        - 1
+      Size:
+        - 60
+        - 60
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    CircleCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Radius: 30
+      Density: 1
+      Friction: 0.349999994
+      Restitution: 0.200000003
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: 63f63d386833abfd-4c5e7fa4b84b842e
     TagComponent:
       Tag: Logo
     TransformComponent:
@@ -623,7 +363,172 @@ Entities:
       TextureAssetHandle: b0d9d4831317bc4f
       TilingFactor: 1
       Visible: true
-  - Entity: fd3bb106f02e5df9-fb06813f10cba3e9
+  - Entity: 6df11f5f69888d98-370ae6d27a4dd353
+    TagComponent:
+      Tag: Ball4
+    TransformComponent:
+      Translation:
+        - 970
+        - 560
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.920000017
+        - 0.460000008
+        - 0.280000001
+        - 1
+      Size:
+        - 68
+        - 68
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    CircleCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Radius: 34
+      Density: 1
+      Friction: 0.349999994
+      Restitution: 0.200000003
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: 6feee15977bfd3c0-5ae978e1388aa049
+    TagComponent:
+      Tag: DropSensor
+    TransformComponent:
+      Translation:
+        - 900
+        - 120
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.850000024
+        - 0.699999988
+        - 0.200000003
+        - 0.349999994
+      Size:
+        - 180
+        - 120
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Static
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 180
+        - 120
+      Density: 1
+      Friction: 0.400000006
+      Restitution: 0
+      RestitutionThreshold: 2
+      IsSensor: true
+  - Entity: a7c4484e2b727939-cc6a8732b78cbe6d
+    TagComponent:
+      Tag: AudioTriggerEntity
+    TransformComponent:
+      Translation:
+        - 0
+        - 0
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    PythonScriptComponent:
+      ScriptAssetHandle: d37e688e91f1050b
+      ClassName: AudioTrigger
+      Enabled: true
+  - Entity: acf97b4dbc50d841-728fd4a9c1051b9
+    TagComponent:
+      Tag: EcsMusicEmitter
+    TransformComponent:
+      Translation:
+        - 0
+        - 0
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    AudioSourceComponent:
+      ClipAssetHandle: 874e978c9f80a94
+      Volume: 0.349999994
+      Pitch: 1
+      Loop: true
+      PlayOnStart: false
+      Muted: false
+      Group: Music
+      SpatialAudio: false
+  - Entity: bddb4c419dcb28b6-9971c1fcb4229289
+    TagComponent:
+      Tag: LeftWall
+    TransformComponent:
+      Translation:
+        - 40
+        - 360
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.25
+        - 0.280000001
+        - 0.360000014
+        - 1
+      Size:
+        - 60
+        - 900
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Static
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 60
+        - 900
+      Density: 1
+      Friction: 0.699999988
+      Restitution: 0
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: d293f937650c364e-6fc90466101cc066
     TagComponent:
       Tag: Box2
     TransformComponent:
@@ -665,5 +570,145 @@ Entities:
       Density: 1
       Friction: 0.200000003
       Restitution: 0.649999976
+      RestitutionThreshold: 2
+      IsSensor: false
+    PythonScriptComponent:
+      ScriptAssetHandle: 6cdf1ddba7a6a75a
+      ClassName: Rotator
+      Enabled: true
+      Properties:
+        - Name: radians_per_second
+          Type: Number
+          Value: -0.90000000000000002
+  - Entity: d9c06f906a7acccd-50ffe6b5bf75ee3a
+    TagComponent:
+      Tag: Box4
+    TransformComponent:
+      Translation:
+        - 545
+        - 465
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.674999952
+        - 0.550000012
+        - 0.899999976
+        - 1
+      Size:
+        - 48
+        - 48
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 48
+        - 48
+      Density: 1
+      Friction: 0.200000003
+      Restitution: 0.649999976
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: e148910345f22c2c-1e142fb076fc6255
+    TagComponent:
+      Tag: Ground
+    TransformComponent:
+      Translation:
+        - 640
+        - 30
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.180000007
+        - 0.200000003
+        - 0.280000001
+        - 1
+      Size:
+        - 1400
+        - 60
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Static
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 1400
+        - 60
+      Density: 1
+      Friction: 0.699999988
+      Restitution: 0
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: e5b5e12effea3410-fcbf5bbc4549c1a7
+    TagComponent:
+      Tag: UpperPlatform
+    TransformComponent:
+      Translation:
+        - 520
+        - 220
+      RotationRadians: 0
+      Scale:
+        - 1
+        - 1
+    SpriteRendererComponent:
+      Color:
+        - 0.300000012
+        - 0.419999987
+        - 0.560000002
+        - 1
+      Size:
+        - 260
+        - 24
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Static
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.0500000007
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset:
+        - 0
+        - 0
+      Size:
+        - 260
+        - 24
+      Density: 1
+      Friction: 0.699999988
+      Restitution: 0
       RestitutionThreshold: 2
       IsSensor: false

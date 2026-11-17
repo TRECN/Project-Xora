@@ -5,6 +5,7 @@
 #include "Xora2D/Core/Paths.h"
 #include "Xora2D/Audio/AudioClip.h"
 #include "Xora2D/Renderer/Texture2D.h"
+#include "Xora2D/Scripting/PythonScriptAsset.h"
 
 #include <filesystem>
 
@@ -183,6 +184,57 @@ AssetResult AssetManager::LoadAudio(AssetHandle handle) {
     return LoadAudioInternal(handle, false);
 }
 
+AssetResult AssetManager::RegisterPythonScriptAtRelativePath(const std::string& normalizedRelativePath,
+                                                             const std::string& displayName) {
+    AssetResult result{};
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(normalizedRelativePath);
+    if (!normalized.has_value()) {
+        result.Message = "Invalid relative asset path";
+        return result;
+    }
+
+    if (const AssetMetadata* existing = m_registry.FindByRelativePath(*normalized)) {
+        result.Success = true;
+        result.Handle = existing->Handle;
+        result.Message = "Asset already registered";
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(*normalized);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Asset file does not exist: " + absolute.string();
+        return result;
+    }
+    if (!IsSupportedPythonScriptExtension(absolute)) {
+        result.Message = "Unsupported Python script extension";
+        return result;
+    }
+
+    AssetMetadata metadata{};
+    metadata.Handle = AssetHandle::StableFromRelativePath(*normalized);
+    metadata.Type = AssetType::PythonScript;
+    metadata.Name = displayName.empty() ? absolute.stem().string() : displayName;
+    metadata.RelativePath = *normalized;
+    metadata.Available = true;
+
+    if (m_registry.Contains(metadata.Handle)) {
+        result.Message = "Duplicate asset handle for path";
+        return result;
+    }
+    if (!m_registry.RegisterAsset(metadata)) {
+        result.Message = "Failed to register asset metadata";
+        return result;
+    }
+
+    result.Success = true;
+    result.Handle = metadata.Handle;
+    return result;
+}
+
+AssetResult AssetManager::LoadPythonScript(AssetHandle handle) {
+    return LoadPythonScriptInternal(handle, false);
+}
+
 AssetResult AssetManager::LoadTextureInternal(AssetHandle handle, bool forceReload) {
     AssetResult result{};
     if (!handle.IsValid()) {
@@ -292,13 +344,67 @@ std::shared_ptr<const AudioClip> AssetManager::GetLoadedAudio(AssetHandle handle
     return found->second;
 }
 
+AssetResult AssetManager::LoadPythonScriptInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    if (!handle.IsValid()) {
+        result.Message = "Invalid asset handle";
+        return result;
+    }
+
+    const AssetMetadata* metadata = m_registry.FindByHandle(handle);
+    if (metadata == nullptr) {
+        result.Message = "Asset handle is not registered";
+        return result;
+    }
+    if (metadata->Type != AssetType::PythonScript) {
+        result.Message = "Asset is not a Python script";
+        return result;
+    }
+
+    if (!forceReload && m_scriptCache.contains(handle)) {
+        result.Success = true;
+        result.Handle = handle;
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(metadata->RelativePath);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Python script file missing on disk: " + absolute.string();
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+
+    auto script = std::make_shared<PythonScriptAsset>();
+    const ScriptLoadResult loadResult =
+        PythonScriptAsset::LoadFromFile(absolute, metadata->RelativePath, *script);
+    if (!loadResult.Success || !script->IsValid()) {
+        m_scriptCache.erase(handle);
+        result.Message = loadResult.Message.empty() ? "Failed to load Python script" : loadResult.Message;
+        return result;
+    }
+
+    m_scriptCache[handle] = std::move(script);
+    result.Success = true;
+    result.Handle = handle;
+    return result;
+}
+
+std::shared_ptr<const PythonScriptAsset> AssetManager::GetLoadedPythonScript(AssetHandle handle) const {
+    const auto found = m_scriptCache.find(handle);
+    if (found == m_scriptCache.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
-    return m_textureCache.contains(handle) || m_audioCache.contains(handle);
+    return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
     m_textureCache.erase(handle);
     m_audioCache.erase(handle);
+    m_scriptCache.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
@@ -308,6 +414,7 @@ AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
 void AssetManager::UnloadAll() {
     m_textureCache.clear();
     m_audioCache.clear();
+    m_scriptCache.clear();
 }
 
 void AssetManager::PrepareShutdown() {

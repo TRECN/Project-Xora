@@ -66,6 +66,7 @@ public:
     void ApplyTorque(const Entity& entity, float torque);
     void SetBodyType(const Entity& entity, RigidBodyType2D type);
     void SetBodyEnabled(const Entity& entity, bool enabled);
+    void SetGravityScale(Entity& entity, float scale);
 
     float GetAccumulatedTimeSeconds() const;
     std::uint32_t GetLastSubStepCount() const;

@@ -12,6 +12,7 @@
 namespace Xora2D {
 
 class AudioClip;
+class PythonScriptAsset;
 class Texture2D;
 
 class AssetManager {
@@ -33,10 +34,15 @@ public:
     AssetResult RegisterAudioAtRelativePath(const std::string& normalizedRelativePath,
                                             const std::string& displayName = {});
 
+    AssetResult RegisterPythonScriptAtRelativePath(const std::string& normalizedRelativePath,
+                                                     const std::string& displayName = {});
+
     AssetResult LoadTexture(AssetHandle handle);
     AssetResult LoadAudio(AssetHandle handle);
+    AssetResult LoadPythonScript(AssetHandle handle);
     std::shared_ptr<Texture2D> GetLoadedTexture(AssetHandle handle) const;
     std::shared_ptr<const AudioClip> GetLoadedAudio(AssetHandle handle) const;
+    std::shared_ptr<const PythonScriptAsset> GetLoadedPythonScript(AssetHandle handle) const;
     [[nodiscard]] bool IsAssetLoaded(AssetHandle handle) const;
 
     void UnloadAsset(AssetHandle handle);
@@ -48,10 +54,12 @@ public:
 private:
     AssetResult LoadTextureInternal(AssetHandle handle, bool forceReload);
     AssetResult LoadAudioInternal(AssetHandle handle, bool forceReload);
+    AssetResult LoadPythonScriptInternal(AssetHandle handle, bool forceReload);
 
     AssetRegistry& m_registry;
     std::unordered_map<AssetHandle, std::shared_ptr<Texture2D>> m_textureCache;
     std::unordered_map<AssetHandle, std::shared_ptr<const AudioClip>> m_audioCache;
+    std::unordered_map<AssetHandle, std::shared_ptr<const PythonScriptAsset>> m_scriptCache;
     bool m_graphicsResourcesEnabled = true;
 };
 

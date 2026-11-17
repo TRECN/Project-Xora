@@ -1,0 +1,381 @@
+Start testing: Nov 17 13:19 IST
+----------------------------------------------------------
+1/1 Testing: Xora2D-Tests
+1/1 Test: Xora2D-Tests
+Command: "/Users/rishabh/Desktop/Project-Xora/Xora2D/build-no-scripting/Tests/Xora2D-Tests"
+Directory: /Users/rishabh/Desktop/Project-Xora/Xora2D/build-no-scripting/Tests
+"Xora2D-Tests" start time: Nov 17 13:19 IST
+Output:
+----------------------------------------------------------
+[13:19:36.464] [INFO] Xora2D tests starting
+[13:19:36.464] [INFO] TEST logger started
+[13:19:36.464] [INFO]   formatted line: [09:08:07.042] [WARN] disk full
+[13:19:36.464] [INFO]   pass: timestamp is 09:08:07.042
+[13:19:36.464] [INFO]   pass: level and message are present
+[13:19:36.464] [INFO]   pass: WARN is hidden when the minimum level is ERROR
+[13:19:36.464] [INFO]   pass: ERROR stays visible when the minimum level is ERROR
+[13:19:36.464] [INFO] TEST logger passed (4 checks)
+[13:19:36.464] [INFO] TEST events started
+[13:19:36.464] [INFO]   pass: quit event type
+[13:19:36.464] [INFO]   pass: quit event name
+[13:19:36.464] [INFO]   pass: quit is an application event
+[13:19:36.464] [INFO]   pass: quit is not a window event
+[13:19:36.464] [INFO]   pass: close is an application event
+[13:19:36.464] [INFO]   pass: close is a window event
+[13:19:36.464] [INFO]   pass: close is not an input event
+[13:19:36.464] [INFO]   pass: resize stores 800x600
+[13:19:36.464] [INFO]   pass: resize text is WindowResize 800x600
+[13:19:36.464] [INFO]   key event: KeyPressed key=1 scan=4 repeat=true
+[13:19:36.464] [INFO]   pass: key press is a keyboard event
+[13:19:36.464] [INFO]   pass: key press is an input event
+[13:19:36.464] [INFO]   pass: key press is not a mouse event
+[13:19:36.464] [INFO]   pass: key press records repeat
+[13:19:36.464] [INFO]   mouse event: MouseButtonPressed button=1 at 20,30
+[13:19:36.464] [INFO]   pass: click is a mouse-button event
+[13:19:36.464] [INFO]   pass: click button is left
+[13:19:36.464] [INFO]   pass: dispatcher ignores a window-close handler for a resize
+[13:19:36.464] [INFO]   pass: dispatcher delivers the resize to its handler
+[13:19:36.464] [INFO]   pass: matched event is marked handled
+[13:19:36.464] [INFO]   pass: unmatched event stays unhandled
+[13:19:36.464] [INFO] TEST events passed (19 checks)
+[13:19:36.464] [INFO] TEST time started
+[13:19:36.464] [INFO]   pass: first tick at startup is 0 seconds
+[13:19:36.464] [INFO]   pass: delta after 100ms is 0.1 seconds
+[13:19:36.464] [INFO]   pass: elapsed after 100ms is 0.1 seconds
+[13:19:36.464] [INFO]   pass: delta after another 150ms is 0.15 seconds
+[13:19:36.464] [INFO]   pass: elapsed after 250ms is 0.25 seconds
+[13:19:36.464] [INFO]   pass: a backwards clock does not produce a negative delta
+[13:19:36.464] [INFO]   pass: elapsed stays 0.25 seconds when the clock moves backwards
+[13:19:36.464] [INFO] TEST time passed (7 checks)
+[13:19:36.464] [INFO] TEST sdl event translation started
+[13:19:36.464] [INFO]   pass: SDL quit becomes AppQuit
+[13:19:36.464] [INFO]   pass: SDL window close becomes WindowClose
+[13:19:36.464] [INFO]   pass: SDL resize reports 640x480
+[13:19:36.464] [INFO]   pass: SDL resize becomes WindowResize
+[13:19:36.464] [INFO]   translated key down: KeyPressed key=38 scan=41 repeat=false
+[13:19:36.464] [INFO]   pass: Escape key down becomes KeyPressed
+[13:19:36.464] [INFO]   translated key up: KeyReleased key=1 scan=4
+[13:19:36.464] [INFO]   pass: A key up becomes KeyReleased
+[13:19:36.464] [INFO]   translated click: MouseButtonPressed button=1 at 15,25
+[13:19:36.465] [INFO]   pass: left mouse down becomes MouseButtonPressed
+[13:19:36.465] [INFO]   translated release: MouseButtonReleased button=3 at 15,25
+[13:19:36.465] [INFO]   pass: right mouse up becomes MouseButtonReleased
+[13:19:36.465] [INFO]   translated scroll: MouseScrolled -1,-2
+[13:19:36.465] [INFO]   pass: flipped scroll is normalized to -1, -2
+[13:19:36.465] [INFO]   translated motion: MouseMoved 12.5,8
+[13:19:36.465] [INFO]   pass: mouse motion keeps 12.5, 8
+[13:19:36.465] [INFO] TEST sdl event translation passed (10 checks)
+[13:19:36.465] [INFO] TEST window event delivery started
+[13:19:36.601] [INFO]   pass: resize event was queued
+[13:19:36.602] [INFO]   pass: space key event was queued
+[13:19:36.602] [INFO]   pass: mouse click event was queued
+[13:19:36.602] [INFO]   pass: quit event was queued
+[13:19:36.633] [INFO]   window delivered: WindowResize 400x300
+[13:19:36.633] [INFO]   window delivered: KeyPressed key=41 scan=44 repeat=false
+[13:19:36.633] [INFO]   window delivered: MouseButtonPressed button=1 at 4,5
+[13:19:36.633] [INFO]   window delivered: AppQuit
+[13:19:36.633] [INFO]   window delivered: WindowFocusGained
+[13:19:36.633] [INFO]   pass: window callback received resize
+[13:19:36.633] [INFO]   pass: window callback received the space key
+[13:19:36.633] [INFO]   pass: window callback received the left click
+[13:19:36.633] [INFO]   pass: window callback received quit
+[13:19:36.633] [INFO]   pass: window size updated to 400x300
+[13:19:36.633] [INFO]   pass: window title updated
+[13:19:36.660] [INFO] TEST window event delivery passed (10 checks)
+[13:19:36.660] [INFO] TEST graphics context started
+[13:19:36.684] [INFO] OpenGL vendor: Apple
+[13:19:36.684] [INFO] OpenGL renderer: Apple M1
+[13:19:36.685] [INFO] OpenGL version: 4.1 Metal - 90.5
+[13:19:36.685] [INFO]   graphics vendor: Apple
+[13:19:36.685] [INFO]   graphics renderer: Apple M1
+[13:19:36.685] [INFO]   graphics version: 4.1 Metal - 90.5
+[13:19:36.685] [INFO]   pass: OpenGL version is at least 3.3
+[13:19:36.685] [INFO]   pass: OpenGL vendor is reported
+[13:19:36.685] [INFO]   pass: OpenGL renderer is reported
+[13:19:36.685] [INFO]   pass: OpenGL version string is reported
+[13:19:36.685] [INFO]   pass: VSync can be enabled
+[13:19:36.685] [INFO]   pass: VSync stays enabled
+[13:19:36.685] [INFO]   pass: VSync can be disabled
+[13:19:36.685] [INFO]   pass: VSync stays disabled
+[13:19:36.685] [INFO]   pass: VSync can be enabled again
+[13:19:36.685] [INFO]   pass: framebuffer is at least the requested window size
+[13:19:36.687] [INFO]   cleared pixel: 64, 128, 191, 255
+[13:19:36.687] [INFO]   pass: framebuffer pixel matches the clear color
+[13:19:36.687] [INFO]   pass: OpenGL context has a current window
+[13:19:36.693] [INFO]   pass: window resize was requested
+[13:19:36.697] [INFO]   pass: window resize completed
+[13:19:36.697] [INFO]   framebuffer after resize: 640x360
+[13:19:36.697] [INFO]   viewport after resize: 640x360
+[13:19:36.697] [INFO]   pass: resized framebuffer grew to the new size
+[13:19:36.697] [INFO]   pass: viewport matches the framebuffer after resize
+[13:19:36.740] [INFO] OpenGL vendor: Apple
+[13:19:36.740] [INFO] OpenGL renderer: Apple M1
+[13:19:36.740] [INFO] OpenGL version: 4.1 Metal - 90.5
+[13:19:36.744] [INFO] Renderer2D initialized
+[13:19:36.971] [INFO] Xora2D Engine initialized
+[13:19:37.028] [INFO]   pass: application frame loop exits cleanly
+[13:19:37.028] [INFO]   pass: application rendered at least two frames
+[13:19:37.028] [INFO]   pass: application viewport follows the framebuffer
+[13:19:37.028] [INFO]   application viewport: 1280x720
+[13:19:37.055] [INFO] Xora2D Engine shutdown
+[13:19:37.078] [INFO] TEST graphics context passed
+[13:19:37.078] [INFO] TEST buffer layout started
+[13:19:37.078] [INFO]   pass: layout stride is 40 bytes
+[13:19:37.078] [INFO]   pass: position offset is 0
+[13:19:37.078] [INFO]   pass: color offset is 12
+[13:19:37.078] [INFO]   pass: texcoord offset is 28
+[13:19:37.078] [INFO]   pass: texindex offset is 36
+[13:19:37.078] [INFO] TEST buffer layout finished
+[13:19:37.078] [INFO] TEST orthographic camera started
+[13:19:37.078] [INFO]   pass: view-projection keeps w at 1 for affine transforms
+[13:19:37.078] [INFO]   pass: camera zoom stored
+[13:19:37.078] [INFO]   pass: projection matrix stays valid after zoom
+[13:19:37.078] [INFO] TEST orthographic camera finished
+[13:19:37.078] [INFO] TEST shader and texture started
+[13:19:37.078] [INFO]   pass: invalid shader source throws
+[13:19:37.078] [INFO]   pass: invalid texture path throws
+[13:19:37.089] [INFO] OpenGL vendor: Apple
+[13:19:37.089] [INFO] OpenGL renderer: Apple M1
+[13:19:37.089] [INFO] OpenGL version: 4.1 Metal - 90.5
+[13:19:37.090] [INFO]   pass: texture loads with non-zero dimensions
+[13:19:37.090] [INFO]   pass: valid shader program id is non-zero
+[13:19:37.090] [INFO] TEST shader and texture finished
+[13:19:37.114] [INFO] TEST renderer2d batching started
+[13:19:37.123] [INFO] OpenGL vendor: Apple
+[13:19:37.123] [INFO] OpenGL renderer: Apple M1
+[13:19:37.123] [INFO] OpenGL version: 4.1 Metal - 90.5
+[13:19:37.126] [INFO] Renderer2D initialized
+[13:19:37.128] [INFO]   batch stats: drawCalls=2 quads=80 vertices=320 indices=480
+[13:19:37.128] [INFO]   pass: batching uses at most three draw calls for this scene
+[13:19:37.128] [INFO]   pass: quad count matches submitted sprites
+[13:19:37.128] [INFO]   pass: vertex count matches submitted sprites
+[13:19:37.128] [INFO]   pass: index count matches submitted sprites
+[13:19:37.128] [INFO] TEST renderer2d batching finished
+[13:19:37.153] [INFO] Renderer unit tests passed
+[13:19:37.153] [INFO] TEST entity and components started
+[13:19:37.155] [INFO]   pass: empty scene has zero entities
+[13:19:37.155] [INFO]   pass: created entity is valid
+[13:19:37.155] [INFO]   pass: entity name matches
+[13:19:37.155] [INFO]   pass: entity uuid is valid
+[13:19:37.155] [INFO]   pass: sprite component exists
+[13:19:37.155] [INFO]   pass: transform matrix changes after TRS
+[13:19:37.155] [INFO]   pass: entity copies share identity
+[13:19:37.155] [INFO]   pass: entity lookup by name works
+[13:19:37.155] [INFO]   pass: lookup by name returns same entity
+[13:19:37.155] [INFO]   pass: entity lookup by uuid works
+[13:19:37.155] [INFO]   pass: destroyed entity is invalid
+[13:19:37.155] [INFO]   pass: stale entity cannot access components
+[13:19:37.155] [INFO]   pass: scene keeps remaining entities
+[13:19:37.155] [INFO]   pass: component removal works
+[13:19:37.155] [INFO] TEST scene render integration started
+[13:19:37.155] [INFO]   pass: scene without camera does not pick an arbitrary camera
+[13:19:37.155] [INFO]   pass: primary camera resolves
+[13:19:37.168] [INFO] OpenGL vendor: Apple
+[13:19:37.168] [INFO] OpenGL renderer: Apple M1
+[13:19:37.168] [INFO] OpenGL version: 4.1 Metal - 90.5
+[13:19:37.171] [INFO] Renderer2D initialized
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 0 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+[13:19:37.171] [INFO]   scene stats: drawCalls=2 quads=2
+[13:19:37.172] [INFO]   pass: scene uses separate color and textured batches
+[13:19:37.172] [INFO]   pass: scene renders both sprite entities
+[13:19:37.172] [INFO]   pass: camera uses entity transform position
+[13:19:37.195] [INFO] Scene tests passed
+[13:19:37.195] [INFO] TEST scene serialization started
+[13:19:37.196] [INFO]   pass: save empty scene succeeds
+[13:19:37.197] [INFO]   pass: load empty scene succeeds
+[13:19:37.197] [INFO]   pass: empty scene stays empty
+[13:19:37.197] [INFO]   pass: scene name round-trips
+[13:19:37.197] [INFO]   pass: save one entity
+[13:19:37.198] [INFO]   pass: load one entity
+[13:19:37.198] [INFO]   pass: one entity count preserved
+[13:19:37.198] [INFO]   pass: UUID preserved on reload
+[13:19:37.198] [INFO]   pass: tag preserved
+[13:19:37.198] [INFO]   pass: transform translation X preserved
+[13:19:37.198] [INFO]   pass: transform translation Y preserved
+[13:19:37.199] [INFO]   pass: save multi-component scene
+[13:19:37.201] [INFO]   pass: load multi-component scene
+[13:19:37.201] [INFO]   pass: multiple entities preserved
+[13:19:37.201] [INFO]   pass: sprite color preserved
+[13:19:37.201] [INFO]   pass: sprite visibility preserved
+[13:19:37.201] [INFO]   pass: camera zoom preserved
+[13:19:37.201] [INFO]   pass: rigid body settings preserved
+[13:19:37.201] [INFO]   pass: box collider preserved
+[13:19:37.201] [INFO]   pass: circle collider present after load
+[13:19:37.201] [INFO]   pass: circle sensor flag preserved
+[13:19:37.201] [INFO]   pass: physics body created after load
+[13:19:37.202] [INFO]   pass: reject duplicate UUIDs
+[13:19:37.202] [INFO]   pass: reject malformed YAML
+[13:19:37.203] [INFO]   pass: failed parse leaves scene unchanged
+[13:19:37.203] [INFO]   pass: reject missing required TransformComponent
+[13:19:37.203] [INFO]   pass: missing field leaves scene unchanged
+[13:19:37.203] [INFO]   pass: reject invalid rigid body enum
+[13:19:37.204] [INFO]   pass: reject invalid camera zoom
+[13:19:37.204] [INFO]   pass: reject missing texture asset
+[13:19:37.204] [INFO]   pass: missing texture leaves scene unchanged
+[13:19:37.204] [INFO]   pass: setup cycle entity count
+[13:19:37.205] [INFO]   pass: repeated save succeeds
+[13:19:37.206] [INFO]   pass: repeated load succeeds
+[13:19:37.206] [INFO]   pass: repeated load preserves entity count
+[13:19:37.207] [INFO]   pass: repeated save succeeds
+[13:19:37.208] [INFO]   pass: repeated load succeeds
+[13:19:37.208] [INFO]   pass: repeated load preserves entity count
+[13:19:37.209] [INFO]   pass: repeated save succeeds
+[13:19:37.210] [INFO]   pass: repeated load succeeds
+[13:19:37.210] [INFO]   pass: repeated load preserves entity count
+[13:19:37.211] [INFO]   pass: physics body exists before scene replace load
+[13:19:37.211] [INFO]   pass: save scene with physics
+[13:19:37.212] [INFO]   pass: load replaces scene in place
+[13:19:37.212] [INFO]   pass: entity survives in-place load
+[13:19:37.212] [INFO]   pass: physics body recreated after load
+[13:19:37.212] [INFO]   pass: loaded UUID stays registered
+[13:19:37.212] [INFO]   pass: newly generated UUID differs from a loaded UUID
+[13:19:37.212] [INFO]   pass: generated UUID is tracked in registry
+[13:19:37.213] [INFO] Serialization tests passed
+[13:19:37.213] [INFO] TEST asset system started
+[13:19:37.213] [INFO]   pass: stable asset handle from relative path
+[13:19:37.213] [INFO]   pass: asset handle round-trips through string
+[13:19:37.213] [INFO]   pass: register asset
+[13:19:37.213] [INFO]   pass: find asset by handle
+[13:19:37.213] [INFO]   pass: find asset by relative path
+[13:19:37.213] [INFO]   pass: reject duplicate handle
+[13:19:37.213] [INFO]   pass: remove asset
+[13:19:37.213] [INFO]   pass: asset removed
+[13:19:37.213] [INFO]   pass: re-register asset
+[13:19:37.213] [INFO]   pass: enumerate registered assets
+[13:19:37.213] [INFO]   pass: save asset registry
+[13:19:37.213] [INFO]   pass: load asset registry
+[13:19:37.213] [INFO]   pass: registry preserves handle across reload
+[13:19:37.214] [INFO]   pass: reject malformed registry
+[13:19:37.214] [INFO]   pass: failed registry load leaves in-memory registry unchanged
+[13:19:37.214] [INFO]   pass: reject duplicate handle in file
+[13:19:37.214] [INFO]   pass: reject path traversal
+[13:19:37.214] [INFO]   pass: accept safe relative path
+[13:19:37.214] [INFO]   pass: import valid texture
+[13:19:37.214] [INFO]   pass: re-import returns stable handle
+[13:19:37.215] [INFO]   pass: save scene with texture asset handle
+[13:19:37.215] [INFO]   pass: load scene with asset handle
+[13:19:37.215] [INFO]   pass: scene preserves texture asset handle
+[13:19:37.215] [INFO] Asset tests passed
+[13:19:37.215] [INFO] TEST input system started
+[13:19:37.215] [INFO]   pass: key starts up
+[13:19:37.215] [INFO]   pass: key starts not down
+[13:19:37.215] [INFO]   pass: press sets pressed
+[13:19:37.215] [INFO]   pass: press sets down
+[13:19:37.215] [INFO]   pass: pressed clears next frame
+[13:19:37.215] [INFO]   pass: held remains down
+[13:19:37.215] [INFO]   pass: repeat does not retrigger pressed
+[13:19:37.215] [INFO]   pass: release sets released
+[13:19:37.215] [INFO]   pass: release clears down
+[13:19:37.215] [INFO]   pass: released clears next frame
+[13:19:37.215] [INFO]   pass: multiple keys independent
+[13:19:37.215] [INFO]   pass: press and release same frame
+[13:19:37.215] [INFO]   pass: not down after same-frame tap
+[13:19:37.215] [INFO]   pass: invalid key handled safely
+[13:19:37.215] [INFO]   pass: clear state releases keys
+[13:19:37.215] [INFO]   pass: mouse press
+[13:19:37.215] [INFO]   pass: mouse down
+[13:19:37.215] [INFO]   pass: mouse position
+[13:19:37.215] [INFO]   pass: mouse delta
+[13:19:37.216] [INFO]   pass: mouse delta resets each frame
+[13:19:37.216] [INFO]   pass: scroll delta
+[13:19:37.216] [INFO]   pass: scroll delta resets
+[13:19:37.216] [INFO]   pass: focus loss clears key down
+[13:19:37.216] [INFO]   pass: focus loss reports release
+[13:19:37.216] [INFO]   pass: focus loss clears mouse
+[13:19:37.216] [INFO]   pass: bind key action
+[13:19:37.216] [INFO]   pass: second bind same action
+[13:19:37.216] [INFO]   pass: bind mouse action
+[13:19:37.216] [INFO]   pass: action pressed via alternate binding
+[13:19:37.216] [INFO]   pass: action down
+[13:19:37.216] [INFO]   pass: unknown action safe
+[13:19:37.216] [INFO]   pass: remove binding
+[13:19:37.216] [INFO]   pass: clear action
+[13:19:37.216] [INFO]   pass: save mapping
+[13:19:37.216] [INFO]   pass: load mapping
+[13:19:37.216] [INFO]   pass: multiple bindings preserved
+[13:19:37.216] [INFO]   pass: reject invalid key
+[13:19:37.216] [INFO]   pass: failed load leaves mapping unchanged
+[13:19:37.216] [INFO]   pass: SDL key down translates
+[13:19:37.216] [INFO]   pass: SDL escape updates input
+[13:19:37.216] [INFO]   pass: shutdown clears input
+[13:19:37.216] [INFO] TEST input system finished (0 failures)
+[13:19:37.216] [INFO] TEST audio system started
+[13:19:37.216] [INFO]   pass: null backend initializes
+[13:19:37.216] [INFO]   pass: repeated initialize safe
+[13:19:37.217] [INFO]   pass: load valid wav
+[13:19:37.218] [INFO]   pass: duration metadata available
+[13:19:37.218] [INFO]   pass: missing file rejected
+[13:19:37.218] [INFO]   pass: playback starts
+[13:19:37.218] [INFO]   pass: playback active
+[13:19:37.218] [INFO]   pass: playback pauses
+[13:19:37.218] [INFO]   pass: playback resumes
+[13:19:37.218] [INFO]   pass: multiple instances coexist
+[13:19:37.218] [INFO]   pass: master volume stored
+[13:19:37.218] [INFO]   pass: audio source wrapper plays
+[13:19:37.218] [INFO]   pass: stop all clears playback
+[13:19:37.218] [INFO]   pass: register audio asset
+[13:19:37.218] [INFO]   pass: load audio through asset manager
+[13:19:37.218] [INFO]   pass: audio cache reuse
+[13:19:37.218] [INFO]   pass: serialize audio components
+[13:19:37.219] [INFO]   pass: deserialize audio components
+[13:19:37.219] [INFO]   pass: audio source restored
+[13:19:37.219] [INFO]   pass: init after shutdown
+[13:19:37.219] [INFO] TEST audio system finished (0 failures)
+[13:19:37.219] [INFO] TEST physics world basics started
+[13:19:37.219] [INFO]   pass: gravity configuration updates
+[13:19:37.219] [INFO]   pass: paused simulation performs no substeps
+[13:19:37.219] [INFO]   pass: enabled simulation runs fixed substeps
+[13:19:37.221] [INFO]   pass: dynamic body falls under gravity
+[13:19:37.221] [INFO]   pass: dynamic body lands near the static ground
+[13:19:37.221] [INFO]   pass: static ground transform stays unchanged
+[13:19:37.221] [INFO]   pass: kinematic transform drives physics
+[13:19:37.221] [INFO]   pass: scene creates a runtime physics body
+[13:19:37.221] [INFO]   pass: linear impulse changes velocity
+[13:19:37.221] [INFO]   pass: velocity can be cleared
+[13:19:37.221] [INFO]   pass: compound collider entity gets one physics body
+[13:19:37.221] [INFO]   pass: body exists before destruction
+[13:19:37.221] [INFO]   pass: entity is invalid after destruction
+[13:19:37.221] [INFO]   pass: physics body removed with entity
+[13:19:37.222] [INFO]   pass: collision event uses valid UUIDs
+[13:19:37.222] [INFO]   pass: collision begin event reported
+[13:19:37.222] [INFO]   pass: sensor begin event reported
+[13:19:37.223] [INFO] TEST collision event lifecycle started
+[13:19:37.224] [INFO]   pass: resting contact emits exactly one collision begin
+[13:19:37.224] [INFO]   pass: resting contact does not emit collision end
+[13:19:37.224] [INFO]   pass: separating bodies emit one collision end
+[13:19:37.225] [INFO]   pass: re-entering contact emits a second collision begin
+[13:19:37.226] [INFO]   pass: sensor overlap emits exactly one sensor begin
+[13:19:37.227] [INFO]   pass: leaving sensor emits one sensor end
+[13:19:37.228] [INFO]   pass: multiple fixtures on one body produce one entity-level collision begin
+[13:19:37.229] [INFO]   pass: destroyed entity stays invalid after physics step
+[13:19:37.229] [INFO]   pass: physics body is gone after entity destroy
+[13:19:37.232] [INFO]   pass: sustained contact produces one collision begin
+[13:19:37.232] [INFO]   pass: sustained contact produces no collision end
+[13:19:37.232] [INFO]   pass: no additional contact events while bodies remain at rest
+[13:19:37.234] [INFO]   pass: dual fixtures still emit one entity begin
+[13:19:37.234] [INFO]   pass: dual fixtures resting together emit no entity end
+[13:19:37.234] [INFO]   pass: fixture-level churn does not surface as duplicate entity events while resting
+[13:19:37.236] [INFO]   pass: bouncy contact may legitimately begin again after separating
+[13:19:37.236] [INFO]   pass: bouncy contact emits end when bodies separate mid-bounce
+[13:19:37.238] [INFO]   pass: compound settles with one entity-level begin
+[13:19:37.238] [INFO]   pass: incremental lift does not emit entity end while a fixture remains touching
+[13:19:37.238] [INFO]   pass: full separation emits exactly one entity end
+[13:19:37.238] [INFO]   pass: PrepareForShutdown disables contact gameplay dispatch
+[13:19:37.238] [INFO]   pass: physics updates after PrepareForShutdown do not dispatch gameplay collision events
+[13:19:37.239] [INFO]   pass: scene shutdown does not dispatch additional collision events
+[13:19:37.240] [INFO]   pass: scene destruction cleans up physics world
+[13:19:37.240] [INFO] Physics tests passed
+[13:19:37.240] [INFO] TEST python scripting started
+[13:19:37.240] [INFO]   pass: scripting disabled at compile time
+[13:19:37.240] [INFO]   pass: scripting disabled build reports unavailable init
+[13:19:37.240] [INFO] TEST python scripting passed
+[13:19:37.240] [INFO] All Xora2D tests passed
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"Xora2D-Tests" end time: Nov 17 13:19 IST
+"Xora2D-Tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 17 13:19 IST

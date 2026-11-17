@@ -2,6 +2,7 @@
 
 #include "Xora2D/Core/Time.h"
 #include "Xora2D/Audio/AudioEngine.h"
+#include "Xora2D/Scripting/PythonScriptEngine.h"
 #include "Xora2D/Input/InputManager.h"
 #include "Xora2D/Platform/Window.h"
 #include "Xora2D/Renderer/GraphicsDevice.h"
@@ -54,6 +55,9 @@ protected:
     AudioEngine& GetAudioEngine() { return m_audioEngine; }
     const AudioEngine& GetAudioEngine() const { return m_audioEngine; }
 
+    PythonScriptEngine& GetPythonScriptEngine() { return m_scriptEngine; }
+    const PythonScriptEngine& GetPythonScriptEngine() const { return m_scriptEngine; }
+
     // Called for every engine event after the application has recorded
     // close and quit requests. Overrides can inspect the event without
     // replacing shutdown behavior.
@@ -73,6 +77,7 @@ private:
     std::unique_ptr<Renderer2D> m_renderer2D;
     InputManager m_input;
     AudioEngine m_audioEngine;
+    PythonScriptEngine m_scriptEngine;
     Time m_time;
 };
 

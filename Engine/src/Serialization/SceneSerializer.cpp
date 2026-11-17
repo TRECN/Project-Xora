@@ -9,6 +9,7 @@
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Renderer/Texture2D.h"
 #include "Xora2D/Audio/AudioComponents.h"
+#include "Xora2D/Scripting/PythonScriptComponent.h"
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
@@ -52,6 +53,7 @@ struct ParsedEntity {
     std::optional<CircleCollider2DComponent> CircleCollider;
     std::optional<AudioSourceComponent> AudioSource;
     std::optional<AudioListenerComponent> AudioListener;
+    std::optional<PythonScriptComponent> PythonScript;
 };
 
 struct ParsedScene {
@@ -457,6 +459,55 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.AudioListener = listener;
     }
 
+    if (const YAML::Node scriptNode = node["PythonScriptComponent"]) {
+        PythonScriptComponent script{};
+        if (scriptNode["ScriptAssetHandle"]) {
+            const std::optional<AssetHandle> handle =
+                AssetHandle::FromString(scriptNode["ScriptAssetHandle"].as<std::string>());
+            if (!handle.has_value()) {
+                error = PathContext(filepath) + ": invalid PythonScriptComponent.ScriptAssetHandle";
+                return false;
+            }
+            script.ScriptAsset = *handle;
+        }
+        if (scriptNode["ClassName"]) {
+            script.ClassName = scriptNode["ClassName"].as<std::string>();
+        }
+        if (scriptNode["Enabled"]) {
+            script.Enabled = scriptNode["Enabled"].as<bool>();
+        }
+        if (const YAML::Node propsNode = scriptNode["Properties"]) {
+            if (!propsNode.IsSequence()) {
+                error = PathContext(filepath) + ": PythonScriptComponent.Properties must be a sequence";
+                return false;
+            }
+            for (const YAML::Node& propertyNode : propsNode) {
+                if (!propertyNode["Name"] || !propertyNode["Type"]) {
+                    error = PathContext(filepath) + ": script property requires Name and Type";
+                    return false;
+                }
+                ScriptProperty property{};
+                property.Name = propertyNode["Name"].as<std::string>();
+                const std::string type = propertyNode["Type"].as<std::string>();
+                if (type == "Number") {
+                    property.Type = ScriptPropertyType::Number;
+                    property.NumberValue = propertyNode["Value"] ? propertyNode["Value"].as<double>() : 0.0;
+                } else if (type == "Boolean") {
+                    property.Type = ScriptPropertyType::Boolean;
+                    property.BooleanValue = propertyNode["Value"] ? propertyNode["Value"].as<bool>() : false;
+                } else if (type == "String") {
+                    property.Type = ScriptPropertyType::String;
+                    property.StringValue = propertyNode["Value"] ? propertyNode["Value"].as<std::string>() : "";
+                } else {
+                    error = PathContext(filepath) + ": invalid script property Type '" + type + "'";
+                    return false;
+                }
+                script.Properties.push_back(std::move(property));
+            }
+        }
+        output.PythonScript = script;
+    }
+
     return true;
 }
 
@@ -565,6 +616,9 @@ bool ApplyParsedScene(Scene& scene, const ParsedScene& document, AssetManager* a
         if (parsed.AudioSource.has_value()) {
             entity.AddComponent<AudioSourceComponent>() = *parsed.AudioSource;
         }
+        if (parsed.PythonScript.has_value()) {
+            entity.AddComponent<PythonScriptComponent>() = *parsed.PythonScript;
+        }
         if (parsed.AudioListener.has_value()) {
             entity.AddComponent<AudioListenerComponent>() = *parsed.AudioListener;
         }
@@ -671,6 +725,42 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
         const AudioListenerComponent& listener = entity.GetComponent<AudioListenerComponent>();
         emitter << YAML::Key << "AudioListenerComponent" << YAML::Value << YAML::BeginMap;
         emitter << YAML::Key << "Active" << YAML::Value << listener.Active;
+        emitter << YAML::EndMap;
+    }
+
+    if (entity.HasComponent<PythonScriptComponent>()) {
+        const PythonScriptComponent& script = entity.GetComponent<PythonScriptComponent>();
+        emitter << YAML::Key << "PythonScriptComponent" << YAML::Value << YAML::BeginMap;
+        if (script.ScriptAsset.IsValid()) {
+            emitter << YAML::Key << "ScriptAssetHandle" << YAML::Value << script.ScriptAsset.ToString();
+        }
+        if (!script.ClassName.empty()) {
+            emitter << YAML::Key << "ClassName" << YAML::Value << script.ClassName;
+        }
+        emitter << YAML::Key << "Enabled" << YAML::Value << script.Enabled;
+        if (!script.Properties.empty()) {
+            emitter << YAML::Key << "Properties" << YAML::Value << YAML::BeginSeq;
+            for (const ScriptProperty& property : script.Properties) {
+                emitter << YAML::BeginMap;
+                emitter << YAML::Key << "Name" << YAML::Value << property.Name;
+                switch (property.Type) {
+                case ScriptPropertyType::Number:
+                    emitter << YAML::Key << "Type" << YAML::Value << "Number";
+                    emitter << YAML::Key << "Value" << YAML::Value << property.NumberValue;
+                    break;
+                case ScriptPropertyType::Boolean:
+                    emitter << YAML::Key << "Type" << YAML::Value << "Boolean";
+                    emitter << YAML::Key << "Value" << YAML::Value << property.BooleanValue;
+                    break;
+                case ScriptPropertyType::String:
+                    emitter << YAML::Key << "Type" << YAML::Value << "String";
+                    emitter << YAML::Key << "Value" << YAML::Value << property.StringValue;
+                    break;
+                }
+                emitter << YAML::EndMap;
+            }
+            emitter << YAML::EndSeq;
+        }
         emitter << YAML::EndMap;
     }
 

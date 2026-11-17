@@ -73,4 +73,15 @@ bool IsSupportedAudioExtension(const std::filesystem::path& path) {
     return lowered == ".wav";
 }
 
+bool IsSupportedPythonScriptExtension(const std::filesystem::path& path) {
+    const std::string extension = path.extension().string();
+    if (extension.empty()) {
+        return false;
+    }
+    std::string lowered = extension;
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    return lowered == ".py";
+}
+
 } // namespace Xora2D

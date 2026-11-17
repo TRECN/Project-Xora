@@ -38,6 +38,8 @@ add_library(Xora2D STATIC
     src/Physics/PhysicsUtils.cpp
     src/Physics/PhysicsWorld2D.cpp
     src/Serialization/SceneSerializer.cpp
+    src/Scripting/PythonScriptAsset.cpp
+    src/Scripting/ScenePythonScriptSystem.cpp
 )
 
 add_library(Xora2D::Xora2D ALIAS Xora2D)
@@ -53,6 +55,22 @@ target_include_directories(Xora2D
 target_compile_features(Xora2D PUBLIC cxx_std_20)
 
 target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources")
+
+if(XORA2D_ENABLE_SCRIPTING)
+    target_sources(Xora2D PRIVATE
+        src/Scripting/PythonScriptEngine.cpp
+        src/Scripting/PythonBindings.cpp
+    )
+    target_link_libraries(Xora2D PRIVATE pybind11::pybind11 pybind11::embed Python3::Python)
+    if(APPLE)
+        set_target_properties(Xora2D PROPERTIES BUILD_WITH_INSTALL_RPATH ON)
+        set_target_properties(Xora2D PROPERTIES INSTALL_RPATH "@loader_path;${Python3_LIBRARY_DIRS}")
+    endif()
+    target_compile_definitions(Xora2D PUBLIC XORA2D_SCRIPTING_ENABLED=1)
+else()
+    target_sources(Xora2D PRIVATE src/Scripting/PythonScriptEngineDisabled.cpp)
+    target_compile_definitions(Xora2D PUBLIC XORA2D_SCRIPTING_ENABLED=0)
+endif()
 
 find_package(SDL3 CONFIG REQUIRED)
 target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d yaml-cpp::yaml-cpp
