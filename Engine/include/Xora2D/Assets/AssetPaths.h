@@ -17,5 +17,6 @@ std::filesystem::path ResolveAssetPath(const std::string& relativePath);
 std::optional<std::string> NormalizeAssetRelativePath(const std::string& path);
 
 bool IsSupportedTextureExtension(const std::filesystem::path& path);
+bool IsSupportedAudioExtension(const std::filesystem::path& path);
 
 } // namespace Xora2D

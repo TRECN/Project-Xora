@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Xora2D/Audio/AudioTypes.h"
 #include "Xora2D/Core/UUID.h"
 #include "Xora2D/Scene/Entity.h"
 
@@ -15,7 +16,9 @@
 namespace Xora2D {
 
 class AssetManager;
+class AudioEngine;
 class PhysicsWorld2D;
+class SceneAudioSystem;
 struct PhysicsWorld2DDetail;
 class Renderer2D;
 class SceneSerializer;
@@ -62,6 +65,13 @@ public:
     void SetPhysicsEventCallback(std::function<void(const PhysicsCollisionEvent&)> callback);
 
     void SetAssetManager(AssetManager* assetManager);
+    void SetAudioEngine(AudioEngine* audioEngine);
+    void StopAudioInGroup(AudioGroup group);
+    void StopLoopingAudio();
+    void StopEntityAudio(const Entity& entity);
+    void PauseEntityAudio(const Entity& entity);
+    void ResumeEntityAudio(const Entity& entity);
+    [[nodiscard]] bool IsEntityAudioPlaying(const Entity& entity) const;
     void ResolveSpriteTextures();
 
     const std::string& GetSceneName() const { return m_sceneName; }
@@ -73,6 +83,7 @@ private:
     friend class PhysicsWorld2D;
     friend struct PhysicsWorld2DDetail;
     friend class SceneSerializer;
+    friend class SceneAudioSystem;
 
     template <typename Component, typename... Args>
     Component& EmplaceComponent(std::uint32_t handle, Args&&... args);
@@ -105,6 +116,7 @@ private:
     std::unique_ptr<PhysicsWorld2D> m_physics;
     std::string m_sceneName = "Untitled";
     AssetManager* m_assetManager = nullptr;
+    std::unique_ptr<SceneAudioSystem> m_audioSystem;
 };
 
 } // namespace Xora2D

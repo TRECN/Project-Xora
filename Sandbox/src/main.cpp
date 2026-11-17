@@ -1,7 +1,11 @@
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Assets/AssetRegistrySerializer.h"
+#include "Xora2D/Audio/AudioComponents.h"
+#include "Xora2D/Audio/AudioEngine.h"
+#include "Xora2D/Audio/AudioTypes.h"
 #include "Xora2D/Core/Application.h"
+#include "Xora2D/Input/KeyCodes.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Core/Paths.h"
 #include "Xora2D/Events/Event.h"
@@ -38,6 +42,16 @@ constexpr float kPlayerSpeedMetersPerSecond = 4.5f;
 constexpr float kJumpImpulseMetersPerSecond = 7.0f;
 constexpr float kCameraZoomStep = 0.08f;
 
+bool IsDemoDigitPressed(int digit) {
+    if (digit < 1 || digit > 9) {
+        return false;
+    }
+    const auto digitKey = static_cast<Xora2D::Key>(static_cast<std::uint16_t>(Xora2D::Key::Digit1) + (digit - 1));
+    const auto keypadKey =
+        static_cast<Xora2D::Key>(static_cast<std::uint16_t>(Xora2D::Key::Keypad1) + (digit - 1));
+    return Xora2D::Input::IsKeyPressed(digitKey) || Xora2D::Input::IsKeyPressed(keypadKey);
+}
+
 class SandboxApp : public Xora2D::Application {
 public:
     SandboxApp() {
@@ -56,6 +70,7 @@ public:
 
         InitializeAssetSystem();
         m_scene->SetAssetManager(&m_assetManager);
+        m_scene->SetAudioEngine(&GetAudioEngine());
 
         m_scene->SetPhysicsEventCallback([](const Xora2D::PhysicsCollisionEvent& event) {
             const char* kind = event.Kind == Xora2D::PhysicsCollisionKind::Sensor ? "Sensor" : "Collision";
@@ -65,6 +80,7 @@ public:
 
         LoadInputMapping();
         BuildScene();
+        InitializeAudioDemo();
         m_scene->SetSceneName("SandboxPhysicsDemo");
         DemonstrateSceneSerialization();
         XORA_LOG_INFO("Physics sandbox: {} entities", m_scene->GetEntityCount());
@@ -84,6 +100,7 @@ protected:
         // Step physics first so SyncSceneBodies creates bodies before gameplay applies forces.
         m_scene->OnUpdate(delta);
         UpdateInputGameplay(delta);
+        UpdateAudioDemo();
         UpdateCamera(delta);
         m_logCooldown -= delta;
     }
@@ -239,6 +256,7 @@ private:
             auto& playerSprite = m_playerEntity.GetComponent<Xora2D::SpriteRendererComponent>();
             playerSprite.Color = {0.20f, 0.85f, 0.55f, 1.0f};
         }
+        m_ecsMusicEntity = m_scene->FindEntityByName("EcsMusicEmitter");
         XORA_LOG_INFO("Active scene after reload: {} entities, camera UUID match: {}", m_scene->GetEntityCount(),
                       m_cameraEntity.GetUUID() == cameraUuid);
     }
@@ -299,6 +317,105 @@ private:
         sprite.Color = {0.92f, 0.40f + restitution * 0.3f, 0.28f, 1.0f};
         sprite.Size = {radius * 2.0f, radius * 2.0f};
         entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void InitializeAudioDemo() {
+        const Xora2D::AssetResult beepReg = m_assetManager.RegisterAudioAtRelativePath("Audio/sfx_beep.wav", "SfxBeep");
+        const Xora2D::AssetResult clickReg =
+            m_assetManager.RegisterAudioAtRelativePath("Audio/sfx_click.wav", "SfxClick");
+        const Xora2D::AssetResult musicReg =
+            m_assetManager.RegisterAudioAtRelativePath("Audio/music_loop.wav", "MusicLoop");
+        if (beepReg.Success) {
+            m_sfxBeepHandle = beepReg.Handle;
+        }
+        if (clickReg.Success) {
+            m_sfxClickHandle = clickReg.Handle;
+        }
+        if (musicReg.Success) {
+            m_musicHandle = musicReg.Handle;
+        }
+
+        if (m_sfxBeepHandle.IsValid()) {
+            (void)m_assetManager.LoadAudio(m_sfxBeepHandle);
+        }
+        if (m_sfxClickHandle.IsValid()) {
+            (void)m_assetManager.LoadAudio(m_sfxClickHandle);
+        }
+        if (m_musicHandle.IsValid()) {
+            (void)m_assetManager.LoadAudio(m_musicHandle);
+        }
+
+        m_musicSource = GetAudioEngine().CreateSource();
+        m_sfxSource = GetAudioEngine().CreateSource();
+
+        if (m_cameraEntity.IsValid()) {
+            m_cameraEntity.AddComponent<Xora2D::AudioListenerComponent>();
+        }
+
+        m_ecsMusicEntity = m_scene->CreateEntity("EcsMusicEmitter");
+        auto& ecsMusic = m_ecsMusicEntity.AddComponent<Xora2D::AudioSourceComponent>();
+        ecsMusic.ClipAsset = m_musicHandle;
+        ecsMusic.Loop = true;
+        ecsMusic.PlayOnStart = false;
+        ecsMusic.Group = Xora2D::AudioGroup::Music;
+        ecsMusic.Volume = 0.35f;
+
+        XORA_LOG_INFO("Audio demo: 1=beep, 2=music play/pause, 3=stop loops, 4=toggle beep loop");
+    }
+
+    void StopContinuousDemoAudio() {
+        m_musicSource.Stop();
+        m_sfxSource.Stop();
+        m_scene->StopLoopingAudio();
+
+        m_ecsMusicEntity = m_scene->FindEntityByName("EcsMusicEmitter");
+        if (m_ecsMusicEntity.IsValid()) {
+            auto& comp = m_ecsMusicEntity.GetComponent<Xora2D::AudioSourceComponent>();
+            comp.Loop = false;
+            comp.PlayOnStart = false;
+        }
+        XORA_LOG_INFO("Stopped looping audio (key 3)");
+    }
+
+    void UpdateAudioDemo() {
+        auto& engine = GetAudioEngine();
+        if (!engine.IsInitialized()) {
+            return;
+        }
+
+        if (IsDemoDigitPressed(1)) {
+            if (auto clip = m_assetManager.GetLoadedAudio(m_sfxBeepHandle)) {
+                m_sfxSource.Play(clip, Xora2D::AudioGroup::SoundEffects, 0.9f, 1.0f, m_sfxLooping);
+            }
+        }
+        if (IsDemoDigitPressed(2)) {
+            if (auto clip = m_assetManager.GetLoadedAudio(m_musicHandle)) {
+                if (!m_musicSource.IsValid() || !m_musicSource.IsPlaying() || m_musicSource.IsPaused()) {
+                    m_musicSource.Play(clip, Xora2D::AudioGroup::Music, 0.5f, 1.0f, true);
+                } else {
+                    m_musicSource.Pause();
+                }
+            }
+        }
+        if (IsDemoDigitPressed(3)) {
+            StopContinuousDemoAudio();
+        }
+        if (IsDemoDigitPressed(4)) {
+            m_sfxLooping = !m_sfxLooping;
+            XORA_LOG_INFO("SFX looping {}", m_sfxLooping ? "enabled" : "disabled");
+        }
+        if (Xora2D::Input::IsKeyPressed(Xora2D::Key::PageUp)) {
+            engine.SetMasterVolume(engine.GetMasterVolume() + 0.05f);
+        }
+        if (Xora2D::Input::IsKeyPressed(Xora2D::Key::PageDown)) {
+            engine.SetMasterVolume(engine.GetMasterVolume() - 0.05f);
+        }
+        if (Xora2D::Input::IsKeyPressed(Xora2D::Key::Home)) {
+            engine.SetMusicVolume(engine.GetMusicVolume() + 0.05f);
+        }
+        if (Xora2D::Input::IsKeyPressed(Xora2D::Key::End)) {
+            engine.SetSoundEffectsVolume(engine.GetSoundEffectsVolume() - 0.05f);
+        }
     }
 
     void LoadInputMapping() {
@@ -384,7 +501,14 @@ private:
     std::shared_ptr<Xora2D::Scene> m_scene;
     Xora2D::Entity m_cameraEntity;
     Xora2D::Entity m_playerEntity;
+    Xora2D::Entity m_ecsMusicEntity;
     Xora2D::InputMapping m_inputMapping;
+    Xora2D::AudioSource m_musicSource;
+    Xora2D::AudioSource m_sfxSource;
+    Xora2D::AssetHandle m_sfxBeepHandle;
+    Xora2D::AssetHandle m_sfxClickHandle;
+    Xora2D::AssetHandle m_musicHandle;
+    bool m_sfxLooping = false;
     float m_logCooldown = 0.0f;
 };
 

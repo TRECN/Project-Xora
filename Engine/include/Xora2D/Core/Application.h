@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Xora2D/Core/Time.h"
+#include "Xora2D/Audio/AudioEngine.h"
 #include "Xora2D/Input/InputManager.h"
 #include "Xora2D/Platform/Window.h"
 #include "Xora2D/Renderer/GraphicsDevice.h"
@@ -50,6 +51,9 @@ protected:
     InputManager& GetInputManager() { return m_input; }
     const InputManager& GetInputManager() const { return m_input; }
 
+    AudioEngine& GetAudioEngine() { return m_audioEngine; }
+    const AudioEngine& GetAudioEngine() const { return m_audioEngine; }
+
     // Called for every engine event after the application has recorded
     // close and quit requests. Overrides can inspect the event without
     // replacing shutdown behavior.
@@ -68,6 +72,7 @@ private:
     std::unique_ptr<RendererAPI> m_renderer;
     std::unique_ptr<Renderer2D> m_renderer2D;
     InputManager m_input;
+    AudioEngine m_audioEngine;
     Time m_time;
 };
 

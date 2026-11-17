@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Scene/Components.h"
 
@@ -25,6 +26,8 @@ XORA_ENTITY_EXTERN_ACCESS(TagComponent)
 XORA_ENTITY_EXTERN_ADDABLE(RigidBody2DComponent)
 XORA_ENTITY_EXTERN_ADDABLE(BoxCollider2DComponent)
 XORA_ENTITY_EXTERN_ADDABLE(CircleCollider2DComponent)
+XORA_ENTITY_EXTERN_ADDABLE(AudioSourceComponent)
+XORA_ENTITY_EXTERN_ADDABLE(AudioListenerComponent)
 
 #undef XORA_ENTITY_EXTERN_ADDABLE
 #undef XORA_ENTITY_EXTERN_ACCESS

@@ -3,6 +3,7 @@
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Core/Paths.h"
+#include "Xora2D/Audio/AudioClip.h"
 #include "Xora2D/Renderer/Texture2D.h"
 
 #include <filesystem>
@@ -127,8 +128,59 @@ AssetResult AssetManager::EnsureLegacyTexturePath(const std::string& legacyResou
     return RegisterTextureAtRelativePath(assetRelative, legacyAbsolute.stem().string());
 }
 
+AssetResult AssetManager::RegisterAudioAtRelativePath(const std::string& normalizedRelativePath,
+                                                      const std::string& displayName) {
+    AssetResult result{};
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(normalizedRelativePath);
+    if (!normalized.has_value()) {
+        result.Message = "Invalid relative asset path";
+        return result;
+    }
+
+    if (const AssetMetadata* existing = m_registry.FindByRelativePath(*normalized)) {
+        result.Success = true;
+        result.Handle = existing->Handle;
+        result.Message = "Asset already registered";
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(*normalized);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Asset file does not exist: " + absolute.string();
+        return result;
+    }
+    if (!IsSupportedAudioExtension(absolute)) {
+        result.Message = "Unsupported audio file format";
+        return result;
+    }
+
+    AssetMetadata metadata{};
+    metadata.Handle = AssetHandle::StableFromRelativePath(*normalized);
+    metadata.Type = AssetType::Audio;
+    metadata.Name = displayName.empty() ? absolute.stem().string() : displayName;
+    metadata.RelativePath = *normalized;
+    metadata.Available = true;
+
+    if (m_registry.Contains(metadata.Handle)) {
+        result.Message = "Duplicate asset handle for path";
+        return result;
+    }
+    if (!m_registry.RegisterAsset(metadata)) {
+        result.Message = "Failed to register asset metadata";
+        return result;
+    }
+
+    result.Success = true;
+    result.Handle = metadata.Handle;
+    return result;
+}
+
 AssetResult AssetManager::LoadTexture(AssetHandle handle) {
     return LoadTextureInternal(handle, false);
+}
+
+AssetResult AssetManager::LoadAudio(AssetHandle handle) {
+    return LoadAudioInternal(handle, false);
 }
 
 AssetResult AssetManager::LoadTextureInternal(AssetHandle handle, bool forceReload) {
@@ -188,16 +240,65 @@ std::shared_ptr<Texture2D> AssetManager::GetLoadedTexture(AssetHandle handle) co
     return found->second;
 }
 
+AssetResult AssetManager::LoadAudioInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    if (!handle.IsValid()) {
+        result.Message = "Invalid asset handle";
+        return result;
+    }
+
+    const AssetMetadata* metadata = m_registry.FindByHandle(handle);
+    if (metadata == nullptr) {
+        result.Message = "Asset handle is not registered";
+        return result;
+    }
+    if (metadata->Type != AssetType::Audio) {
+        result.Message = "Asset is not Audio";
+        return result;
+    }
+
+    if (!forceReload && m_audioCache.contains(handle)) {
+        result.Success = true;
+        result.Handle = handle;
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(metadata->RelativePath);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Audio file missing on disk: " + absolute.string();
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+
+    std::shared_ptr<AudioClip> clip;
+    const AudioLoadResult loadResult = AudioClip::LoadFromFile(absolute, clip);
+    if (!loadResult.Success || clip == nullptr) {
+        m_audioCache.erase(handle);
+        result.Message = loadResult.Message.empty() ? "Failed to load audio clip" : loadResult.Message;
+        return result;
+    }
+
+    m_audioCache[handle] = std::move(clip);
+    result.Success = true;
+    result.Handle = handle;
+    return result;
+}
+
+std::shared_ptr<const AudioClip> AssetManager::GetLoadedAudio(AssetHandle handle) const {
+    const auto found = m_audioCache.find(handle);
+    if (found == m_audioCache.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
-    return m_textureCache.contains(handle);
+    return m_textureCache.contains(handle) || m_audioCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
-    if (!m_graphicsResourcesEnabled) {
-        m_textureCache.erase(handle);
-        return;
-    }
     m_textureCache.erase(handle);
+    m_audioCache.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
@@ -206,12 +307,11 @@ AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
 
 void AssetManager::UnloadAll() {
     m_textureCache.clear();
+    m_audioCache.clear();
 }
 
 void AssetManager::PrepareShutdown() {
-    if (m_graphicsResourcesEnabled) {
-        UnloadAll();
-    }
+    UnloadAll();
     m_graphicsResourcesEnabled = false;
 }
 

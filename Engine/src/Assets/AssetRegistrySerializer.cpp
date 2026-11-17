@@ -26,6 +26,8 @@ std::string AssetTypeToString(AssetType type) {
     switch (type) {
     case AssetType::Texture2D:
         return "Texture2D";
+    case AssetType::Audio:
+        return "Audio";
     default:
         return "Unknown";
     }
@@ -34,6 +36,9 @@ std::string AssetTypeToString(AssetType type) {
 std::optional<AssetType> AssetTypeFromString(const std::string& text) {
     if (text == "Texture2D") {
         return AssetType::Texture2D;
+    }
+    if (text == "Audio") {
+        return AssetType::Audio;
     }
     return std::nullopt;
 }

@@ -8,6 +8,7 @@
 #include "Xora2D/Core/UUID.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Renderer/Texture2D.h"
+#include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
@@ -49,6 +50,8 @@ struct ParsedEntity {
     std::optional<RigidBody2DComponent> RigidBody;
     std::optional<BoxCollider2DComponent> BoxCollider;
     std::optional<CircleCollider2DComponent> CircleCollider;
+    std::optional<AudioSourceComponent> AudioSource;
+    std::optional<AudioListenerComponent> AudioListener;
 };
 
 struct ParsedScene {
@@ -132,6 +135,29 @@ YAML::Node EmitVec4(const glm::vec4& value) {
         node.push_back(value[index]);
     }
     return node;
+}
+
+std::optional<AudioGroup> ParseAudioGroup(const std::string& text, const std::filesystem::path& filepath,
+                                          std::string& error) {
+    if (text == "Music") {
+        return AudioGroup::Music;
+    }
+    if (text == "SoundEffects") {
+        return AudioGroup::SoundEffects;
+    }
+    error = PathContext(filepath) + ": invalid AudioSourceComponent.Group '" + text + "'";
+    return std::nullopt;
+}
+
+std::string AudioGroupToString(AudioGroup group) {
+    switch (group) {
+    case AudioGroup::Music:
+        return "Music";
+    case AudioGroup::SoundEffects:
+        return "SoundEffects";
+    default:
+        return "SoundEffects";
+    }
 }
 
 std::string RigidBodyTypeToString(RigidBodyType2D type) {
@@ -383,6 +409,54 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.CircleCollider = circle;
     }
 
+    if (const YAML::Node audioNode = node["AudioSourceComponent"]) {
+        AudioSourceComponent audio{};
+        if (audioNode["ClipAssetHandle"]) {
+            const std::optional<AssetHandle> handle =
+                AssetHandle::FromString(audioNode["ClipAssetHandle"].as<std::string>());
+            if (!handle.has_value()) {
+                error = PathContext(filepath) + ": invalid AudioSourceComponent.ClipAssetHandle";
+                return false;
+            }
+            audio.ClipAsset = *handle;
+        }
+        if (audioNode["Volume"]) {
+            audio.Volume = audioNode["Volume"].as<float>();
+        }
+        if (audioNode["Pitch"]) {
+            audio.Pitch = audioNode["Pitch"].as<float>();
+        }
+        if (audioNode["Loop"]) {
+            audio.Loop = audioNode["Loop"].as<bool>();
+        }
+        if (audioNode["PlayOnStart"]) {
+            audio.PlayOnStart = audioNode["PlayOnStart"].as<bool>();
+        }
+        if (audioNode["Muted"]) {
+            audio.Muted = audioNode["Muted"].as<bool>();
+        }
+        if (audioNode["Group"]) {
+            const std::optional<AudioGroup> group =
+                ParseAudioGroup(audioNode["Group"].as<std::string>(), filepath, error);
+            if (!group.has_value()) {
+                return false;
+            }
+            audio.Group = *group;
+        }
+        if (audioNode["SpatialAudio"]) {
+            audio.SpatialAudio = audioNode["SpatialAudio"].as<bool>();
+        }
+        output.AudioSource = audio;
+    }
+
+    if (const YAML::Node listenerNode = node["AudioListenerComponent"]) {
+        AudioListenerComponent listener{};
+        if (listenerNode["Active"]) {
+            listener.Active = listenerNode["Active"].as<bool>();
+        }
+        output.AudioListener = listener;
+    }
+
     return true;
 }
 
@@ -488,6 +562,12 @@ bool ApplyParsedScene(Scene& scene, const ParsedScene& document, AssetManager* a
         if (parsed.CircleCollider.has_value()) {
             entity.AddComponent<CircleCollider2DComponent>() = *parsed.CircleCollider;
         }
+        if (parsed.AudioSource.has_value()) {
+            entity.AddComponent<AudioSourceComponent>() = *parsed.AudioSource;
+        }
+        if (parsed.AudioListener.has_value()) {
+            entity.AddComponent<AudioListenerComponent>() = *parsed.AudioListener;
+        }
     }
     return true;
 }
@@ -568,6 +648,29 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
         emitter << YAML::Key << "Restitution" << YAML::Value << circle.Restitution;
         emitter << YAML::Key << "RestitutionThreshold" << YAML::Value << circle.RestitutionThreshold;
         emitter << YAML::Key << "IsSensor" << YAML::Value << circle.IsSensor;
+        emitter << YAML::EndMap;
+    }
+
+    if (entity.HasComponent<AudioSourceComponent>()) {
+        const AudioSourceComponent& audio = entity.GetComponent<AudioSourceComponent>();
+        emitter << YAML::Key << "AudioSourceComponent" << YAML::Value << YAML::BeginMap;
+        if (audio.ClipAsset.IsValid()) {
+            emitter << YAML::Key << "ClipAssetHandle" << YAML::Value << audio.ClipAsset.ToString();
+        }
+        emitter << YAML::Key << "Volume" << YAML::Value << audio.Volume;
+        emitter << YAML::Key << "Pitch" << YAML::Value << audio.Pitch;
+        emitter << YAML::Key << "Loop" << YAML::Value << audio.Loop;
+        emitter << YAML::Key << "PlayOnStart" << YAML::Value << audio.PlayOnStart;
+        emitter << YAML::Key << "Muted" << YAML::Value << audio.Muted;
+        emitter << YAML::Key << "Group" << YAML::Value << AudioGroupToString(audio.Group);
+        emitter << YAML::Key << "SpatialAudio" << YAML::Value << audio.SpatialAudio;
+        emitter << YAML::EndMap;
+    }
+
+    if (entity.HasComponent<AudioListenerComponent>()) {
+        const AudioListenerComponent& listener = entity.GetComponent<AudioListenerComponent>();
+        emitter << YAML::Key << "AudioListenerComponent" << YAML::Value << YAML::BeginMap;
+        emitter << YAML::Key << "Active" << YAML::Value << listener.Active;
         emitter << YAML::EndMap;
     }
 

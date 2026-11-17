@@ -1,3 +1,4 @@
+#include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
@@ -27,6 +28,8 @@ XORA_ENTITY_INST_ACCESS(TagComponent)
 XORA_ENTITY_INST_ADDABLE(RigidBody2DComponent)
 XORA_ENTITY_INST_ADDABLE(BoxCollider2DComponent)
 XORA_ENTITY_INST_ADDABLE(CircleCollider2DComponent)
+XORA_ENTITY_INST_ADDABLE(AudioSourceComponent)
+XORA_ENTITY_INST_ADDABLE(AudioListenerComponent)
 
 #undef XORA_ENTITY_INST_ADDABLE
 #undef XORA_ENTITY_INST_ACCESS

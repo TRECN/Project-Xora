@@ -1,6 +1,9 @@
 #include "Xora2D/Scene/Scene.h"
 
+#include "SceneAudioSystem.h"
+
 #include "Xora2D/Assets/AssetManager.h"
+#include "Xora2D/Audio/AudioEngine.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Scene/Components.h"
@@ -33,7 +36,9 @@ std::shared_ptr<Scene> Scene::Create() {
 }
 
 Scene::Scene()
-    : m_registry(std::make_unique<Registry>()), m_physics(std::make_unique<PhysicsWorld2D>()) {}
+    : m_registry(std::make_unique<Registry>()),
+      m_physics(std::make_unique<PhysicsWorld2D>()),
+      m_audioSystem(std::make_unique<SceneAudioSystem>()) {}
 
 Scene::~Scene() {
     PrepareForShutdown();
@@ -106,6 +111,9 @@ void Scene::ReplaceContentsFrom(Scene& source) {
     source.m_nameIndex.clear();
     source.m_physics = std::make_unique<PhysicsWorld2D>();
     source.m_sceneName = "Untitled";
+    if (m_audioSystem) {
+        m_audioSystem->Clear();
+    }
 }
 
 void Scene::Clear() {
@@ -122,11 +130,17 @@ void Scene::Clear() {
     m_uuidIndex.clear();
     m_nameIndex.clear();
     m_physics = std::make_unique<PhysicsWorld2D>();
+    if (m_audioSystem) {
+        m_audioSystem->Clear();
+    }
 }
 
 void Scene::DestroyEntity(Entity entity) {
     if (!IsValid(entity)) {
         return;
+    }
+    if (m_audioSystem) {
+        m_audioSystem->OnEntityDestroyed(entity.m_handle);
     }
     m_physics->OnEntityDestroyed(*this, entity);
     UnindexEntity(entity.m_handle);
@@ -159,6 +173,9 @@ void Scene::SetViewportSize(float width, float height) {
 }
 
 void Scene::PrepareForShutdown() {
+    if (m_audioSystem) {
+        m_audioSystem->PrepareForShutdown();
+    }
     if (!m_physics) {
         return;
     }
@@ -168,10 +185,59 @@ void Scene::PrepareForShutdown() {
 
 void Scene::OnUpdate(float deltaSeconds) {
     m_physics->Step(*this, deltaSeconds);
+    if (m_audioSystem) {
+        m_audioSystem->OnSceneUpdate(*this, deltaSeconds);
+    }
 }
 
 void Scene::SetAssetManager(AssetManager* assetManager) {
     m_assetManager = assetManager;
+    if (m_audioSystem) {
+        m_audioSystem->SetAssetManager(assetManager);
+    }
+}
+
+void Scene::SetAudioEngine(AudioEngine* audioEngine) {
+    if (m_audioSystem) {
+        m_audioSystem->SetAudioEngine(audioEngine);
+    }
+}
+
+void Scene::StopAudioInGroup(AudioGroup group) {
+    if (m_audioSystem) {
+        m_audioSystem->StopEntityPlaybacksInGroup(*this, group);
+    }
+}
+
+void Scene::StopLoopingAudio() {
+    if (m_audioSystem) {
+        m_audioSystem->StopLoopingEntityPlaybacks(*this);
+    }
+}
+
+void Scene::StopEntityAudio(const Entity& entity) {
+    if (m_audioSystem && IsValid(entity)) {
+        m_audioSystem->StopEntityPlayback(entity.m_handle);
+    }
+}
+
+void Scene::PauseEntityAudio(const Entity& entity) {
+    if (m_audioSystem && IsValid(entity)) {
+        m_audioSystem->PauseEntityPlayback(entity.m_handle);
+    }
+}
+
+void Scene::ResumeEntityAudio(const Entity& entity) {
+    if (m_audioSystem && IsValid(entity)) {
+        m_audioSystem->ResumeEntityPlayback(entity.m_handle);
+    }
+}
+
+bool Scene::IsEntityAudioPlaying(const Entity& entity) const {
+    if (!m_audioSystem || !IsValid(entity)) {
+        return false;
+    }
+    return m_audioSystem->IsEntityPlaybackActive(entity.m_handle);
 }
 
 void Scene::ResolveSpriteTextures() {

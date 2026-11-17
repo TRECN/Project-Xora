@@ -33,10 +33,17 @@ Application::Application()
         XORA_LOG_WARN("VSync could not be enabled");
     }
     Input::Attach(&m_input);
+    const AudioInitResult audioInit = m_audioEngine.Initialize();
+    if (!audioInit.Success) {
+        XORA_LOG_WARN("Audio engine failed to initialize: {}", audioInit.Message);
+    } else if (!audioInit.DeviceAvailable) {
+        XORA_LOG_WARN("Audio output device unavailable; continuing without audible output");
+    }
     XORA_LOG_INFO("Xora2D Engine initialized");
 }
 
 Application::~Application() {
+    m_audioEngine.PrepareShutdown();
     m_input.PrepareShutdown();
     Input::Attach(nullptr);
     // Release the renderer and device before the context, and the context
@@ -56,6 +63,7 @@ int Application::Run() {
             break;
         }
         const double deltaSeconds = m_time.Tick();
+        m_audioEngine.Update(static_cast<float>(deltaSeconds));
         OnUpdate(deltaSeconds);
 
         const int framebufferWidth = m_window->GetFramebufferWidth();
@@ -90,6 +98,7 @@ void Application::OnRender() {}
 void Application::OnEvent(Event& /*event*/) {}
 
 void Application::OnShutdownRequested() {
+    m_audioEngine.StopAll();
     m_input.ClearState();
 }
 

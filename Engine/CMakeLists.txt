@@ -14,6 +14,11 @@ add_library(Xora2D STATIC
     src/Input/InputManager.cpp
     src/Input/InputMapping.cpp
     src/Input/InputMappingSerializer.cpp
+    src/Audio/AudioClip.cpp
+    src/Audio/AudioEngine.cpp
+    src/Audio/NullAudioBackend.cpp
+    src/Audio/MiniaudioPlatform.cpp
+    src/Scene/SceneAudioSystem.cpp
     src/Platform/Window.cpp
     src/Renderer/BufferLayout.cpp
     src/Renderer/GraphicsContext.cpp
@@ -50,7 +55,8 @@ target_compile_features(Xora2D PUBLIC cxx_std_20)
 target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources")
 
 find_package(SDL3 CONFIG REQUIRED)
-target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d yaml-cpp::yaml-cpp)
+target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d yaml-cpp::yaml-cpp
+    miniaudio_headers)
 
 find_path(XORA2D_GLM_INCLUDE_DIR glm/glm.hpp
     PATHS
