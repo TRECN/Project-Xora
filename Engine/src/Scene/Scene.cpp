@@ -1,5 +1,6 @@
 #include "Xora2D/Scene/Scene.h"
 
+#include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Scene/Components.h"
@@ -169,6 +170,33 @@ void Scene::OnUpdate(float deltaSeconds) {
     m_physics->Step(*this, deltaSeconds);
 }
 
+void Scene::SetAssetManager(AssetManager* assetManager) {
+    m_assetManager = assetManager;
+}
+
+void Scene::ResolveSpriteTextures() {
+    if (m_assetManager == nullptr) {
+        return;
+    }
+    auto& registry = m_registry->Registry;
+    for (const auto entity : registry.view<SpriteRendererComponent>()) {
+        auto& sprite = registry.get<SpriteRendererComponent>(entity);
+        if (!sprite.Visible || !sprite.TextureAsset.IsValid()) {
+            continue;
+        }
+        if (sprite.Texture != nullptr) {
+            continue;
+        }
+        const AssetResult loaded = m_assetManager->LoadTexture(sprite.TextureAsset);
+        if (!loaded.Success) {
+            XORA_LOG_WARN("Sprite '{}' failed to resolve texture asset {}: {}", registry.get<TagComponent>(entity).Tag,
+                          sprite.TextureAsset.ToString(), loaded.Message);
+            continue;
+        }
+        sprite.Texture = m_assetManager->GetLoadedTexture(sprite.TextureAsset);
+    }
+}
+
 PhysicsWorld2D& Scene::GetPhysicsWorld() {
     return *m_physics;
 }
@@ -182,6 +210,7 @@ void Scene::SetPhysicsEventCallback(std::function<void(const PhysicsCollisionEve
 }
 
 void Scene::OnRender(Renderer2D& renderer) {
+    ResolveSpriteTextures();
     OrthographicCamera camera;
     const SceneCamera::Result cameraResult = SceneCamera::BuildPrimaryCamera(*this, camera);
     if (cameraResult == SceneCamera::Result::NoPrimaryCamera) {

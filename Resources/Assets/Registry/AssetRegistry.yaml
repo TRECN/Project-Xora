@@ -1,0 +1,7 @@
+Version: 1
+Assets:
+  - Handle: b0d9d4831317bc4f
+    Type: Texture2D
+    Name: Xora2D_Logo
+    RelativePath: Textures/Xora2D_Logo.png
+    Available: true

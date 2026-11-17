@@ -1,5 +1,8 @@
 #include "Xora2D/Serialization/SceneSerializer.h"
 
+#include "Xora2D/Assets/AssetHandle.h"
+#include "Xora2D/Assets/AssetManager.h"
+#include "Xora2D/Assets/AssetRegistry.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Core/Paths.h"
 #include "Xora2D/Core/UUID.h"
@@ -144,10 +147,10 @@ std::string RigidBodyTypeToString(RigidBodyType2D type) {
 }
 
 bool ValidateParsedScene(const ParsedScene& document, const std::filesystem::path& filepath, std::string& error) {
-    if (document.Version != SceneSerializer::kFormatVersion) {
+    if (document.Version != SceneSerializer::kFormatVersion &&
+        document.Version != SceneSerializer::kLegacyFormatVersion) {
         std::ostringstream stream;
-        stream << PathContext(filepath) << ": unsupported scene Version " << document.Version << " (expected "
-               << SceneSerializer::kFormatVersion << ")";
+        stream << PathContext(filepath) << ": unsupported scene Version " << document.Version;
         error = stream.str();
         return false;
     }
@@ -232,6 +235,15 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
             if (!ReadVec2(spriteNode["Size"], sprite.Size, "SpriteRendererComponent.Size", filepath, error)) {
                 return false;
             }
+        }
+        if (spriteNode["TextureAssetHandle"]) {
+            const std::optional<AssetHandle> handle =
+                AssetHandle::FromString(spriteNode["TextureAssetHandle"].as<std::string>());
+            if (!handle.has_value()) {
+                error = PathContext(filepath) + ": invalid SpriteRendererComponent.TextureAssetHandle";
+                return false;
+            }
+            sprite.TextureAsset = *handle;
         }
         if (spriteNode["TexturePath"]) {
             sprite.TexturePath = spriteNode["TexturePath"].as<std::string>();
@@ -403,24 +415,41 @@ bool ParseSceneDocument(const YAML::Node& root, ParsedScene& output, const std::
     return ValidateParsedScene(output, filepath, error);
 }
 
-bool ValidateTextureAssets(const ParsedScene& document, const std::filesystem::path& filepath, std::string& error) {
+bool ValidateTextureAssets(const ParsedScene& document, const std::filesystem::path& filepath,
+                             AssetManager* assetManager, std::string& error) {
     for (const ParsedEntity& parsed : document.Entities) {
-        if (!parsed.Sprite.has_value() || parsed.Sprite->TexturePath.empty()) {
+        if (!parsed.Sprite.has_value()) {
             continue;
         }
-        const std::filesystem::path absolute = ResolveResourcePath(parsed.Sprite->TexturePath);
-        if (!std::filesystem::exists(absolute)) {
-            std::ostringstream stream;
-            stream << PathContext(filepath) << ": texture asset not found '" << parsed.Sprite->TexturePath
-                   << "' (resolved " << absolute.string() << ")";
-            error = stream.str();
-            return false;
+        if (parsed.Sprite->TextureAsset.IsValid()) {
+            if (assetManager == nullptr) {
+                error = PathContext(filepath) + ": scene references TextureAssetHandle but no AssetManager was provided";
+                return false;
+            }
+            if (assetManager->GetRegistry().FindByHandle(parsed.Sprite->TextureAsset) == nullptr) {
+                std::ostringstream stream;
+                stream << PathContext(filepath) << ": unknown texture asset handle "
+                       << parsed.Sprite->TextureAsset.ToString();
+                error = stream.str();
+                return false;
+            }
+            continue;
+        }
+        if (!parsed.Sprite->TexturePath.empty()) {
+            const std::filesystem::path absolute = ResolveResourcePath(parsed.Sprite->TexturePath);
+            if (!std::filesystem::exists(absolute)) {
+                std::ostringstream stream;
+                stream << PathContext(filepath) << ": texture asset not found '" << parsed.Sprite->TexturePath
+                       << "' (resolved " << absolute.string() << ")";
+                error = stream.str();
+                return false;
+            }
         }
     }
     return true;
 }
 
-bool ApplyParsedScene(Scene& scene, const ParsedScene& document) {
+bool ApplyParsedScene(Scene& scene, const ParsedScene& document, AssetManager* assetManager) {
     scene.Clear();
     scene.SetSceneName(document.Name.empty() ? "Untitled" : document.Name);
 
@@ -436,9 +465,15 @@ bool ApplyParsedScene(Scene& scene, const ParsedScene& document) {
         if (parsed.Sprite.has_value()) {
             auto& sprite = entity.AddComponent<SpriteRendererComponent>();
             sprite = *parsed.Sprite;
-            if (!sprite.TexturePath.empty()) {
-                const std::filesystem::path absolute = ResolveResourcePath(sprite.TexturePath);
-                sprite.Texture = std::shared_ptr<Texture2D>(Texture2D::CreateFromFile(absolute.string()).release());
+            sprite.Texture.reset();
+            if (sprite.TextureAsset.IsValid() && assetManager != nullptr) {
+                (void)assetManager;
+            } else if (!sprite.TexturePath.empty() && assetManager != nullptr) {
+                const AssetResult legacy = assetManager->EnsureLegacyTexturePath(sprite.TexturePath);
+                if (legacy.Success) {
+                    sprite.TextureAsset = legacy.Handle;
+                }
+                sprite.TexturePath.clear();
             }
         }
         if (parsed.Camera.has_value()) {
@@ -476,7 +511,9 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
         emitter << YAML::Key << "SpriteRendererComponent" << YAML::Value << YAML::BeginMap;
         emitter << YAML::Key << "Color" << YAML::Value << EmitVec4(sprite.Color);
         emitter << YAML::Key << "Size" << YAML::Value << EmitVec2(sprite.Size);
-        if (!sprite.TexturePath.empty()) {
+        if (sprite.TextureAsset.IsValid()) {
+            emitter << YAML::Key << "TextureAssetHandle" << YAML::Value << sprite.TextureAsset.ToString();
+        } else if (!sprite.TexturePath.empty()) {
             emitter << YAML::Key << "TexturePath" << YAML::Value << sprite.TexturePath;
         }
         emitter << YAML::Key << "TilingFactor" << YAML::Value << sprite.TilingFactor;
@@ -578,7 +615,8 @@ SceneSerializeResult SceneSerializer::Serialize(const Scene& scene, const std::f
     }
 }
 
-SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::filesystem::path& filepath) {
+SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::filesystem::path& filepath,
+                                                  AssetManager* assetManager) {
     if (!std::filesystem::exists(filepath)) {
         return Failure("Scene file does not exist: " + filepath.string());
     }
@@ -595,14 +633,15 @@ SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::files
     if (!ParseSceneDocument(root, document, filepath, error)) {
         return Failure(error);
     }
-    if (!ValidateTextureAssets(document, filepath, error)) {
+    if (!ValidateTextureAssets(document, filepath, assetManager, error)) {
         return Failure(error);
     }
 
     try {
         auto staging = Scene::Create();
         staging->SetViewportSize(scene.GetViewportWidth(), scene.GetViewportHeight());
-        ApplyParsedScene(*staging, document);
+        staging->SetAssetManager(assetManager);
+        ApplyParsedScene(*staging, document, assetManager);
         scene.ReplaceContentsFrom(*staging);
     } catch (const std::exception& exception) {
         return Failure(std::string("Deserialize failed for '") + filepath.string() + "': " + exception.what());

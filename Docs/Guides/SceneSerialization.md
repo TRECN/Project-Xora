@@ -61,7 +61,7 @@ Entities:
 
 ## Format version
 
-`SceneSerializer::kFormatVersion` is **1**. Unsupported `Version` values are rejected with an error.
+`SceneSerializer::kFormatVersion` is **2** (`TextureAssetHandle` on sprites). Version **1** files with `TexturePath` remain readable; provide an `AssetManager` on `Deserialize` to migrate paths to handles automatically.
 
 ## Supported components
 

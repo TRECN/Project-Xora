@@ -14,6 +14,7 @@
 
 namespace Xora2D {
 
+class AssetManager;
 class PhysicsWorld2D;
 struct PhysicsWorld2DDetail;
 class Renderer2D;
@@ -60,6 +61,9 @@ public:
 
     void SetPhysicsEventCallback(std::function<void(const PhysicsCollisionEvent&)> callback);
 
+    void SetAssetManager(AssetManager* assetManager);
+    void ResolveSpriteTextures();
+
     const std::string& GetSceneName() const { return m_sceneName; }
     void SetSceneName(std::string name) { m_sceneName = std::move(name); }
 
@@ -100,6 +104,7 @@ private:
 
     std::unique_ptr<PhysicsWorld2D> m_physics;
     std::string m_sceneName = "Untitled";
+    AssetManager* m_assetManager = nullptr;
 };
 
 } // namespace Xora2D

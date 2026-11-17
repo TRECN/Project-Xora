@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Xora2D/Assets/AssetHandle.h"
 #include "Xora2D/Core/UUID.h"
 #include "Xora2D/Renderer/Texture2D.h"
 
@@ -47,7 +48,9 @@ private:
 struct SpriteRendererComponent {
     glm::vec4 Color{1.0f};
     glm::vec2 Size{100.0f, 100.0f};
-    // Project-relative path under Resources/ (empty = color-only quad).
+    // Stable asset reference (persisted in scene files v2+).
+    AssetHandle TextureAsset{};
+    // Legacy scene v1 field (runtime migration only).
     std::string TexturePath;
     std::shared_ptr<Texture2D> Texture{};
     float TilingFactor = 1.0f;

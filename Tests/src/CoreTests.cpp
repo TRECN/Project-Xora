@@ -332,6 +332,7 @@ int RunGraphicsTests();
 int RunRendererTests();
 int RunSceneTests();
 int RunSerializationTests();
+int RunAssetTests();
 int RunPhysicsTests();
 
 int main() {
@@ -345,6 +346,7 @@ int main() {
     g_failures += RunRendererTests();
     g_failures += RunSceneTests();
     g_failures += RunSerializationTests();
+    g_failures += RunAssetTests();
     g_failures += RunPhysicsTests();
 
     if (g_failures != 0) {

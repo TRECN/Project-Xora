@@ -4,6 +4,11 @@ add_library(Xora2D STATIC
     src/Core/Paths.cpp
     src/Core/Time.cpp
     src/Core/UUID.cpp
+    src/Assets/AssetHandle.cpp
+    src/Assets/AssetPaths.cpp
+    src/Assets/AssetRegistry.cpp
+    src/Assets/AssetRegistrySerializer.cpp
+    src/Assets/AssetManager.cpp
     src/Platform/Window.cpp
     src/Renderer/BufferLayout.cpp
     src/Renderer/GraphicsContext.cpp

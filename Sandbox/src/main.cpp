@@ -1,3 +1,6 @@
+#include "Xora2D/Assets/AssetManager.h"
+#include "Xora2D/Assets/AssetPaths.h"
+#include "Xora2D/Assets/AssetRegistrySerializer.h"
 #include "Xora2D/Core/Application.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Core/Paths.h"
@@ -46,8 +49,8 @@ public:
 #endif
         physics.Configure(settings);
 
-        m_logoTexture = Xora2D::Texture2D::CreateFromFile(
-            Xora2D::ResolveResourcePath("Textures/Xora2D_Logo.png").string());
+        InitializeAssetSystem();
+        m_scene->SetAssetManager(&m_assetManager);
 
         m_scene->SetPhysicsEventCallback([](const Xora2D::PhysicsCollisionEvent& event) {
             const char* kind = event.Kind == Xora2D::PhysicsCollisionKind::Sensor ? "Sensor" : "Collision";
@@ -63,6 +66,7 @@ public:
 
 protected:
     void OnShutdownRequested() override {
+        m_assetManager.PrepareShutdown();
         if (m_scene) {
             m_scene->PrepareForShutdown();
         }
@@ -110,6 +114,38 @@ protected:
     }
 
 private:
+    void InitializeAssetSystem() {
+        const std::filesystem::path registryPath = Xora2D::DefaultRegistryFilePath();
+        const auto loadResult = Xora2D::AssetRegistrySerializer::Load(m_assetRegistry, registryPath);
+        if (!loadResult.Success) {
+            XORA_LOG_WARN("Asset registry load: {}", loadResult.Message);
+        } else {
+            XORA_LOG_INFO("Asset registry loaded from {} ({} assets)", registryPath.string(),
+                          m_assetRegistry.Count());
+        }
+
+        const std::filesystem::path logoSource = Xora2D::ResolveResourcePath("Textures/Xora2D_Logo.png");
+        const Xora2D::AssetResult importResult = m_assetManager.ImportTextureFile(logoSource, "Xora2D_Logo");
+        if (!importResult.Success) {
+            XORA_LOG_WARN("Logo texture import failed: {}", importResult.Message);
+        } else {
+            m_logoAssetHandle = importResult.Handle;
+            XORA_LOG_INFO("Texture asset handle: {}", m_logoAssetHandle.ToString());
+            const Xora2D::AssetResult loadTexture = m_assetManager.LoadTexture(m_logoAssetHandle);
+            if (loadTexture.Success) {
+                XORA_LOG_INFO("Texture loaded");
+                if (m_assetManager.LoadTexture(m_logoAssetHandle).Success) {
+                    XORA_LOG_INFO("Cached texture reused");
+                }
+            }
+        }
+
+        const auto saveResult = Xora2D::AssetRegistrySerializer::Save(m_assetRegistry, registryPath);
+        if (!saveResult.Success) {
+            XORA_LOG_WARN("Asset registry save failed: {}", saveResult.Message);
+        }
+    }
+
     void BuildScene() {
         m_cameraEntity = m_scene->CreateEntity("MainCamera");
         auto& camera = m_cameraEntity.AddComponent<Xora2D::CameraComponent>();
@@ -142,8 +178,7 @@ private:
         Xora2D::Entity logo = m_scene->CreateEntity("Logo");
         logo.AddComponent<Xora2D::SpriteRendererComponent>();
         auto& logoSprite = logo.GetComponent<Xora2D::SpriteRendererComponent>();
-        logoSprite.Texture = m_logoTexture;
-        logoSprite.TexturePath = "Textures/Xora2D_Logo.png";
+        logoSprite.TextureAsset = m_logoAssetHandle;
         logoSprite.Size = {120.0f, 120.0f};
         logo.GetComponent<Xora2D::TransformComponent>().Translation = {1150.0f, 620.0f};
     }
@@ -163,7 +198,8 @@ private:
 
         auto loadedScene = Xora2D::Scene::Create();
         loadedScene->SetViewportSize(m_scene->GetViewportWidth(), m_scene->GetViewportHeight());
-        const Xora2D::SceneSerializeResult loadResult = Xora2D::SceneSerializer::Deserialize(*loadedScene, scenePath);
+        const Xora2D::SceneSerializeResult loadResult =
+            Xora2D::SceneSerializer::Deserialize(*loadedScene, scenePath, &m_assetManager);
         if (!loadResult.Success) {
             XORA_LOG_WARN("Scene load failed: {}", loadResult.Message);
             return;
@@ -285,8 +321,10 @@ private:
         }
     }
 
+    Xora2D::AssetRegistry m_assetRegistry;
+    Xora2D::AssetManager m_assetManager{m_assetRegistry};
+    Xora2D::AssetHandle m_logoAssetHandle;
     std::shared_ptr<Xora2D::Scene> m_scene;
-    std::shared_ptr<Xora2D::Texture2D> m_logoTexture;
     Xora2D::Entity m_cameraEntity;
     float m_logCooldown = 0.0f;
     bool m_moveLeft = false;
