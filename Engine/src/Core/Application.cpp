@@ -6,6 +6,7 @@
 #include "Xora2D/Events/WindowEvent.h"
 #include "Xora2D/Renderer/GraphicsDevice.h"
 #include "Xora2D/Renderer/GraphicsContext.h"
+#include "Xora2D/Renderer/Renderer2D.h"
 #include "Xora2D/Renderer/RendererAPI.h"
 
 #include <cstdlib>
@@ -24,6 +25,8 @@ Application::Application()
     m_context->MakeCurrent();
     m_device = std::make_unique<GraphicsDevice>(*m_context);
     m_renderer = RendererAPI::Create(*m_context);
+    m_renderer2D = std::make_unique<Renderer2D>();
+    m_renderer2D->Init();
     m_renderer->SetClearColor(m_clearColor);
     if (!m_context->SetVSync(true)) {
         XORA_LOG_WARN("VSync could not be enabled");
@@ -34,6 +37,7 @@ Application::Application()
 Application::~Application() {
     // Release the renderer and device before the context, and the context
     // before the window that owns the native drawable.
+    m_renderer2D.reset();
     m_renderer.reset();
     m_device.reset();
     m_context.reset();
@@ -76,6 +80,22 @@ void Application::OnUpdate(double /*deltaSeconds*/) {}
 void Application::OnRender() {}
 
 void Application::OnEvent(Event& /*event*/) {}
+
+Renderer2D& Application::GetRenderer2D() {
+    return *m_renderer2D;
+}
+
+const Renderer2D& Application::GetRenderer2D() const {
+    return *m_renderer2D;
+}
+
+Window& Application::GetWindow() {
+    return *m_window;
+}
+
+const Window& Application::GetWindow() const {
+    return *m_window;
+}
 
 void Application::Close() {
     m_running = false;

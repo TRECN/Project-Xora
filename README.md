@@ -8,9 +8,9 @@ Xora2D is a 2D game engine for creating, running, and exporting desktop games. T
 
 ## Current status
 
-The sandbox opens a resizable 1280×720 window, creates an OpenGL 3.3 core context, and clears the framebuffer to a dark color every frame. Logging, events, frame timing, and this graphics foundation are in place.
+The sandbox opens a resizable 1280×720 window, creates an OpenGL 3.3 core context, and renders batched 2D colored and textured quads with an orthographic camera. Logging, events, frame timing, OpenGL/GLAD setup, and `Renderer2D` are in place.
 
-Not implemented yet: shaders, textures, sprites, scenes, entities, physics, animation, scripting, the editor, and game export.
+Not implemented yet: ECS, physics, audio, scripting, the editor, and game export.
 
 ## Technology stack
 

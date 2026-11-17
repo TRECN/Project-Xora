@@ -12,6 +12,7 @@ namespace Xora2D {
 
 class Event;
 class GraphicsContext;
+class Renderer2D;
 class RendererAPI;
 
 // Owns one window, its graphics device, and the frame loop.
@@ -36,6 +37,12 @@ protected:
     virtual void OnUpdate(double deltaSeconds);
     virtual void OnRender();
 
+    Renderer2D& GetRenderer2D();
+    const Renderer2D& GetRenderer2D() const;
+
+    Window& GetWindow();
+    const Window& GetWindow() const;
+
     // Called for every engine event after the application has recorded
     // close and quit requests. Overrides can inspect the event without
     // replacing shutdown behavior.
@@ -52,6 +59,7 @@ private:
     std::unique_ptr<GraphicsContext> m_context;
     std::unique_ptr<GraphicsDevice> m_device;
     std::unique_ptr<RendererAPI> m_renderer;
+    std::unique_ptr<Renderer2D> m_renderer2D;
     Time m_time;
 };
 

@@ -1,0 +1,27 @@
+#pragma once
+
+#include "Xora2D/Renderer/BufferLayout.h"
+
+#include <cstdint>
+#include <memory>
+
+namespace Xora2D {
+
+class VertexBuffer;
+class IndexBuffer;
+
+class VertexArray {
+public:
+    virtual ~VertexArray() = default;
+
+    virtual void Bind() const = 0;
+    virtual void Unbind() const = 0;
+
+    virtual void AddVertexBuffer(const VertexBuffer& vertexBuffer) = 0;
+    virtual void SetIndexBuffer(const IndexBuffer& indexBuffer) = 0;
+    virtual void SetLayout(const BufferLayout& layout) = 0;
+
+    static std::unique_ptr<VertexArray> Create();
+};
+
+} // namespace Xora2D

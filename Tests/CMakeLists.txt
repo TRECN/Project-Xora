@@ -1,6 +1,7 @@
 add_executable(Xora2D-Tests
     src/CoreTests.cpp
     src/GraphicsTests.cpp
+    src/RendererTests.cpp
 )
 
 find_package(SDL3 CONFIG REQUIRED)
