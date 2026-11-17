@@ -11,6 +11,8 @@ enum class EventType {
     AppQuit,
     WindowClose,
     WindowResize,
+    WindowFocusLost,
+    WindowFocusGained,
     KeyPressed,
     KeyReleased,
     MouseButtonPressed,

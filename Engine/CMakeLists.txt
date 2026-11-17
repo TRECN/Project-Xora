@@ -9,6 +9,11 @@ add_library(Xora2D STATIC
     src/Assets/AssetRegistry.cpp
     src/Assets/AssetRegistrySerializer.cpp
     src/Assets/AssetManager.cpp
+    src/Input/Input.cpp
+    src/Input/InputCodes.cpp
+    src/Input/InputManager.cpp
+    src/Input/InputMapping.cpp
+    src/Input/InputMappingSerializer.cpp
     src/Platform/Window.cpp
     src/Renderer/BufferLayout.cpp
     src/Renderer/GraphicsContext.cpp

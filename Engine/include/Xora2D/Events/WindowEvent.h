@@ -12,6 +12,18 @@ public:
     XORA_EVENT_CLASS_CATEGORY(EventCategory::Application | EventCategory::Window)
 };
 
+class WindowFocusLostEvent : public Event {
+public:
+    XORA_EVENT_CLASS_TYPE(WindowFocusLost)
+    XORA_EVENT_CLASS_CATEGORY(EventCategory::Application | EventCategory::Window)
+};
+
+class WindowFocusGainedEvent : public Event {
+public:
+    XORA_EVENT_CLASS_TYPE(WindowFocusGained)
+    XORA_EVENT_CLASS_CATEGORY(EventCategory::Application | EventCategory::Window)
+};
+
 class WindowResizeEvent : public Event {
 public:
     WindowResizeEvent(int width, int height)

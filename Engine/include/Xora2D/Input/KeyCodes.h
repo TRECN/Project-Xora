@@ -17,6 +17,14 @@ enum class Key : std::uint16_t {
     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
     LeftShift, LeftControl, LeftAlt,
     RightShift, RightControl, RightAlt,
+    Insert, Delete, Home, End, PageUp, PageDown,
+    LeftSuper, RightSuper,
+    Semicolon, Apostrophe, Comma, Period, Slash, Backslash,
+    Minus, Equals, Grave,
+    LeftBracket, RightBracket,
+    Keypad0, Keypad1, Keypad2, Keypad3, Keypad4, Keypad5, Keypad6, Keypad7, Keypad8, Keypad9,
+    KeypadEnter,
+    Count
 };
 
 } // namespace Xora2D

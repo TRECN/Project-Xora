@@ -1,0 +1,34 @@
+Version: 1
+
+Actions:
+  Jump:
+    - Type: Key
+      Code: Space
+    - Type: Key
+      Code: Up
+  MoveLeft:
+    - Type: Key
+      Code: A
+    - Type: Key
+      Code: Left
+  MoveRight:
+    - Type: Key
+      Code: D
+    - Type: Key
+      Code: Right
+  MoveUp:
+    - Type: Key
+      Code: W
+    - Type: Key
+      Code: Up
+  MoveDown:
+    - Type: Key
+      Code: S
+    - Type: Key
+      Code: Down
+  Quit:
+    - Type: Key
+      Code: Escape
+  Fire:
+    - Type: MouseButton
+      Code: Left

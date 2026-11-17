@@ -8,6 +8,7 @@
 #include "Xora2D/Renderer/GraphicsContext.h"
 #include "Xora2D/Renderer/Renderer2D.h"
 #include "Xora2D/Renderer/RendererAPI.h"
+#include "Xora2D/Input/Input.h"
 
 #include <cstdlib>
 
@@ -31,10 +32,13 @@ Application::Application()
     if (!m_context->SetVSync(true)) {
         XORA_LOG_WARN("VSync could not be enabled");
     }
+    Input::Attach(&m_input);
     XORA_LOG_INFO("Xora2D Engine initialized");
 }
 
 Application::~Application() {
+    m_input.PrepareShutdown();
+    Input::Attach(nullptr);
     // Release the renderer and device before the context, and the context
     // before the window that owns the native drawable.
     m_renderer2D.reset();
@@ -46,6 +50,7 @@ Application::~Application() {
 
 int Application::Run() {
     while (m_running) {
+        m_input.BeginFrame();
         m_window->PollEvents();
         if (!m_running) {
             break;
@@ -84,7 +89,9 @@ void Application::OnRender() {}
 
 void Application::OnEvent(Event& /*event*/) {}
 
-void Application::OnShutdownRequested() {}
+void Application::OnShutdownRequested() {
+    m_input.ClearState();
+}
 
 Renderer2D& Application::GetRenderer2D() {
     return *m_renderer2D;
@@ -131,6 +138,7 @@ void Application::HandleEvent(Event& event) {
         return false;
     });
 
+    m_input.OnEvent(event);
     OnEvent(event);
 }
 

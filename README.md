@@ -32,7 +32,7 @@ Xora2D/
 ├── Engine/                 Static library (public headers in include/)
 ├── Editor/                 Visual editor (not started)
 ├── Sandbox/                Xora2D-Sandbox executable
-├── Tests/                  Core, graphics, renderer, scene, and physics tests
+├── Tests/                  Core, graphics, renderer, scene, physics, and input tests
 ├── Resources/              Runtime assets
 ├── Docs/
 │   ├── Architecture/

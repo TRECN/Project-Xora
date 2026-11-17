@@ -9,6 +9,9 @@ enum class MouseButton : std::uint8_t {
     Left,
     Middle,
     Right,
+    X1,
+    X2,
+    Count
 };
 
 } // namespace Xora2D

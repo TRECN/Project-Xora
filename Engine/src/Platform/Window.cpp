@@ -98,6 +98,66 @@ Key KeyFromScanCode(SDL_Scancode scanCode) {
         return Key::RightControl;
     case SDL_SCANCODE_RALT:
         return Key::RightAlt;
+    case SDL_SCANCODE_INSERT:
+        return Key::Insert;
+    case SDL_SCANCODE_DELETE:
+        return Key::Delete;
+    case SDL_SCANCODE_HOME:
+        return Key::Home;
+    case SDL_SCANCODE_END:
+        return Key::End;
+    case SDL_SCANCODE_PAGEUP:
+        return Key::PageUp;
+    case SDL_SCANCODE_PAGEDOWN:
+        return Key::PageDown;
+    case SDL_SCANCODE_LGUI:
+        return Key::LeftSuper;
+    case SDL_SCANCODE_RGUI:
+        return Key::RightSuper;
+    case SDL_SCANCODE_SEMICOLON:
+        return Key::Semicolon;
+    case SDL_SCANCODE_APOSTROPHE:
+        return Key::Apostrophe;
+    case SDL_SCANCODE_COMMA:
+        return Key::Comma;
+    case SDL_SCANCODE_PERIOD:
+        return Key::Period;
+    case SDL_SCANCODE_SLASH:
+        return Key::Slash;
+    case SDL_SCANCODE_BACKSLASH:
+        return Key::Backslash;
+    case SDL_SCANCODE_MINUS:
+        return Key::Minus;
+    case SDL_SCANCODE_EQUALS:
+        return Key::Equals;
+    case SDL_SCANCODE_GRAVE:
+        return Key::Grave;
+    case SDL_SCANCODE_LEFTBRACKET:
+        return Key::LeftBracket;
+    case SDL_SCANCODE_RIGHTBRACKET:
+        return Key::RightBracket;
+    case SDL_SCANCODE_KP_0:
+        return Key::Keypad0;
+    case SDL_SCANCODE_KP_1:
+        return Key::Keypad1;
+    case SDL_SCANCODE_KP_2:
+        return Key::Keypad2;
+    case SDL_SCANCODE_KP_3:
+        return Key::Keypad3;
+    case SDL_SCANCODE_KP_4:
+        return Key::Keypad4;
+    case SDL_SCANCODE_KP_5:
+        return Key::Keypad5;
+    case SDL_SCANCODE_KP_6:
+        return Key::Keypad6;
+    case SDL_SCANCODE_KP_7:
+        return Key::Keypad7;
+    case SDL_SCANCODE_KP_8:
+        return Key::Keypad8;
+    case SDL_SCANCODE_KP_9:
+        return Key::Keypad9;
+    case SDL_SCANCODE_KP_ENTER:
+        return Key::KeypadEnter;
     default:
         return Key::Unknown;
     }
@@ -111,6 +171,10 @@ MouseButton MouseButtonFromIndex(std::uint8_t button) {
         return MouseButton::Middle;
     case SDL_BUTTON_RIGHT:
         return MouseButton::Right;
+    case SDL_BUTTON_X1:
+        return MouseButton::X1;
+    case SDL_BUTTON_X2:
+        return MouseButton::X2;
     default:
         return MouseButton::Unknown;
     }
@@ -140,6 +204,8 @@ bool IsForWindow(const SDL_Event& event, SDL_WindowID windowId) {
         return true;
     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
     case SDL_EVENT_WINDOW_RESIZED:
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+    case SDL_EVENT_WINDOW_FOCUS_GAINED:
         return matches(event.window.windowID);
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP:
@@ -173,6 +239,12 @@ TranslatedEvent TranslateSdlEvent(const SDL_Event& sdlEvent) {
         translated.width = sdlEvent.window.data1;
         translated.height = sdlEvent.window.data2;
         translated.event = std::make_unique<WindowResizeEvent>(translated.width, translated.height);
+        break;
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+        translated.event = std::make_unique<WindowFocusLostEvent>();
+        break;
+    case SDL_EVENT_WINDOW_FOCUS_GAINED:
+        translated.event = std::make_unique<WindowFocusGainedEvent>();
         break;
     case SDL_EVENT_KEY_DOWN:
         translated.event = std::make_unique<KeyPressedEvent>(

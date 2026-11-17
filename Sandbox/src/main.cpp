@@ -7,7 +7,9 @@
 #include "Xora2D/Events/Event.h"
 #include "Xora2D/Events/KeyEvent.h"
 #include "Xora2D/Events/WindowEvent.h"
-#include "Xora2D/Input/KeyCodes.h"
+#include "Xora2D/Input/Input.h"
+#include "Xora2D/Input/InputMapping.h"
+#include "Xora2D/Input/InputMappingSerializer.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Physics/PhysicsEvents.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
@@ -20,6 +22,7 @@
 
 #include <glm/vec2.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <exception>
@@ -31,7 +34,9 @@
 
 namespace {
 
-constexpr float kCameraSpeed = 420.0f;
+constexpr float kPlayerSpeedMetersPerSecond = 4.5f;
+constexpr float kJumpImpulseMetersPerSecond = 7.0f;
+constexpr float kCameraZoomStep = 0.08f;
 
 class SandboxApp : public Xora2D::Application {
 public:
@@ -58,6 +63,7 @@ public:
             XORA_LOG_INFO("{} {} — {} / {}", kind, phase, event.EntityA.ToString(), event.EntityB.ToString());
         });
 
+        LoadInputMapping();
         BuildScene();
         m_scene->SetSceneName("SandboxPhysicsDemo");
         DemonstrateSceneSerialization();
@@ -66,6 +72,7 @@ public:
 
 protected:
     void OnShutdownRequested() override {
+        m_playerEntity = {};
         m_assetManager.PrepareShutdown();
         if (m_scene) {
             m_scene->PrepareForShutdown();
@@ -73,9 +80,12 @@ protected:
     }
 
     void OnUpdate(double deltaSeconds) override {
-        m_scene->OnUpdate(static_cast<float>(deltaSeconds));
-        UpdateCamera(static_cast<float>(deltaSeconds));
-        m_logCooldown -= static_cast<float>(deltaSeconds);
+        const float delta = static_cast<float>(deltaSeconds);
+        // Step physics first so SyncSceneBodies creates bodies before gameplay applies forces.
+        m_scene->OnUpdate(delta);
+        UpdateInputGameplay(delta);
+        UpdateCamera(delta);
+        m_logCooldown -= delta;
     }
 
     void OnRender() override {
@@ -97,18 +107,6 @@ protected:
         resizeDispatcher.Dispatch([this](Xora2D::WindowResizeEvent&) {
             m_scene->SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
                                      static_cast<float>(GetWindow().GetFramebufferHeight()));
-            return false;
-        });
-
-        Xora2D::EventDispatcher<Xora2D::KeyPressedEvent> keyPressed(event);
-        keyPressed.Dispatch([this](Xora2D::KeyPressedEvent& pressed) {
-            SetMovementKey(pressed.GetKey(), true);
-            return false;
-        });
-
-        Xora2D::EventDispatcher<Xora2D::KeyReleasedEvent> keyReleased(event);
-        keyReleased.Dispatch([this](Xora2D::KeyReleasedEvent& released) {
-            SetMovementKey(released.GetKey(), false);
             return false;
         });
     }
@@ -160,6 +158,13 @@ private:
         CreateStaticPlatform("UpperPlatform", {520.0f, 220.0f}, {260.0f, 24.0f}, {0.30f, 0.42f, 0.56f, 1.0f});
 
         CreateSensor("DropSensor", {900.0f, 120.0f}, {180.0f, 120.0f});
+
+        CreateDynamicCircle("Player", {640.0f, 120.0f}, 24.0f, 0.0f, 0.85f);
+        m_playerEntity = m_scene->FindEntityByName("Player");
+        if (m_playerEntity.IsValid()) {
+            auto& playerSprite = m_playerEntity.GetComponent<Xora2D::SpriteRendererComponent>();
+            playerSprite.Color = {0.20f, 0.85f, 0.55f, 1.0f};
+        }
 
         for (int index = 0; index < 4; ++index) {
             const float x = 260.0f + static_cast<float>(index) * 95.0f;
@@ -213,9 +218,26 @@ private:
         }
 
         m_scene->ReplaceContentsFrom(*loadedScene);
+
+        {
+            auto& physics = m_scene->GetPhysicsWorld();
+            Xora2D::PhysicsWorld2D::Settings settings = physics.GetSettings();
+            settings.PixelsPerMeter = 50.0f;
+            settings.Gravity = {0.0f, -9.81f};
+#ifndef NDEBUG
+            settings.EnableContactDiagnostics = true;
+#endif
+            physics.Configure(settings);
+        }
+
         m_cameraEntity = m_scene->FindEntityByUUID(cameraUuid);
         if (!m_cameraEntity.IsValid()) {
             m_cameraEntity = m_scene->FindEntityByName("MainCamera");
+        }
+        m_playerEntity = m_scene->FindEntityByName("Player");
+        if (m_playerEntity.IsValid()) {
+            auto& playerSprite = m_playerEntity.GetComponent<Xora2D::SpriteRendererComponent>();
+            playerSprite.Color = {0.20f, 0.85f, 0.55f, 1.0f};
         }
         XORA_LOG_INFO("Active scene after reload: {} entities, camera UUID match: {}", m_scene->GetEntityCount(),
                       m_cameraEntity.GetUUID() == cameraUuid);
@@ -279,45 +301,80 @@ private:
         entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
     }
 
-    void UpdateCamera(float delta) {
-        glm::vec2 velocity{0.0f};
-        if (m_moveLeft) {
-            velocity.x -= kCameraSpeed * delta;
+    void LoadInputMapping() {
+        const std::filesystem::path mappingPath = Xora2D::ResolveResourcePath("Input/SandboxInput.yaml");
+        const auto result = Xora2D::InputMappingSerializer::Load(m_inputMapping, mappingPath);
+        if (!result.Success) {
+            XORA_LOG_WARN("Input mapping load failed: {}", result.Message);
+            m_inputMapping.BindKey("MoveLeft", Xora2D::Key::A);
+            m_inputMapping.BindKey("MoveRight", Xora2D::Key::D);
+            m_inputMapping.BindKey("MoveUp", Xora2D::Key::W);
+            m_inputMapping.BindKey("MoveDown", Xora2D::Key::S);
+            m_inputMapping.BindKey("Jump", Xora2D::Key::Space);
+            m_inputMapping.BindKey("Jump", Xora2D::Key::Up);
+            m_inputMapping.BindKey("Quit", Xora2D::Key::Escape);
+            m_inputMapping.BindMouseButton("Fire", Xora2D::MouseButton::Left);
+        } else {
+            XORA_LOG_INFO("Input mapping loaded from {}", mappingPath.string());
         }
-        if (m_moveRight) {
-            velocity.x += kCameraSpeed * delta;
-        }
-        if (m_moveDown) {
-            velocity.y -= kCameraSpeed * delta;
-        }
-        if (m_moveUp) {
-            velocity.y += kCameraSpeed * delta;
-        }
-        auto& transform = m_cameraEntity.GetComponent<Xora2D::TransformComponent>();
-        transform.Translation += velocity;
-        transform.RecalculateLocalMatrix();
     }
 
-    void SetMovementKey(Xora2D::Key key, bool down) {
-        switch (key) {
-        case Xora2D::Key::A:
-        case Xora2D::Key::Left:
-            m_moveLeft = down;
-            break;
-        case Xora2D::Key::D:
-        case Xora2D::Key::Right:
-            m_moveRight = down;
-            break;
-        case Xora2D::Key::S:
-        case Xora2D::Key::Down:
-            m_moveDown = down;
-            break;
-        case Xora2D::Key::W:
-        case Xora2D::Key::Up:
-            m_moveUp = down;
-            break;
-        default:
-            break;
+    void UpdateInputGameplay(float /*delta*/) {
+        auto& input = GetInputManager();
+        if (m_inputMapping.IsActionPressed(input, "Quit")) {
+            Close();
+        }
+        if (m_inputMapping.IsActionPressed(input, "Fire")) {
+            XORA_LOG_INFO("Fire action (left click) at {},{}", Xora2D::Input::GetMouseX(), Xora2D::Input::GetMouseY());
+        }
+        if (!m_playerEntity.IsValid() || !m_scene->GetPhysicsWorld().HasPhysicsBody(m_playerEntity)) {
+            return;
+        }
+
+        auto& physics = m_scene->GetPhysicsWorld();
+        glm::vec2 velocity = physics.GetLinearVelocity(m_playerEntity);
+        float targetX = 0.0f;
+        if (m_inputMapping.IsActionDown(input, "MoveLeft")) {
+            targetX -= kPlayerSpeedMetersPerSecond;
+        }
+        if (m_inputMapping.IsActionDown(input, "MoveRight")) {
+            targetX += kPlayerSpeedMetersPerSecond;
+        }
+        velocity.x = targetX;
+        if (m_inputMapping.IsActionDown(input, "MoveUp")) {
+            velocity.y = kPlayerSpeedMetersPerSecond;
+        } else if (m_inputMapping.IsActionDown(input, "MoveDown")) {
+            velocity.y = -kPlayerSpeedMetersPerSecond;
+        }
+        physics.SetLinearVelocity(m_playerEntity, velocity);
+
+        if (m_inputMapping.IsActionPressed(input, "Jump")) {
+            m_scene->GetPhysicsWorld().ApplyLinearImpulse(m_playerEntity, {0.0f, kJumpImpulseMetersPerSecond});
+        }
+    }
+
+    void UpdateCamera(float /*delta*/) {
+        const glm::vec2 scroll = Xora2D::Input::GetScrollDelta();
+        if (m_cameraEntity.IsValid() && scroll.y != 0.0f) {
+            auto& camera = m_cameraEntity.GetComponent<Xora2D::CameraComponent>();
+            camera.Zoom = std::clamp(camera.Zoom + scroll.y * kCameraZoomStep, 0.35f, 2.5f);
+        }
+        if (m_playerEntity.IsValid() && m_cameraEntity.IsValid()) {
+            const auto& camera = m_cameraEntity.GetComponent<Xora2D::CameraComponent>();
+            const float zoom = std::max(camera.Zoom, 0.01f);
+            const float viewWidth = m_scene->GetViewportWidth() / zoom;
+            const float viewHeight = m_scene->GetViewportHeight() / zoom;
+            const glm::vec2 playerPosition = m_playerEntity.GetComponent<Xora2D::TransformComponent>().Translation;
+
+            // OrthographicCamera treats position as the bottom-left of the visible region (+Y up).
+            auto& cameraTransform = m_cameraEntity.GetComponent<Xora2D::TransformComponent>();
+            cameraTransform.Translation = playerPosition - glm::vec2(viewWidth * 0.5f, viewHeight * 0.5f);
+            cameraTransform.RecalculateLocalMatrix();
+        }
+
+        if (m_logCooldown <= 0.0f) {
+            XORA_LOG_INFO("Mouse position (window space): {},{}", Xora2D::Input::GetMouseX(),
+                          Xora2D::Input::GetMouseY());
         }
     }
 
@@ -326,11 +383,9 @@ private:
     Xora2D::AssetHandle m_logoAssetHandle;
     std::shared_ptr<Xora2D::Scene> m_scene;
     Xora2D::Entity m_cameraEntity;
+    Xora2D::Entity m_playerEntity;
+    Xora2D::InputMapping m_inputMapping;
     float m_logCooldown = 0.0f;
-    bool m_moveLeft = false;
-    bool m_moveRight = false;
-    bool m_moveUp = false;
-    bool m_moveDown = false;
 };
 
 } // namespace
