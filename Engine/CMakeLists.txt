@@ -3,6 +3,7 @@ add_library(Xora2D STATIC
     src/Core/Logger.cpp
     src/Core/Paths.cpp
     src/Core/Time.cpp
+    src/Core/UUID.cpp
     src/Platform/Window.cpp
     src/Renderer/BufferLayout.cpp
     src/Renderer/GraphicsContext.cpp
@@ -15,6 +16,12 @@ add_library(Xora2D STATIC
     src/Renderer/OpenGL/OpenGLVertexArray.cpp
     src/Renderer/OpenGL/OpenGLContext.cpp
     src/Renderer/OpenGL/OpenGLRendererAPI.cpp
+    src/Scene/Components.cpp
+    src/Scene/Entity.cpp
+    src/Scene/EntityTemplateInst.cpp
+    src/Scene/Scene.cpp
+    src/Physics/PhysicsUtils.cpp
+    src/Physics/PhysicsWorld2D.cpp
 )
 
 add_library(Xora2D::Xora2D ALIAS Xora2D)
@@ -32,7 +39,7 @@ target_compile_features(Xora2D PUBLIC cxx_std_20)
 target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources")
 
 find_package(SDL3 CONFIG REQUIRED)
-target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad)
+target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d)
 
 find_path(XORA2D_GLM_INCLUDE_DIR glm/glm.hpp
     PATHS

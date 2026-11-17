@@ -20,6 +20,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 enable_testing()
 
 add_subdirectory(third_party/glad)
+include(${CMAKE_SOURCE_DIR}/third_party/entt/Xora2D.cmake)
+include(${CMAKE_SOURCE_DIR}/third_party/box2d/Xora2D.cmake)
 add_subdirectory(Engine)
 add_subdirectory(Sandbox)
 add_subdirectory(Tests)

@@ -47,6 +47,9 @@ Application::~Application() {
 int Application::Run() {
     while (m_running) {
         m_window->PollEvents();
+        if (!m_running) {
+            break;
+        }
         const double deltaSeconds = m_time.Tick();
         OnUpdate(deltaSeconds);
 
@@ -81,6 +84,8 @@ void Application::OnRender() {}
 
 void Application::OnEvent(Event& /*event*/) {}
 
+void Application::OnShutdownRequested() {}
+
 Renderer2D& Application::GetRenderer2D() {
     return *m_renderer2D;
 }
@@ -105,6 +110,7 @@ void Application::HandleEvent(Event& event) {
     EventDispatcher<WindowCloseEvent> closeDispatcher(event);
     closeDispatcher.Dispatch([this](WindowCloseEvent&) {
         XORA_LOG_INFO("Window close requested");
+        OnShutdownRequested();
         m_running = false;
         return true;
     });
@@ -112,6 +118,7 @@ void Application::HandleEvent(Event& event) {
     EventDispatcher<AppQuitEvent> quitDispatcher(event);
     quitDispatcher.Dispatch([this](AppQuitEvent&) {
         XORA_LOG_INFO("Application quit requested");
+        OnShutdownRequested();
         m_running = false;
         return true;
     });

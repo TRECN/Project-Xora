@@ -8,9 +8,9 @@ Xora2D is a 2D game engine for creating, running, and exporting desktop games. T
 
 ## Current status
 
-The sandbox opens a resizable 1280×720 window, creates an OpenGL 3.3 core context, and renders batched 2D colored and textured quads with an orthographic camera. Logging, events, frame timing, OpenGL/GLAD setup, and `Renderer2D` are in place.
+The sandbox opens a resizable 1280×720 window, creates an OpenGL 3.3 core context, and drives rendering through an ECS `Scene` with Box2D **2.4.1** physics (`PhysicsWorld2D`, rigid bodies, box/circle colliders, collision/sensor events).
 
-Not implemented yet: ECS, physics, audio, scripting, the editor, and game export.
+Not implemented yet: audio, scripting, the editor, scene serialization, and game export.
 
 ## Technology stack
 
@@ -19,6 +19,8 @@ Not implemented yet: ECS, physics, audio, scripting, the editor, and game export
 - SDL3 for the window, events, and the OpenGL context
 - OpenGL 3.3 Core Profile through GLAD 2.0.8
 - GLM for mathematics
+- EnTT 3.13.2 (vendored under `third_party/entt/`) for ECS
+- Box2D 2.4.1 (vendored under `third_party/box2d/`) for 2D physics
 - Apple Clang on macOS (Apple Silicon)
 
 ## Directory structure
@@ -29,12 +31,12 @@ Xora2D/
 ├── Engine/                 Static library (public headers in include/)
 ├── Editor/                 Visual editor (not started)
 ├── Sandbox/                Xora2D-Sandbox executable
-├── Tests/                  Logger, event, time, and window tests
+├── Tests/                  Core, graphics, renderer, scene, and physics tests
 ├── Resources/              Runtime assets
 ├── Docs/
 │   ├── Architecture/
 │   └── Guides/
-└── third_party/            Vendored code, if any is added later
+└── third_party/            GLAD, stb_image, EnTT, Box2D
 ```
 
 SDL3 stays inside `Engine/src`. Public headers do not include it. `Application` owns a `Window` and never calls SDL itself. The sandbox links the engine library and uses only the public headers.

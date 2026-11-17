@@ -330,6 +330,8 @@ void TestWindowDeliversEvents() {
 
 int RunGraphicsTests();
 int RunRendererTests();
+int RunSceneTests();
+int RunPhysicsTests();
 
 int main() {
     XORA_LOG_INFO("Xora2D tests starting");
@@ -340,6 +342,8 @@ int main() {
     TestWindowDeliversEvents();
     g_failures += RunGraphicsTests();
     g_failures += RunRendererTests();
+    g_failures += RunSceneTests();
+    g_failures += RunPhysicsTests();
 
     if (g_failures != 0) {
         XORA_LOG_ERROR("{} test check(s) failed", g_failures);

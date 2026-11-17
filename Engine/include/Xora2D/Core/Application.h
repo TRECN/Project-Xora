@@ -37,6 +37,9 @@ protected:
     virtual void OnUpdate(double deltaSeconds);
     virtual void OnRender();
 
+    // Invoked when the window close or application quit event is received.
+    virtual void OnShutdownRequested();
+
     Renderer2D& GetRenderer2D();
     const Renderer2D& GetRenderer2D() const;
 

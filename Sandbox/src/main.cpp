@@ -5,102 +5,81 @@
 #include "Xora2D/Events/KeyEvent.h"
 #include "Xora2D/Events/WindowEvent.h"
 #include "Xora2D/Input/KeyCodes.h"
-#include "Xora2D/Renderer/OrthographicCamera.h"
+#include "Xora2D/Physics/PhysicsComponents.h"
+#include "Xora2D/Physics/PhysicsEvents.h"
+#include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Renderer/Renderer2D.h"
 #include "Xora2D/Renderer/Texture2D.h"
+#include "Xora2D/Scene/Components.h"
+#include "Xora2D/Scene/Entity.h"
+#include "Xora2D/Scene/Scene.h"
 
 #include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
 
 #include <cmath>
 #include <cstdlib>
 #include <exception>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace {
 
-constexpr float kMoveSpeed = 420.0f;
+constexpr float kCameraSpeed = 420.0f;
 
 class SandboxApp : public Xora2D::Application {
 public:
     SandboxApp() {
-        const float width = static_cast<float>(GetWindow().GetWidth());
-        const float height = static_cast<float>(GetWindow().GetHeight());
-        m_camera.SetViewportSize(width, height);
-        m_camera.SetPosition({width * 0.5f, height * 0.5f});
+        m_scene = Xora2D::Scene::Create();
+        m_scene->SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
+                                 static_cast<float>(GetWindow().GetFramebufferHeight()));
+
+        auto& physics = m_scene->GetPhysicsWorld();
+        Xora2D::PhysicsWorld2D::Settings settings = physics.GetSettings();
+        settings.PixelsPerMeter = 50.0f;
+        settings.Gravity = {0.0f, -9.81f};
+#ifndef NDEBUG
+        settings.EnableContactDiagnostics = true;
+#endif
+        physics.Configure(settings);
 
         m_logoTexture = Xora2D::Texture2D::CreateFromFile(
             Xora2D::ResolveResourcePath("Textures/Xora2D_Logo.png").string());
-        XORA_LOG_INFO("Loaded sandbox texture {}x{}", m_logoTexture->GetWidth(), m_logoTexture->GetHeight());
 
-        const Xora2D::GraphicsInfo& info = GetGraphicsInfo();
-        XORA_LOG_INFO("Sandbox graphics vendor: {}", info.vendor);
-        XORA_LOG_INFO("Sandbox graphics renderer: {}", info.renderer);
-        XORA_LOG_INFO("Sandbox graphics version: {}", info.version);
+        m_scene->SetPhysicsEventCallback([](const Xora2D::PhysicsCollisionEvent& event) {
+            const char* kind = event.Kind == Xora2D::PhysicsCollisionKind::Sensor ? "Sensor" : "Collision";
+            const char* phase = event.Phase == Xora2D::PhysicsCollisionPhase::Begin ? "begin" : "end";
+            XORA_LOG_INFO("{} {} — {} / {}", kind, phase, event.EntityA.ToString(), event.EntityB.ToString());
+        });
+
+        BuildScene();
+        XORA_LOG_INFO("Physics sandbox: {} entities", m_scene->GetEntityCount());
     }
 
 protected:
+    void OnShutdownRequested() override {
+        if (m_scene) {
+            m_scene->PrepareForShutdown();
+        }
+    }
+
     void OnUpdate(double deltaSeconds) override {
-        const float delta = static_cast<float>(deltaSeconds);
-        const float move = kMoveSpeed * delta;
-        glm::vec2 position = m_camera.GetPosition();
-        if (m_moveLeft) {
-            position.x -= move;
-        }
-        if (m_moveRight) {
-            position.x += move;
-        }
-        if (m_moveDown) {
-            position.y -= move;
-        }
-        if (m_moveUp) {
-            position.y += move;
-        }
-        m_camera.SetPosition(position);
-        m_rotationTime += delta;
-        m_logCooldown -= delta;
+        m_scene->OnUpdate(static_cast<float>(deltaSeconds));
+        UpdateCamera(static_cast<float>(deltaSeconds));
+        m_logCooldown -= static_cast<float>(deltaSeconds);
     }
 
     void OnRender() override {
-        m_camera.SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
+        m_scene->SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
                                  static_cast<float>(GetWindow().GetFramebufferHeight()));
 
-        Xora2D::Renderer2D& renderer = GetRenderer2D();
-        renderer.BeginScene(m_camera);
-
-        renderer.DrawQuad({120.0f, 120.0f}, {220.0f, 160.0f}, glm::vec4(0.86f, 0.24f, 0.28f, 1.0f));
-        renderer.DrawQuad({400.0f, 140.0f}, {140.0f, 140.0f}, glm::vec4(0.20f, 0.72f, 0.45f, 1.0f));
-        renderer.DrawQuad({700.0f, 220.0f}, {180.0f, 90.0f}, glm::vec4(0.95f, 0.78f, 0.12f, 1.0f));
-        for (int index = 0; index < 8; ++index) {
-            const float x = 250.0f + static_cast<float>(index) * 90.0f;
-            const float y = 420.0f;
-            renderer.DrawQuad({x, y}, {64.0f, 64.0f}, glm::vec4(0.20f + index * 0.08f, 0.28f, 0.80f, 1.0f));
-        }
-
-        Xora2D::Transform2D rotated{};
-        rotated.Position = {340.0f, 360.0f};
-        rotated.Size = {160.0f, 90.0f};
-        rotated.RotationRadians = std::sin(m_rotationTime) * 0.8f;
-        renderer.DrawQuad(rotated, glm::vec4(0.55f, 0.36f, 0.97f, 0.92f));
-
-        Xora2D::Transform2D logoTransform{};
-        logoTransform.Position = {860.0f, 360.0f};
-        logoTransform.Size = {220.0f, 220.0f};
-        renderer.DrawQuad(logoTransform, *m_logoTexture);
-
-        for (int index = 0; index < 24; ++index) {
-            const float angle = static_cast<float>(index) * 0.55f;
-            renderer.DrawQuad({520.0f + std::cos(angle) * 180.0f, 360.0f + std::sin(angle) * 120.0f}, {28.0f, 28.0f},
-                              *m_logoTexture, glm::vec4(1.0f, 1.0f, 1.0f, 0.88f));
-        }
-
-        renderer.EndScene();
+        GetRenderer2D().ResetStats();
+        m_scene->OnRender(GetRenderer2D());
 
         if (m_logCooldown <= 0.0f) {
-            const Xora2D::Renderer2DStats& stats = renderer.GetStats();
-            XORA_LOG_INFO("Renderer2D stats — drawCalls: {}, quads: {}, vertices: {}, indices: {}", stats.drawCalls,
-                          stats.quadCount, stats.vertexCount, stats.indexCount);
-            renderer.ResetStats();
+            const auto& stats = GetRenderer2D().GetStats();
+            XORA_LOG_INFO("Renderer2D frame stats — drawCalls: {}, quads: {}", stats.drawCalls, stats.quadCount);
             m_logCooldown = 1.0f;
         }
     }
@@ -108,7 +87,7 @@ protected:
     void OnEvent(Xora2D::Event& event) override {
         Xora2D::EventDispatcher<Xora2D::WindowResizeEvent> resizeDispatcher(event);
         resizeDispatcher.Dispatch([this](Xora2D::WindowResizeEvent&) {
-            m_camera.SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
+            m_scene->SetViewportSize(static_cast<float>(GetWindow().GetFramebufferWidth()),
                                      static_cast<float>(GetWindow().GetFramebufferHeight()));
             return false;
         });
@@ -127,6 +106,120 @@ protected:
     }
 
 private:
+    void BuildScene() {
+        m_cameraEntity = m_scene->CreateEntity("MainCamera");
+        auto& camera = m_cameraEntity.AddComponent<Xora2D::CameraComponent>();
+        camera.Primary = true;
+        auto& cameraTransform = m_cameraEntity.GetComponent<Xora2D::TransformComponent>();
+        cameraTransform.Translation = {640.0f, 360.0f};
+
+        CreateStaticPlatform("Ground", {640.0f, 30.0f}, {1400.0f, 60.0f}, {0.18f, 0.20f, 0.28f, 1.0f});
+
+        CreateStaticPlatform("LeftWall", {40.0f, 360.0f}, {60.0f, 900.0f}, {0.25f, 0.28f, 0.36f, 1.0f});
+        CreateStaticPlatform("RightWall", {1240.0f, 360.0f}, {60.0f, 900.0f}, {0.25f, 0.28f, 0.36f, 1.0f});
+        CreateStaticPlatform("UpperPlatform", {520.0f, 220.0f}, {260.0f, 24.0f}, {0.30f, 0.42f, 0.56f, 1.0f});
+
+        CreateSensor("DropSensor", {900.0f, 120.0f}, {180.0f, 120.0f});
+
+        for (int index = 0; index < 4; ++index) {
+            const float x = 260.0f + static_cast<float>(index) * 95.0f;
+            const float restitution = index % 2 == 0 ? 0.05f : 0.65f;
+            const float friction = index % 2 == 0 ? 0.85f : 0.2f;
+            CreateDynamicBox("Box" + std::to_string(index + 1), {x, 420.0f + index * 15.0f}, {48.0f, 48.0f},
+                             restitution, friction);
+        }
+
+        for (int index = 0; index < 4; ++index) {
+            const float x = 760.0f + static_cast<float>(index) * 70.0f;
+            CreateDynamicCircle("Ball" + std::to_string(index + 1), {x, 500.0f + index * 20.0f}, 22.0f + index * 4.0f,
+                                index == 0 ? 0.8f : 0.2f, 0.35f);
+        }
+
+        Xora2D::Entity logo = m_scene->CreateEntity("Logo");
+        logo.AddComponent<Xora2D::SpriteRendererComponent>();
+        auto& logoSprite = logo.GetComponent<Xora2D::SpriteRendererComponent>();
+        logoSprite.Texture = m_logoTexture;
+        logoSprite.Size = {120.0f, 120.0f};
+        logo.GetComponent<Xora2D::TransformComponent>().Translation = {1150.0f, 620.0f};
+    }
+
+    void CreateStaticPlatform(const std::string& name, const glm::vec2& position, const glm::vec2& size,
+                              const glm::vec4& color) {
+        Xora2D::Entity entity = m_scene->CreateEntity(name);
+        auto& body = entity.AddComponent<Xora2D::RigidBody2DComponent>();
+        body.Type = Xora2D::RigidBodyType2D::Static;
+        auto& collider = entity.AddComponent<Xora2D::BoxCollider2DComponent>();
+        collider.Size = size;
+        collider.Friction = 0.7f;
+        auto& sprite = entity.AddComponent<Xora2D::SpriteRendererComponent>();
+        sprite.Color = color;
+        sprite.Size = size;
+        entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void CreateSensor(const std::string& name, const glm::vec2& position, const glm::vec2& size) {
+        Xora2D::Entity entity = m_scene->CreateEntity(name);
+        auto& body = entity.AddComponent<Xora2D::RigidBody2DComponent>();
+        body.Type = Xora2D::RigidBodyType2D::Static;
+        auto& collider = entity.AddComponent<Xora2D::BoxCollider2DComponent>();
+        collider.Size = size;
+        collider.IsSensor = true;
+        auto& sprite = entity.AddComponent<Xora2D::SpriteRendererComponent>();
+        sprite.Color = {0.85f, 0.70f, 0.20f, 0.35f};
+        sprite.Size = size;
+        entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void CreateDynamicBox(const std::string& name, const glm::vec2& position, const glm::vec2& size, float restitution,
+                          float friction) {
+        Xora2D::Entity entity = m_scene->CreateEntity(name);
+        auto& body = entity.AddComponent<Xora2D::RigidBody2DComponent>();
+        body.Type = Xora2D::RigidBodyType2D::Dynamic;
+        auto& collider = entity.AddComponent<Xora2D::BoxCollider2DComponent>();
+        collider.Size = size;
+        collider.Restitution = restitution;
+        collider.Friction = friction;
+        auto& sprite = entity.AddComponent<Xora2D::SpriteRendererComponent>();
+        sprite.Color = {0.35f + restitution * 0.5f, 0.55f, 0.90f, 1.0f};
+        sprite.Size = size;
+        entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void CreateDynamicCircle(const std::string& name, const glm::vec2& position, float radius, float restitution,
+                             float friction) {
+        Xora2D::Entity entity = m_scene->CreateEntity(name);
+        auto& body = entity.AddComponent<Xora2D::RigidBody2DComponent>();
+        body.Type = Xora2D::RigidBodyType2D::Dynamic;
+        body.FixedRotation = false;
+        auto& collider = entity.AddComponent<Xora2D::CircleCollider2DComponent>();
+        collider.Radius = radius;
+        collider.Restitution = restitution;
+        collider.Friction = friction;
+        auto& sprite = entity.AddComponent<Xora2D::SpriteRendererComponent>();
+        sprite.Color = {0.92f, 0.40f + restitution * 0.3f, 0.28f, 1.0f};
+        sprite.Size = {radius * 2.0f, radius * 2.0f};
+        entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void UpdateCamera(float delta) {
+        glm::vec2 velocity{0.0f};
+        if (m_moveLeft) {
+            velocity.x -= kCameraSpeed * delta;
+        }
+        if (m_moveRight) {
+            velocity.x += kCameraSpeed * delta;
+        }
+        if (m_moveDown) {
+            velocity.y -= kCameraSpeed * delta;
+        }
+        if (m_moveUp) {
+            velocity.y += kCameraSpeed * delta;
+        }
+        auto& transform = m_cameraEntity.GetComponent<Xora2D::TransformComponent>();
+        transform.Translation += velocity;
+        transform.RecalculateLocalMatrix();
+    }
+
     void SetMovementKey(Xora2D::Key key, bool down) {
         switch (key) {
         case Xora2D::Key::A:
@@ -150,9 +243,9 @@ private:
         }
     }
 
-    Xora2D::OrthographicCamera m_camera;
-    std::unique_ptr<Xora2D::Texture2D> m_logoTexture;
-    float m_rotationTime = 0.0f;
+    std::shared_ptr<Xora2D::Scene> m_scene;
+    std::shared_ptr<Xora2D::Texture2D> m_logoTexture;
+    Xora2D::Entity m_cameraEntity;
     float m_logCooldown = 0.0f;
     bool m_moveLeft = false;
     bool m_moveRight = false;
