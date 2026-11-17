@@ -13,12 +13,14 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Serialization/SceneSerializer.h"
 
 #include <glm/vec2.hpp>
 
 #include <cmath>
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -54,6 +56,8 @@ public:
         });
 
         BuildScene();
+        m_scene->SetSceneName("SandboxPhysicsDemo");
+        DemonstrateSceneSerialization();
         XORA_LOG_INFO("Physics sandbox: {} entities", m_scene->GetEntityCount());
     }
 
@@ -139,8 +143,46 @@ private:
         logo.AddComponent<Xora2D::SpriteRendererComponent>();
         auto& logoSprite = logo.GetComponent<Xora2D::SpriteRendererComponent>();
         logoSprite.Texture = m_logoTexture;
+        logoSprite.TexturePath = "Textures/Xora2D_Logo.png";
         logoSprite.Size = {120.0f, 120.0f};
         logo.GetComponent<Xora2D::TransformComponent>().Translation = {1150.0f, 620.0f};
+    }
+
+    void DemonstrateSceneSerialization() {
+        const std::filesystem::path scenePath =
+            Xora2D::ResolveResourcePath("Scenes/SandboxPhysicsDemo.scene.yaml");
+        const std::size_t entityCountBeforeSave = m_scene->GetEntityCount();
+        const Xora2D::UUID cameraUuid = m_cameraEntity.GetUUID();
+
+        const Xora2D::SceneSerializeResult saveResult = Xora2D::SceneSerializer::Serialize(*m_scene, scenePath);
+        if (!saveResult.Success) {
+            XORA_LOG_WARN("Scene save failed: {}", saveResult.Message);
+            return;
+        }
+        XORA_LOG_INFO("Scene saved to {} ({} entities)", scenePath.string(), entityCountBeforeSave);
+
+        auto loadedScene = Xora2D::Scene::Create();
+        loadedScene->SetViewportSize(m_scene->GetViewportWidth(), m_scene->GetViewportHeight());
+        const Xora2D::SceneSerializeResult loadResult = Xora2D::SceneSerializer::Deserialize(*loadedScene, scenePath);
+        if (!loadResult.Success) {
+            XORA_LOG_WARN("Scene load failed: {}", loadResult.Message);
+            return;
+        }
+
+        XORA_LOG_INFO("Scene loaded: {} entities (before save: {})", loadedScene->GetEntityCount(),
+                      entityCountBeforeSave);
+        const Xora2D::Entity loadedCamera = loadedScene->FindEntityByUUID(cameraUuid);
+        if (!loadedCamera.IsValid()) {
+            XORA_LOG_WARN("Loaded scene did not preserve MainCamera UUID {}", cameraUuid.ToString());
+        }
+
+        m_scene->ReplaceContentsFrom(*loadedScene);
+        m_cameraEntity = m_scene->FindEntityByUUID(cameraUuid);
+        if (!m_cameraEntity.IsValid()) {
+            m_cameraEntity = m_scene->FindEntityByName("MainCamera");
+        }
+        XORA_LOG_INFO("Active scene after reload: {} entities, camera UUID match: {}", m_scene->GetEntityCount(),
+                      m_cameraEntity.GetUUID() == cameraUuid);
     }
 
     void CreateStaticPlatform(const std::string& name, const glm::vec2& position, const glm::vec2& size,

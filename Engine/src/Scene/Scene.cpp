@@ -60,6 +60,69 @@ Entity Scene::CreateEntity(const std::string& name) {
     return Entity(this, handle);
 }
 
+Entity Scene::CreateEntityWithUUID(const std::string& name, const UUID& uuid) {
+    if (!uuid.IsValid()) {
+        throw std::runtime_error("CreateEntityWithUUID requires a valid UUID");
+    }
+    if (m_uuidIndex.contains(uuid)) {
+        throw std::runtime_error("CreateEntityWithUUID: duplicate UUID");
+    }
+    if (m_nameIndex.contains(name)) {
+        XORA_LOG_WARN("Duplicate entity name '{}'; FindEntityByName returns the most recently created entity",
+                      name);
+    }
+    const entt::entity created = m_registry->Registry.create();
+    const std::uint32_t handle = FromEntt(created);
+
+    UUID::RegisterUsed(uuid);
+    m_registry->Emplace<IDComponent>(handle, IDComponent{uuid});
+    m_registry->Emplace<TagComponent>(handle, TagComponent{name});
+
+    auto& transform = m_registry->Emplace<TransformComponent>(handle);
+    transform.RecalculateLocalMatrix();
+
+    IndexEntity(handle);
+    return Entity(this, handle);
+}
+
+void Scene::ReplaceContentsFrom(Scene& source) {
+    if (this == &source) {
+        return;
+    }
+    PrepareForShutdown();
+    source.PrepareForShutdown();
+
+    m_sceneName = source.m_sceneName;
+    m_viewportWidth = source.m_viewportWidth;
+    m_viewportHeight = source.m_viewportHeight;
+    m_registry = std::move(source.m_registry);
+    m_uuidIndex = std::move(source.m_uuidIndex);
+    m_nameIndex = std::move(source.m_nameIndex);
+    m_physics = std::make_unique<PhysicsWorld2D>();
+
+    source.m_registry = std::make_unique<Registry>();
+    source.m_uuidIndex.clear();
+    source.m_nameIndex.clear();
+    source.m_physics = std::make_unique<PhysicsWorld2D>();
+    source.m_sceneName = "Untitled";
+}
+
+void Scene::Clear() {
+    PrepareForShutdown();
+    std::vector<std::uint32_t> handles;
+    handles.reserve(m_uuidIndex.size());
+    for (const auto& entry : m_uuidIndex) {
+        handles.push_back(entry.second);
+    }
+    for (const std::uint32_t handle : handles) {
+        UnindexEntity(handle);
+        m_registry->Destroy(handle);
+    }
+    m_uuidIndex.clear();
+    m_nameIndex.clear();
+    m_physics = std::make_unique<PhysicsWorld2D>();
+}
+
 void Scene::DestroyEntity(Entity entity) {
     if (!IsValid(entity)) {
         return;
@@ -152,6 +215,15 @@ void Scene::OnRender(Renderer2D& renderer) {
 
 std::size_t Scene::GetEntityCount() const {
     return m_uuidIndex.size();
+}
+
+std::vector<UUID> Scene::GetEntityUUIDs() const {
+    std::vector<UUID> uuids;
+    uuids.reserve(m_uuidIndex.size());
+    for (const auto& entry : m_uuidIndex) {
+        uuids.push_back(entry.first);
+    }
+    return uuids;
 }
 
 void Scene::IndexEntity(std::uint32_t handle) {

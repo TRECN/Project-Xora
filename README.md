@@ -21,6 +21,7 @@ Not implemented yet: audio, scripting, the editor, scene serialization, and game
 - GLM for mathematics
 - EnTT 3.13.2 (vendored under `third_party/entt/`) for ECS
 - Box2D 2.4.1 (vendored under `third_party/box2d/`) for 2D physics
+- yaml-cpp 0.8.0 (fetched at configure time via `third_party/yaml-cpp/Xora2D.cmake`) for scene YAML
 - Apple Clang on macOS (Apple Silicon)
 
 ## Directory structure

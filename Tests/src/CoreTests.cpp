@@ -331,6 +331,7 @@ void TestWindowDeliversEvents() {
 int RunGraphicsTests();
 int RunRendererTests();
 int RunSceneTests();
+int RunSerializationTests();
 int RunPhysicsTests();
 
 int main() {
@@ -343,6 +344,7 @@ int main() {
     g_failures += RunGraphicsTests();
     g_failures += RunRendererTests();
     g_failures += RunSceneTests();
+    g_failures += RunSerializationTests();
     g_failures += RunPhysicsTests();
 
     if (g_failures != 0) {

@@ -22,6 +22,7 @@ add_library(Xora2D STATIC
     src/Scene/Scene.cpp
     src/Physics/PhysicsUtils.cpp
     src/Physics/PhysicsWorld2D.cpp
+    src/Serialization/SceneSerializer.cpp
 )
 
 add_library(Xora2D::Xora2D ALIAS Xora2D)
@@ -39,7 +40,7 @@ target_compile_features(Xora2D PUBLIC cxx_std_20)
 target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources")
 
 find_package(SDL3 CONFIG REQUIRED)
-target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d)
+target_link_libraries(Xora2D PRIVATE SDL3::SDL3 glad::glad EnTT::EnTT Box2D::box2d yaml-cpp::yaml-cpp)
 
 find_path(XORA2D_GLM_INCLUDE_DIR glm/glm.hpp
     PATHS

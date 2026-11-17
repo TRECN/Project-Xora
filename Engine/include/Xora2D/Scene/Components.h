@@ -47,6 +47,8 @@ private:
 struct SpriteRendererComponent {
     glm::vec4 Color{1.0f};
     glm::vec2 Size{100.0f, 100.0f};
+    // Project-relative path under Resources/ (empty = color-only quad).
+    std::string TexturePath;
     std::shared_ptr<Texture2D> Texture{};
     float TilingFactor = 1.0f;
     bool Visible = true;

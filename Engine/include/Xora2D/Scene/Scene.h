@@ -9,6 +9,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 namespace Xora2D {
@@ -16,6 +17,7 @@ namespace Xora2D {
 class PhysicsWorld2D;
 struct PhysicsWorld2DDetail;
 class Renderer2D;
+class SceneSerializer;
 
 // Owns the ECS registry and entity lifecycle for one logical level.
 class Scene : public std::enable_shared_from_this<Scene> {
@@ -29,7 +31,11 @@ public:
     Scene& operator=(const Scene&) = delete;
 
     Entity CreateEntity(const std::string& name = "Entity");
+    Entity CreateEntityWithUUID(const std::string& name, const UUID& uuid);
     void DestroyEntity(Entity entity);
+
+    void Clear();
+    void ReplaceContentsFrom(Scene& source);
 
     bool IsValid(const Entity& entity) const;
 
@@ -47,17 +53,22 @@ public:
     void PrepareForShutdown();
 
     std::size_t GetEntityCount() const;
+    std::vector<UUID> GetEntityUUIDs() const;
 
     PhysicsWorld2D& GetPhysicsWorld();
     const PhysicsWorld2D& GetPhysicsWorld() const;
 
     void SetPhysicsEventCallback(std::function<void(const PhysicsCollisionEvent&)> callback);
 
+    const std::string& GetSceneName() const { return m_sceneName; }
+    void SetSceneName(std::string name) { m_sceneName = std::move(name); }
+
 private:
     friend class Entity;
     friend class SceneCamera;
     friend class PhysicsWorld2D;
     friend struct PhysicsWorld2DDetail;
+    friend class SceneSerializer;
 
     template <typename Component, typename... Args>
     Component& EmplaceComponent(std::uint32_t handle, Args&&... args);
@@ -88,6 +99,7 @@ private:
     float m_viewportHeight = 720.0f;
 
     std::unique_ptr<PhysicsWorld2D> m_physics;
+    std::string m_sceneName = "Untitled";
 };
 
 } // namespace Xora2D

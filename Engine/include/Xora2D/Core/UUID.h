@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace Xora2D {
@@ -11,6 +12,10 @@ public:
     UUID();
 
     static UUID Generate();
+    static std::optional<UUID> FromString(const std::string& text);
+    static void RegisterUsed(const UUID& uuid);
+    static bool IsRegistered(const UUID& uuid);
+    static void ClearRegistry();
 
     std::uint64_t GetHigh() const { return m_high; }
     std::uint64_t GetLow() const { return m_low; }
