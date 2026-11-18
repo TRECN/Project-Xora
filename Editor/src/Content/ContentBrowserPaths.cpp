@@ -188,7 +188,8 @@ bool IsHiddenEntryName(std::string_view name) {
 
 std::string FullExtensionLower(const std::filesystem::path& file) {
     const std::string name = ToLower(file.filename().string());
-    for (const std::string_view compound : {std::string_view(".scene.yaml"), std::string_view(".anim.yaml")}) {
+    for (const std::string_view compound :
+         {std::string_view(".scene.yaml"), std::string_view(".anim.yaml"), std::string_view(".prefab.yaml")}) {
         if (name.size() > compound.size() && name.ends_with(compound)) {
             return std::string(compound);
         }
@@ -197,6 +198,9 @@ std::string FullExtensionLower(const std::filesystem::path& file) {
 }
 
 ContentItemKind ClassifyContentFile(const std::filesystem::path& file) {
+    if (Xora2D::IsSupportedPrefabExtension(file)) {
+        return ContentItemKind::Prefab;
+    }
     if (Xora2D::IsSupportedSceneExtension(file)) {
         return ContentItemKind::Scene;
     }
@@ -225,6 +229,8 @@ Xora2D::AssetType AssetTypeForKind(ContentItemKind kind) {
         return Xora2D::AssetType::PythonScript;
     case ContentItemKind::Animation:
         return Xora2D::AssetType::AnimationClip;
+    case ContentItemKind::Prefab:
+        return Xora2D::AssetType::Prefab;
     default:
         return Xora2D::AssetType::Unknown;
     }
@@ -244,6 +250,8 @@ const char* ContentItemKindLabel(ContentItemKind kind) {
         return "Scene";
     case ContentItemKind::Animation:
         return "Animation Clip";
+    case ContentItemKind::Prefab:
+        return "Prefab";
     default:
         return "File";
     }

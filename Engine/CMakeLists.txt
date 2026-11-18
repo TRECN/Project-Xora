@@ -49,6 +49,9 @@ add_library(Xora2D STATIC
     src/Project/ProjectSerializer.cpp
     src/Project/Project.cpp
     src/Project/ProjectTemplates.cpp
+    src/Prefab/Prefab.cpp
+    src/Prefab/PrefabSerializer.cpp
+    src/Prefab/PrefabUtility.cpp
     src/Scripting/PythonScriptAsset.cpp
     src/Scripting/ScenePythonScriptSystem.cpp
 )

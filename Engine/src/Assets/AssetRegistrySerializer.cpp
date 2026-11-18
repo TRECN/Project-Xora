@@ -32,6 +32,8 @@ std::string AssetTypeToString(AssetType type) {
         return "PythonScript";
     case AssetType::AnimationClip:
         return "AnimationClip";
+    case AssetType::Prefab:
+        return "Prefab";
     default:
         return "Unknown";
     }
@@ -49,6 +51,9 @@ std::optional<AssetType> AssetTypeFromString(const std::string& text) {
     }
     if (text == "AnimationClip") {
         return AssetType::AnimationClip;
+    }
+    if (text == "Prefab") {
+        return AssetType::Prefab;
     }
     return std::nullopt;
 }

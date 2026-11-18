@@ -14,13 +14,18 @@
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Assets/AssetRegistry.h"
 #include "Xora2D/Core/UUID.h"
+#include "Xora2D/Prefab/Prefab.h"
+#include "Xora2D/Prefab/PrefabUtility.h"
 #include "Xora2D/Project/Project.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
 
+#include <glm/vec2.hpp>
+
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -79,6 +84,25 @@ public:
     // scene of the open project.
     EditorSceneFileResult CreateScene(const std::string& contentRelativePath, bool makeStartupScene);
     EditorSceneFileResult SetStartupScene(const std::string& contentRelativePath);
+
+    // Prefabs -------------------------------------------------------------------------------------------------------
+    // Instantiates into the active scene (the runtime copy while playing, so runtime instances are discarded on Stop).
+    // Refused while a prefab is being edited (no nested prefabs).
+    Xora2D::PrefabInstantiateResult InstantiatePrefab(Xora2D::AssetHandle prefab,
+                                                      std::optional<glm::vec2> position = std::nullopt);
+    // Writes to project files: refused while playing so runtime changes never reach prefab assets.
+    Xora2D::PrefabCreateResult CreatePrefab(const std::vector<Xora2D::UUID>& entities,
+                                            const Xora2D::PrefabCreateOptions& options);
+
+    // Isolated prefab editing: a private copy of the prefab becomes the active scene (Hierarchy / Inspector /
+    // Viewport edit it); the open scene is untouched. Save writes the asset (new revision) and returns to the scene;
+    // Close discards the copy.
+    EditorSceneFileResult OpenPrefabEditor(Xora2D::AssetHandle prefab);
+    EditorSceneFileResult SavePrefabEditor();
+    void ClosePrefabEditor();
+    [[nodiscard]] bool IsEditingPrefab() const { return m_prefabEdit.Working != nullptr; }
+    [[nodiscard]] Xora2D::AssetHandle GetEditedPrefab() const { return m_prefabEdit.Handle; }
+    [[nodiscard]] std::string GetEditedPrefabName() const;
 
     // Replaces the editable scene (stops Play mode first if it is running).
     void SetScene(const std::shared_ptr<Xora2D::Scene>& scene);
@@ -154,6 +178,13 @@ private:
     ProjectOpenResult ActivateContent(const std::shared_ptr<Xora2D::Project>& project);
     void DeactivateContent();
     void ResetContentServices();
+
+    struct PrefabEditState {
+        Xora2D::AssetHandle Handle{};
+        std::shared_ptr<Xora2D::Prefab> Working;
+        std::optional<Xora2D::UUID> SceneSelection;
+    };
+    PrefabEditState m_prefabEdit;
 
     std::shared_ptr<Xora2D::Project> m_project;
     bool m_contentActive = false;

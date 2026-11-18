@@ -37,6 +37,7 @@ add_executable(Xora2D-Tests
     src/TransformInspectorTests.cpp
     src/PlayModeTests.cpp
     src/ProjectTests.cpp
+    src/PrefabTests.cpp
     ${XORA2D_EDITOR_TEST_SOURCES}
 )
 

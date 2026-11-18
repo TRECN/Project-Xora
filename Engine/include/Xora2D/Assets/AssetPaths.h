@@ -21,6 +21,8 @@ bool IsSupportedAudioExtension(const std::filesystem::path& path);
 bool IsSupportedPythonScriptExtension(const std::filesystem::path& path);
 bool IsSupportedAnimationClipExtension(const std::filesystem::path& path);
 bool IsSupportedSceneExtension(const std::filesystem::path& path);
+// "*.prefab.yaml"
+bool IsSupportedPrefabExtension(const std::filesystem::path& path);
 
 // Rejects paths outside `root` (no .. escape).
 [[nodiscard]] bool IsAbsolutePathWithinRoot(const std::filesystem::path& absolute,

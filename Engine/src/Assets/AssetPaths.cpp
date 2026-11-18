@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <string_view>
 
 namespace Xora2D {
 
@@ -108,6 +109,13 @@ bool IsAbsolutePathWithinRoot(const std::filesystem::path& absolute, const std::
     auto [rootEnd, absEnd] = std::mismatch(canonicalRoot.begin(), canonicalRoot.end(), canonicalAbsolute.begin(),
                                            canonicalAbsolute.end());
     return rootEnd == canonicalRoot.end();
+}
+
+bool IsSupportedPrefabExtension(const std::filesystem::path& path) {
+    std::string lowered = path.filename().string();
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    return lowered.ends_with(".prefab.yaml") && lowered.size() > std::string_view(".prefab.yaml").size();
 }
 
 bool IsSupportedAnimationClipExtension(const std::filesystem::path& path) {

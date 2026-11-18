@@ -77,6 +77,7 @@ void EditorContext::ResetContentServices() {
 }
 
 void EditorContext::DeactivateContent() {
+    ClosePrefabEditor();
     (void)StopPlayMode();
     ResetContentServices();
     if (m_contentActive) {
@@ -210,7 +211,8 @@ EditorSceneFileResult EditorContext::OpenSceneFile(const std::filesystem::path& 
         result.Message = "Refusing to open a scene outside the project: " + absoluteSceneFile.string();
         return result;
     }
-    // Opening a scene replaces the editable scene; any running play session ends first.
+    // Opening a scene replaces the editable scene; any running play session / prefab edit ends first.
+    ClosePrefabEditor();
     (void)StopPlayMode();
     auto scene = Xora2D::Scene::Create();
     scene->SetAssetManager(&m_assetManager);
@@ -228,6 +230,10 @@ EditorSceneFileResult EditorContext::OpenSceneFile(const std::filesystem::path& 
 
 EditorSceneFileResult EditorContext::SaveSceneAs(const std::string& contentRelativePath) {
     EditorSceneFileResult result{};
+    if (IsEditingPrefab()) {
+        result.Message = "Save or close the prefab being edited first";
+        return result;
+    }
     const std::optional<std::string> normalized = NormalizeResourceRelativePath(contentRelativePath);
     if (!normalized.has_value() || normalized->empty() || !Xora2D::IsSupportedSceneExtension(*normalized)) {
         result.Message = "Scene path must be a project-relative *.scene.yaml path";
@@ -290,6 +296,123 @@ EditorSceneFileResult EditorContext::CreateScene(const std::string& contentRelat
     return result;
 }
 
+Xora2D::PrefabInstantiateResult EditorContext::InstantiatePrefab(Xora2D::AssetHandle prefab,
+                                                                 std::optional<glm::vec2> position) {
+    Xora2D::PrefabInstantiateResult result{};
+    if (IsEditingPrefab()) {
+        result.Message = "Nested prefabs are not supported: finish editing the prefab first";
+        return result;
+    }
+    const std::shared_ptr<Xora2D::Scene> scene = GetScene();
+    if (scene == nullptr) {
+        result.Message = "No active scene";
+        return result;
+    }
+    Xora2D::PrefabInstantiateOptions options{};
+    options.Position = position;
+    result = Xora2D::InstantiatePrefab(*scene, prefab, m_assetManager, options);
+    if (result.Success && !result.Entities.empty()) {
+        SelectEntity(result.Entities.front());
+    }
+    return result;
+}
+
+Xora2D::PrefabCreateResult EditorContext::CreatePrefab(const std::vector<Xora2D::UUID>& entities,
+                                                      const Xora2D::PrefabCreateOptions& options) {
+    Xora2D::PrefabCreateResult result{};
+    if (IsPlayModeActive()) {
+        result.Message = "Stop Play mode first: prefabs are created from the editable scene";
+        return result;
+    }
+    if (IsEditingPrefab()) {
+        result.Message = "Nested prefabs are not supported: finish editing the prefab first";
+        return result;
+    }
+    if (!m_contentActive || m_scene == nullptr) {
+        result.Message = "No project is open";
+        return result;
+    }
+    std::vector<Xora2D::Entity> resolved;
+    for (const Xora2D::UUID& id : entities) {
+        resolved.push_back(m_scene->FindEntityByUUID(id));
+    }
+    result = Xora2D::CreatePrefabFromEntities(resolved, options, m_assetManager);
+    if (result.Success) {
+        (void)PersistAssetRegistry();
+        NotifyContentChanged(ResourcePathFromAssetRelativePath(ParentResourceDirectory(result.RelativePath)));
+    }
+    return result;
+}
+
+std::string EditorContext::GetEditedPrefabName() const {
+    return m_prefabEdit.Working != nullptr ? m_prefabEdit.Working->GetName() : std::string{};
+}
+
+EditorSceneFileResult EditorContext::OpenPrefabEditor(Xora2D::AssetHandle prefab) {
+    EditorSceneFileResult result{};
+    if (IsPlayModeActive()) {
+        result.Message = "Stop Play mode before editing a prefab";
+        return result;
+    }
+    const Xora2D::AssetResult load = m_assetManager.LoadPrefab(prefab);
+    const auto cached = load.Success ? m_assetManager.GetLoadedPrefab(prefab) : nullptr;
+    if (cached == nullptr) {
+        result.Message = "Cannot open prefab: " + load.Message;
+        return result;
+    }
+    if (IsEditingPrefab()) {
+        ClosePrefabEditor();
+    }
+    m_prefabEdit.SceneSelection = m_selection.GetSelectedUUID();
+    m_prefabEdit.Handle = prefab;
+    // Edit a private copy: the cached prefab (shared with instantiation) and the open scene stay untouched.
+    m_prefabEdit.Working = cached->Clone();
+    m_prefabEdit.Working->GetContent().SetAssetManager(&m_assetManager);
+    m_prefabEdit.Working->GetContent().SetViewportSize(m_scene ? m_scene->GetViewportWidth() : 1280.0f,
+                                                       m_scene ? m_scene->GetViewportHeight() : 720.0f);
+    m_selection.Clear();
+    if (!m_prefabEdit.Working->GetEntityIds().empty()) {
+        m_selection.Select(m_prefabEdit.Working->GetEntityIds().front());
+    }
+    m_inspectorFocus = InspectorFocus::Entity;
+    result.Success = true;
+    result.Message = "Editing prefab '" + cached->GetName() + "'";
+    return result;
+}
+
+EditorSceneFileResult EditorContext::SavePrefabEditor() {
+    EditorSceneFileResult result{};
+    if (!IsEditingPrefab()) {
+        result.Message = "No prefab is being edited";
+        return result;
+    }
+    m_prefabEdit.Working->SyncOrderFromContent();
+    const Xora2D::AssetHandle handle = m_prefabEdit.Handle;
+    const Xora2D::PrefabResult save = Xora2D::SavePrefabAsset(*m_prefabEdit.Working, handle, m_assetManager);
+    result.Success = save.Success;
+    result.Message = save.Message;
+    if (save.Success) {
+        ClosePrefabEditor();
+        if (const Xora2D::AssetMetadata* meta = m_assetRegistry.FindByHandle(handle)) {
+            NotifyContentChanged(ResourcePathFromAssetRelativePath(meta->RelativePath));
+        }
+    }
+    return result;
+}
+
+void EditorContext::ClosePrefabEditor() {
+    if (!IsEditingPrefab()) {
+        return;
+    }
+    m_prefabEdit.Working.reset();
+    m_prefabEdit.Handle = {};
+    m_selection.Clear();
+    if (m_prefabEdit.SceneSelection.has_value()) {
+        m_selection.Select(*m_prefabEdit.SceneSelection);
+    }
+    m_prefabEdit.SceneSelection.reset();
+}
+
 EditorSceneFileResult EditorContext::SetStartupScene(const std::string& contentRelativePath) {
     EditorSceneFileResult result{};
     if (m_project == nullptr) {
@@ -305,6 +428,9 @@ EditorSceneFileResult EditorContext::SetStartupScene(const std::string& contentR
 }
 
 std::shared_ptr<Xora2D::Scene> EditorContext::GetScene() const {
+    if (m_prefabEdit.Working != nullptr) {
+        return m_prefabEdit.Working->GetContentScene();
+    }
     if (m_playSession.IsActive() && m_playSession.GetRuntimeScene() != nullptr) {
         return m_playSession.GetRuntimeScene();
     }
@@ -312,7 +438,7 @@ std::shared_ptr<Xora2D::Scene> EditorContext::GetScene() const {
 }
 
 bool EditorContext::StartPlayMode() {
-    if (m_scene == nullptr) {
+    if (m_scene == nullptr || IsEditingPrefab()) {
         return false;
     }
     return m_playSession.Play(*m_scene, &m_assetManager);
@@ -334,6 +460,7 @@ void EditorContext::UpdatePlayMode(float deltaSeconds) {
 }
 
 void EditorContext::SetScene(const std::shared_ptr<Xora2D::Scene>& scene) {
+    ClosePrefabEditor();
     (void)StopPlayMode();
     m_scene = scene;
     if (m_scene) {

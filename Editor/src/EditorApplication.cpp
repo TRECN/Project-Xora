@@ -15,6 +15,7 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Renderer/ColorRenderTarget.h"
+#include "Xora2D/Renderer/OrthographicCamera.h"
 #include "Xora2D/Renderer/RendererAPI.h"
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Assets/AssetRegistrySerializer.h"
@@ -26,9 +27,45 @@
 #include <glm/vec4.hpp>
 #include <imgui.h>
 
+#include <algorithm>
 #include <filesystem>
+#include <glm/common.hpp>
 
 namespace Xora2DEditor {
+
+namespace {
+
+Xora2D::OrthographicCamera FramePrefabContent(Xora2D::Scene& scene, float width, float height) {
+    glm::vec2 minimum{1e9f};
+    glm::vec2 maximum{-1e9f};
+    bool any = false;
+    for (const Xora2D::UUID& id : scene.GetEntityUUIDs()) {
+        const Xora2D::Entity entity = scene.FindEntityByUUID(id);
+        const auto& transform = entity.GetComponent<Xora2D::TransformComponent>();
+        glm::vec2 half{25.0f};
+        if (entity.HasComponent<Xora2D::SpriteRendererComponent>()) {
+            half = glm::abs(entity.GetComponent<Xora2D::SpriteRendererComponent>().Size * transform.Scale) * 0.5f;
+        }
+        minimum = glm::min(minimum, transform.Translation - half);
+        maximum = glm::max(maximum, transform.Translation + half);
+        any = true;
+    }
+    if (!any) {
+        minimum = {-100.0f, -100.0f};
+        maximum = {100.0f, 100.0f};
+    }
+    const glm::vec2 size = glm::max(maximum - minimum, glm::vec2{1.0f}) * 1.4f; // margin
+    const float zoom = std::clamp(std::min(width / size.x, height / size.y), 0.05f, 4.0f);
+    const glm::vec2 center = (minimum + maximum) * 0.5f;
+    Xora2D::OrthographicCamera camera;
+    camera.SetViewportSize(width, height);
+    camera.SetZoom(zoom);
+    // The camera position is the bottom-left corner of the view.
+    camera.SetPosition(center - glm::vec2{width, height} * (0.5f / zoom));
+    return camera;
+}
+
+} // namespace
 
 EditorApplication::EditorApplication(EditorLaunchOptions options)
     : Xora2D::Application(Xora2D::WindowProperties{
@@ -88,6 +125,11 @@ EditorApplication::EditorApplication(EditorLaunchOptions options)
 }
 
 EditorApplication::~EditorApplication() {
+    if (m_context.IsEditingPrefab()) {
+        XORA_LOG_WARN("Closing the editor while editing prefab '{}': unsaved prefab changes were discarded",
+                      m_context.GetEditedPrefabName());
+        m_context.ClosePrefabEditor();
+    }
     // Tear the runtime scene down while the audio and Python engines are still alive.
     (void)m_context.StopPlayMode();
     m_imgui.SetFileDropHandler(nullptr);
@@ -375,7 +417,13 @@ void EditorApplication::RenderSceneIntoTarget(Xora2D::ColorRenderTarget& target,
     target.Bind();
     GetRendererAPI().SetClearColor(clearColor);
     GetRendererAPI().Clear();
-    scene->OnRender(GetRenderer2D());
+    if (m_context.IsEditingPrefab()) {
+        // Prefab content has no camera of its own: frame all of its entities.
+        scene->OnRender(GetRenderer2D(), FramePrefabContent(*scene, static_cast<float>(target.GetWidth()),
+                                                             static_cast<float>(target.GetHeight())));
+    } else {
+        scene->OnRender(GetRenderer2D());
+    }
     target.Unbind();
     GetGraphicsContext().MakeCurrent();
 }
@@ -413,6 +461,11 @@ void EditorApplication::HandleEvent(Xora2D::Event& event) {
 }
 
 void EditorApplication::OnShutdownRequested() {
+    if (m_context.IsEditingPrefab()) {
+        XORA_LOG_WARN("Closing the editor while editing prefab '{}': unsaved prefab changes were discarded",
+                      m_context.GetEditedPrefabName());
+        m_context.ClosePrefabEditor();
+    }
     // Closing during Play: run script on_destroy / stop runtime audio before the engines prepare for shutdown.
     (void)m_context.StopPlayMode();
     m_context.ShutdownContentServices();

@@ -1,5 +1,7 @@
 #include "Xora2D/Serialization/SceneSerializer.h"
 
+#include "EntitySerialization.h"
+
 #include "Xora2D/Assets/AssetHandle.h"
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Assets/AssetRegistry.h"
@@ -30,33 +32,18 @@ namespace Xora2D {
 namespace {
 
 SceneSerializeResult Failure(std::string message) {
-    return SceneSerializeResult{false, std::move(message)};
+    return SceneSerializeResult{false, std::move(message), {}};
 }
 
 SceneSerializeResult Success() {
-    return SceneSerializeResult{true, {}};
+    return SceneSerializeResult{true, {}, {}};
 }
 
 std::string PathContext(const std::filesystem::path& filepath) {
     return filepath.string();
 }
 
-struct ParsedEntity {
-    UUID Id;
-    std::string Tag;
-    std::optional<glm::vec2> Translation;
-    std::optional<float> RotationRadians;
-    std::optional<glm::vec2> Scale;
-    std::optional<SpriteRendererComponent> Sprite;
-    std::optional<CameraComponent> Camera;
-    std::optional<RigidBody2DComponent> RigidBody;
-    std::optional<BoxCollider2DComponent> BoxCollider;
-    std::optional<CircleCollider2DComponent> CircleCollider;
-    std::optional<AudioSourceComponent> AudioSource;
-    std::optional<AudioListenerComponent> AudioListener;
-    std::optional<PythonScriptComponent> PythonScript;
-    std::optional<AnimationComponent> Animation;
-};
+using SerializationDetail::ParsedEntity;
 
 struct ParsedScene {
     int Version = 0;
@@ -550,6 +537,45 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.Animation = animation;
     }
 
+    if (const YAML::Node prefabNode = node["PrefabInstance"]) {
+        PrefabInstanceComponent link{};
+        const auto readUuid = [&](const char* key, UUID& target) {
+            if (!prefabNode[key]) {
+                return false;
+            }
+            const std::optional<UUID> parsedId = UUID::FromString(prefabNode[key].as<std::string>());
+            if (!parsedId.has_value()) {
+                return false;
+            }
+            target = *parsedId;
+            return true;
+        };
+        const std::optional<AssetHandle> prefabHandle =
+            prefabNode["Prefab"] ? AssetHandle::FromString(prefabNode["Prefab"].as<std::string>()) : std::nullopt;
+        if (!prefabHandle.has_value() || !readUuid("Instance", link.InstanceId) ||
+            !readUuid("SourceEntity", link.SourceEntity)) {
+            error = PathContext(filepath) + ": entity " + output.Id.ToString() +
+                    " has an invalid PrefabInstance (needs Prefab, Instance and SourceEntity)";
+            return false;
+        }
+        link.Prefab = *prefabHandle;
+        if (prefabNode["Revision"]) {
+            link.Revision = prefabNode["Revision"].as<std::uint32_t>();
+        }
+        if (const YAML::Node overrides = prefabNode["Overrides"]) {
+            if (!overrides.IsSequence()) {
+                error = PathContext(filepath) + ": PrefabInstance.Overrides must be a sequence";
+                return false;
+            }
+            for (const YAML::Node& item : overrides) {
+                link.Overrides.push_back(item.as<std::string>());
+            }
+            std::sort(link.Overrides.begin(), link.Overrides.end());
+            link.Overrides.erase(std::unique(link.Overrides.begin(), link.Overrides.end()), link.Overrides.end());
+        }
+        output.PrefabInstance = std::move(link);
+    }
+
     return true;
 }
 
@@ -582,102 +608,117 @@ bool ParseSceneDocument(const YAML::Node& root, ParsedScene& output, const std::
     return ValidateParsedScene(output, filepath, error);
 }
 
-bool ValidateTextureAssets(const ParsedScene& document, const std::filesystem::path& filepath,
-                             AssetManager* assetManager, std::string& error) {
-    for (const ParsedEntity& parsed : document.Entities) {
-        if (!parsed.Sprite.has_value()) {
-            continue;
+bool ValidateEntityTextures(const ParsedEntity& parsed, const std::filesystem::path& filepath,
+                            AssetManager* assetManager, std::string& error) {
+    if (!parsed.Sprite.has_value()) {
+        return true;
+    }
+    if (parsed.Sprite->TextureAsset.IsValid()) {
+        if (assetManager == nullptr) {
+            error = PathContext(filepath) + ": scene references TextureAssetHandle but no AssetManager was provided";
+            return false;
         }
-        if (parsed.Sprite->TextureAsset.IsValid()) {
-            if (assetManager == nullptr) {
-                error = PathContext(filepath) + ": scene references TextureAssetHandle but no AssetManager was provided";
-                return false;
-            }
-            if (assetManager->GetRegistry().FindByHandle(parsed.Sprite->TextureAsset) == nullptr) {
-                std::ostringstream stream;
-                stream << PathContext(filepath) << ": unknown texture asset handle "
-                       << parsed.Sprite->TextureAsset.ToString();
-                error = stream.str();
-                return false;
-            }
-            continue;
+        if (assetManager->GetRegistry().FindByHandle(parsed.Sprite->TextureAsset) == nullptr) {
+            std::ostringstream stream;
+            stream << PathContext(filepath) << ": unknown texture asset handle "
+                   << parsed.Sprite->TextureAsset.ToString();
+            error = stream.str();
+            return false;
         }
-        if (!parsed.Sprite->TexturePath.empty()) {
-            const std::filesystem::path absolute = ResolveContentPath(parsed.Sprite->TexturePath);
-            if (!std::filesystem::exists(absolute)) {
-                std::ostringstream stream;
-                stream << PathContext(filepath) << ": texture asset not found '" << parsed.Sprite->TexturePath
-                       << "' (resolved " << absolute.string() << ")";
-                error = stream.str();
-                return false;
-            }
+        return true;
+    }
+    if (!parsed.Sprite->TexturePath.empty()) {
+        const std::filesystem::path absolute = ResolveContentPath(parsed.Sprite->TexturePath);
+        if (!std::filesystem::exists(absolute)) {
+            std::ostringstream stream;
+            stream << PathContext(filepath) << ": texture asset not found '" << parsed.Sprite->TexturePath
+                   << "' (resolved " << absolute.string() << ")";
+            error = stream.str();
+            return false;
         }
     }
     return true;
+}
+
+bool ValidateTextureAssets(const ParsedScene& document, const std::filesystem::path& filepath,
+                             AssetManager* assetManager, std::string& error) {
+    for (const ParsedEntity& parsed : document.Entities) {
+        if (!ValidateEntityTextures(parsed, filepath, assetManager, error)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Entity ApplyEntity(Scene& scene, const ParsedEntity& parsed, const UUID& id, AssetManager* assetManager) {
+    Entity entity = scene.CreateEntityWithUUID(parsed.Tag, id);
+
+    auto& transform = entity.GetComponent<TransformComponent>();
+    transform.Translation = *parsed.Translation;
+    transform.RotationRadians = parsed.RotationRadians.value_or(0.0f);
+    transform.Scale = parsed.Scale.value_or(glm::vec2{1.0f, 1.0f});
+    transform.RecalculateLocalMatrix();
+
+    if (parsed.Sprite.has_value()) {
+        auto& sprite = entity.AddComponent<SpriteRendererComponent>();
+        sprite = *parsed.Sprite;
+        sprite.Texture.reset();
+        if (sprite.TextureAsset.IsValid() && assetManager != nullptr) {
+            (void)assetManager;
+        } else if (!sprite.TexturePath.empty() && assetManager != nullptr) {
+            const AssetResult legacy = assetManager->EnsureLegacyTexturePath(sprite.TexturePath);
+            if (legacy.Success) {
+                sprite.TextureAsset = legacy.Handle;
+            }
+            sprite.TexturePath.clear();
+        }
+    }
+    if (parsed.Camera.has_value()) {
+        entity.AddComponent<CameraComponent>() = *parsed.Camera;
+    }
+    if (parsed.RigidBody.has_value()) {
+        entity.AddComponent<RigidBody2DComponent>() = *parsed.RigidBody;
+    }
+    if (parsed.BoxCollider.has_value()) {
+        entity.AddComponent<BoxCollider2DComponent>() = *parsed.BoxCollider;
+    }
+    if (parsed.CircleCollider.has_value()) {
+        entity.AddComponent<CircleCollider2DComponent>() = *parsed.CircleCollider;
+    }
+    if (parsed.AudioSource.has_value()) {
+        entity.AddComponent<AudioSourceComponent>() = *parsed.AudioSource;
+    }
+    if (parsed.PythonScript.has_value()) {
+        entity.AddComponent<PythonScriptComponent>() = *parsed.PythonScript;
+    }
+    if (parsed.Animation.has_value()) {
+        auto& animation = entity.AddComponent<AnimationComponent>();
+        animation = *parsed.Animation;
+        animation.ActiveClip = {};
+        animation.CurrentFrameIndex = 0;
+        animation.FrameUVValid = false;
+        animation.State = AnimationPlaybackState::Stopped;
+        animation.Controller.Reset();
+    }
+    if (parsed.AudioListener.has_value()) {
+        entity.AddComponent<AudioListenerComponent>() = *parsed.AudioListener;
+    }
+    if (parsed.PrefabInstance.has_value()) {
+        entity.AddComponent<PrefabInstanceComponent>() = *parsed.PrefabInstance;
+    }
+    return entity;
 }
 
 bool ApplyParsedScene(Scene& scene, const ParsedScene& document, AssetManager* assetManager) {
     scene.Clear();
     scene.SetSceneName(document.Name.empty() ? "Untitled" : document.Name);
-
     for (const ParsedEntity& parsed : document.Entities) {
-        Entity entity = scene.CreateEntityWithUUID(parsed.Tag, parsed.Id);
-
-        auto& transform = entity.GetComponent<TransformComponent>();
-        transform.Translation = *parsed.Translation;
-        transform.RotationRadians = parsed.RotationRadians.value_or(0.0f);
-        transform.Scale = parsed.Scale.value_or(glm::vec2{1.0f, 1.0f});
-        transform.RecalculateLocalMatrix();
-
-        if (parsed.Sprite.has_value()) {
-            auto& sprite = entity.AddComponent<SpriteRendererComponent>();
-            sprite = *parsed.Sprite;
-            sprite.Texture.reset();
-            if (sprite.TextureAsset.IsValid() && assetManager != nullptr) {
-                (void)assetManager;
-            } else if (!sprite.TexturePath.empty() && assetManager != nullptr) {
-                const AssetResult legacy = assetManager->EnsureLegacyTexturePath(sprite.TexturePath);
-                if (legacy.Success) {
-                    sprite.TextureAsset = legacy.Handle;
-                }
-                sprite.TexturePath.clear();
-            }
-        }
-        if (parsed.Camera.has_value()) {
-            entity.AddComponent<CameraComponent>() = *parsed.Camera;
-        }
-        if (parsed.RigidBody.has_value()) {
-            entity.AddComponent<RigidBody2DComponent>() = *parsed.RigidBody;
-        }
-        if (parsed.BoxCollider.has_value()) {
-            entity.AddComponent<BoxCollider2DComponent>() = *parsed.BoxCollider;
-        }
-        if (parsed.CircleCollider.has_value()) {
-            entity.AddComponent<CircleCollider2DComponent>() = *parsed.CircleCollider;
-        }
-        if (parsed.AudioSource.has_value()) {
-            entity.AddComponent<AudioSourceComponent>() = *parsed.AudioSource;
-        }
-        if (parsed.PythonScript.has_value()) {
-            entity.AddComponent<PythonScriptComponent>() = *parsed.PythonScript;
-        }
-        if (parsed.Animation.has_value()) {
-            auto& animation = entity.AddComponent<AnimationComponent>();
-            animation = *parsed.Animation;
-            animation.ActiveClip = {};
-            animation.CurrentFrameIndex = 0;
-            animation.FrameUVValid = false;
-            animation.State = AnimationPlaybackState::Stopped;
-            animation.Controller.Reset();
-        }
-        if (parsed.AudioListener.has_value()) {
-            entity.AddComponent<AudioListenerComponent>() = *parsed.AudioListener;
-        }
+        (void)ApplyEntity(scene, parsed, parsed.Id, assetManager);
     }
     return true;
 }
 
-void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
+void EmitEntity(YAML::Emitter& emitter, const Entity& entity, bool includePrefabLink) {
     emitter << YAML::BeginMap;
     emitter << YAML::Key << "Entity" << YAML::Value << entity.GetUUID().ToString();
     emitter << YAML::Key << "TagComponent" << YAML::Value << YAML::BeginMap;
@@ -837,10 +878,47 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
         emitter << YAML::EndMap;
     }
 
+    if (includePrefabLink && entity.HasComponent<PrefabInstanceComponent>()) {
+        const PrefabInstanceComponent& link = entity.GetComponent<PrefabInstanceComponent>();
+        emitter << YAML::Key << "PrefabInstance" << YAML::Value << YAML::BeginMap;
+        emitter << YAML::Key << "Prefab" << YAML::Value << link.Prefab.ToString();
+        emitter << YAML::Key << "Instance" << YAML::Value << link.InstanceId.ToString();
+        emitter << YAML::Key << "SourceEntity" << YAML::Value << link.SourceEntity.ToString();
+        emitter << YAML::Key << "Revision" << YAML::Value << link.Revision;
+        emitter << YAML::Key << "Overrides" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const std::string& property : link.Overrides) {
+            emitter << property;
+        }
+        emitter << YAML::EndSeq;
+        emitter << YAML::EndMap;
+    }
+
     emitter << YAML::EndMap;
 }
 
 } // namespace
+
+namespace SerializationDetail {
+
+bool ParseEntityNode(const YAML::Node& node, ParsedEntity& output, const std::filesystem::path& source,
+                     std::string& error) {
+    return ParseEntity(node, output, source, error);
+}
+
+bool ValidateEntityAssets(const ParsedEntity& parsed, const std::filesystem::path& source, AssetManager* assetManager,
+                          std::string& error) {
+    return ValidateEntityTextures(parsed, source, assetManager, error);
+}
+
+Entity ApplyParsedEntity(Scene& scene, const ParsedEntity& parsed, const UUID& id, AssetManager* assetManager) {
+    return ApplyEntity(scene, parsed, id, assetManager);
+}
+
+void EmitEntityNode(YAML::Emitter& emitter, const Entity& entity, bool includePrefabLink) {
+    EmitEntity(emitter, entity, includePrefabLink);
+}
+
+} // namespace SerializationDetail
 
 SceneSerializeResult SceneSerializer::Serialize(const Scene& scene, const std::filesystem::path& filepath) {
     try {
@@ -860,7 +938,7 @@ SceneSerializeResult SceneSerializer::Serialize(const Scene& scene, const std::f
             if (!entity.IsValid()) {
                 continue;
             }
-            EmitEntity(emitter, entity);
+            EmitEntity(emitter, entity, true);
         }
 
         emitter << YAML::EndSeq;
@@ -902,6 +980,23 @@ SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::files
     if (!ValidateTextureAssets(document, filepath, assetManager, error)) {
         return Failure(error);
     }
+    std::vector<std::string> warnings;
+    if (assetManager != nullptr) {
+        std::unordered_set<AssetHandle> reported;
+        for (const ParsedEntity& parsed : document.Entities) {
+            if (!parsed.PrefabInstance.has_value()) {
+                continue;
+            }
+            const AssetHandle prefab = parsed.PrefabInstance->Prefab;
+            const AssetMetadata* meta = assetManager->GetRegistry().FindByHandle(prefab);
+            if ((meta == nullptr || meta->Type != AssetType::Prefab) && reported.insert(prefab).second) {
+                // The entity keeps its data and its link; it simply cannot be reverted/refreshed until the prefab
+                // asset is back.
+                warnings.push_back(PathContext(filepath) + ": prefab asset " + prefab.ToString() +
+                                   " is missing; its instances keep their data");
+            }
+        }
+    }
 
     try {
         auto staging = Scene::Create();
@@ -913,7 +1008,12 @@ SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::files
         return Failure(std::string("Deserialize failed for '") + filepath.string() + "': " + exception.what());
     }
 
-    return Success();
+    SceneSerializeResult result = Success();
+    for (const std::string& warning : warnings) {
+        XORA_LOG_WARN("{}", warning);
+    }
+    result.Warnings = std::move(warnings);
+    return result;
 }
 
 } // namespace Xora2D

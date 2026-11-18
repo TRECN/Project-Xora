@@ -4,6 +4,7 @@
 #include "Xora2DEditor/EditorContext.h"
 
 #include "Xora2DEditor/Panels/ProjectSettingsPanel.h"
+#include "Xora2DEditor/PrefabEditorUI.h"
 
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Core/Logger.h"
@@ -154,6 +155,13 @@ void EditorUI::RequestSaveScene(EditorContext& context, bool saveAs) {
     }
     if (context.IsPlayModeActive()) {
         ShowStatusMessage("Stop Play mode before saving (the runtime copy is never saved).");
+        return;
+    }
+    if (context.IsEditingPrefab()) {
+        // Cmd/Ctrl+S while editing a prefab saves the prefab.
+        const EditorSceneFileResult save = context.SavePrefabEditor();
+        ReportPrefabResult(save.Success, save.Message);
+        ShowStatusMessage(save.Message);
         return;
     }
     if (saveAs || context.GetScenePath().empty()) {
@@ -396,7 +404,11 @@ void EditorUI::DrawToolbar(EditorContext& context) {
                                    ImGuiWindowFlags_NoScrollWithMouse;
 
     if (ImGui::Begin("##Toolbar", nullptr, flags)) {
-        DrawPlayControls(context);
+        if (context.IsEditingPrefab()) {
+            DrawPrefabEditBar(context);
+        } else {
+            DrawPlayControls(context);
+        }
     }
     ImGui::End();
 }
@@ -460,7 +472,9 @@ void EditorUI::DrawStatusBar(EditorContext& context, const EditorApplication& ap
         }
         ImGui::Text("Xora2D Editor | %s", application.GetGraphicsInfo().renderer.c_str());
         ImGui::SameLine();
-        if (const auto scene = context.GetScene()) {
+        if (context.IsEditingPrefab()) {
+            ImGui::Text("| Editing prefab: %s", context.GetEditedPrefabName().c_str());
+        } else if (const auto scene = context.GetScene()) {
             const std::string& path = context.GetScenePath();
             ImGui::Text("| Scene: %s (%s) [%s]", scene->GetSceneName().c_str(),
                         path.empty() ? "unsaved" : path.c_str(), ToString(context.GetPlayState()));

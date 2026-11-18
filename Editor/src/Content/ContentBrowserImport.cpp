@@ -216,6 +216,10 @@ const char* ImportCategoryLabel(ImportCategory category) {
 
 std::optional<ImportCategory> ClassifyImportSource(const std::filesystem::path& source, std::string& reason) {
     const std::string extension = FullExtensionLower(source);
+    if (extension == ".prefab.yaml") {
+        reason = "Prefabs reference project asset handles; create them in the project (Hierarchy > Create Prefab)";
+        return std::nullopt;
+    }
     if (extension == ".scene.yaml") {
         return ImportCategory::Scene;
     }

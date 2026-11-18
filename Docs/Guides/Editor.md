@@ -1,4 +1,4 @@
-# Xora2D Editor (Milestones 13–17)
+# Xora2D Editor (Milestones 13–18)
 
 The **Xora2D Editor** is a separate executable that reuses the engine runtime (`Application`, `Window`, OpenGL, `Renderer2D`, `Scene`, assets) and layers **Dear ImGui** (docking branch commit `9dbcb2f1c`) for the UI.
 
@@ -192,9 +192,27 @@ The Content panel is a full asset browser: folder tree, breadcrumbs, grid/list v
 - Switching projects stops Play mode first and clears everything from the previous project, so nothing stale
   remains. See [Projects.md](Projects.md).
 
+## Prefabs (Milestone 18)
+
+- **Hierarchy:**
+  - **Create Prefab** (toolbar or right-click) saves entities as a `.prefab.yaml` asset.
+  - **Instantiate...** adds an instance; you can also drop a prefab from the Content panel onto the Hierarchy.
+  - Instances are blue and labelled `[prefab, outdated, N override(s)]`.
+- **Viewport:** drop a prefab to place an instance under the cursor.
+- **Inspector:** the Prefab Instance section shows the source, sync status and overrides (per-property
+  **Revert**), with **Apply to Prefab**, **Revert All**, **Refresh**, **Open Prefab**, **Select Asset** and
+  **Unpack**. Overrides are recorded only when the Inspector receives input, never by comparing every frame.
+- **Content panel:**
+  - prefab icon and type filter;
+  - double-click opens the prefab in the isolated editor (toolbar **Save Prefab** / **Cancel**);
+  - context menu: Instantiate, Open, Refresh Instances.
+
+See [Prefabs.md](Prefabs.md).
+
 ## Tests
 
-`Tests/src/ProjectTests.cpp` covers projects: creation, templates, loading/validation, recent history and project isolation. `Tests/src/PlayModeTests.cpp` covers Play mode: scene-copy isolation (UUIDs, ownership, runtime create/destroy, draw order), every state transition and repeated sessions, physics/animation/script/audio behaviour while playing, paused and stepping, input gating, selection safety, and cleanup including closing the editor while playing. `Tests/src/TransformInspectorTests.cpp` covers Inspector transform editing. `Tests/src/ContentBrowserTests.cpp` covers the asset browser (see AssetBrowser.md). `Tests/src/EditorTests.cpp` covers configuration round-trip, panel registration, `ColorRenderTarget` resize, and editor logic: UUID selection, scene replacement, entity create/delete/rename, component add/remove/duplicate prevention, and stale selection handling.
+`Tests/src/PrefabTests.cpp` covers prefabs (serialization, creation and instantiation, overrides and
+apply/revert/refresh, scenes, Play mode, and isolated editing). `Tests/src/ProjectTests.cpp` covers projects: creation, templates, loading/validation, recent history and project isolation. `Tests/src/PlayModeTests.cpp` covers Play mode: scene-copy isolation (UUIDs, ownership, runtime create/destroy, draw order), every state transition and repeated sessions, physics/animation/script/audio behaviour while playing, paused and stepping, input gating, selection safety, and cleanup including closing the editor while playing. `Tests/src/TransformInspectorTests.cpp` covers Inspector transform editing. `Tests/src/ContentBrowserTests.cpp` covers the asset browser (see AssetBrowser.md). `Tests/src/EditorTests.cpp` covers configuration round-trip, panel registration, `ColorRenderTarget` resize, and editor logic: UUID selection, scene replacement, entity create/delete/rename, component add/remove/duplicate prevention, and stale selection handling.
 
 ## Current limitations
 

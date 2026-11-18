@@ -2,6 +2,10 @@
 
 #include "Xora2DEditor/EditorApplication.h"
 #include "Xora2DEditor/EditorContext.h"
+#include "Xora2DEditor/PrefabEditorUI.h"
+
+#include "Xora2D/Scene/Components.h"
+#include "Xora2D/Scene/Entity.h"
 
 #include "Xora2D/Renderer/Renderer2D.h"
 #include "Xora2D/Renderer/RendererAPI.h"
@@ -50,6 +54,17 @@ void ViewportPanel::OnImGui(EditorContext& context) {
                 static_cast<ImTextureID>(static_cast<std::uintptr_t>(texture.GetRendererId()));
             ImGui::Image(textureId, imageSize, ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
             const bool imageHovered = ImGui::IsItemHovered();
+            // Drop a prefab from the Content panel onto the game view: the instance lands under the cursor.
+            if (!context.IsEditingPrefab() && ImGui::BeginDragDropTarget()) {
+                const ImVec2 imageMin = ImGui::GetItemRectMin();
+                const ImVec2 mouse = ImGui::GetMousePos();
+                if (const auto prefab = AcceptPrefabDragDrop(context)) {
+                    const glm::vec2 local{mouse.x - imageMin.x, imageSize.y - (mouse.y - imageMin.y)};
+                    const auto result = context.InstantiatePrefab(*prefab, ViewToWorld(context, local));
+                    ReportPrefabResult(result.Success, result.Message);
+                }
+                ImGui::EndDragDropTarget();
+            }
             if (playState != EditorPlayState::Edit) {
                 const ImU32 border = playState == EditorPlayState::Playing ? IM_COL32(90, 215, 115, 255)
                                                                           : IM_COL32(242, 190, 64, 255);
@@ -69,6 +84,28 @@ void ViewportPanel::OnImGui(EditorContext& context) {
     }
     ImGui::End();
     ImGui::PopStyleVar();
+}
+
+// Pixel position inside the game view (origin bottom-left) -> world position through the scene's primary camera
+// (the camera position is the bottom-left corner of the view).
+glm::vec2 ViewportPanel::ViewToWorld(EditorContext& context, const glm::vec2& viewPixels) {
+    const auto scene = context.GetScene();
+    glm::vec2 cameraPosition{0.0f};
+    float zoom = 1.0f;
+    if (scene != nullptr) {
+        for (const Xora2D::UUID& id : scene->GetEntityUUIDs()) {
+            const Xora2D::Entity entity = scene->FindEntityByUUID(id);
+            if (entity.HasComponent<Xora2D::CameraComponent>()) {
+                const auto& camera = entity.GetComponent<Xora2D::CameraComponent>();
+                if (camera.Enabled && camera.Primary) {
+                    cameraPosition = entity.GetComponent<Xora2D::TransformComponent>().Translation;
+                    zoom = std::max(camera.Zoom, 0.01f);
+                    break;
+                }
+            }
+        }
+    }
+    return cameraPosition + viewPixels / zoom;
 }
 
 void ViewportPanel::RenderScene(EditorApplication& application, EditorContext& context) {

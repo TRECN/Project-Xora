@@ -23,6 +23,7 @@ class SceneAudioSystem;
 class SceneAnimationSystem;
 struct PhysicsWorld2DDetail;
 class Renderer2D;
+class OrthographicCamera;
 class SceneSerializer;
 
 // Owns the ECS registry and entity lifecycle for one logical level.
@@ -60,6 +61,8 @@ public:
 
     void OnUpdate(float deltaSeconds);
     void OnRender(Renderer2D& renderer);
+    // Renders with an explicit camera instead of the scene's primary camera (e.g. editor views of prefab content).
+    void OnRender(Renderer2D& renderer, const OrthographicCamera& camera);
 
     // Stops physics simulation and suppresses gameplay collision callbacks (e.g. on application quit).
     void PrepareForShutdown();

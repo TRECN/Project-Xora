@@ -3,10 +3,12 @@
 #include "Xora2DEditor/AssetInspectorUI.h"
 #include "Xora2DEditor/ComponentInspectorUI.h"
 #include "Xora2DEditor/EditorContext.h"
+#include "Xora2DEditor/PrefabEditorUI.h"
 
 #include "Xora2D/Scene/Entity.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace Xora2DEditor {
 namespace {
@@ -39,12 +41,38 @@ public:
                         ImGui::TextColored(ImVec4(0.95f, 0.75f, 0.25f, 1.0f),
                                            "Runtime values - changes are discarded on Stop");
                     }
-                    DrawEntityInspector(selected, context);
+                    if (context.IsEditingPrefab()) {
+                        ImGui::TextColored(ImVec4(0.40f, 0.78f, 1.00f, 1.0f), "Prefab '%s' (isolated edit)",
+                                           context.GetEditedPrefabName().c_str());
+                    }
+                    if (DrawPrefabInstanceSection(selected, context)) {
+                        m_tracker.Invalidate();
+                    }
+                    const Xora2D::Entity current = context.GetSelectedEntity();
+                    if (current.IsValid()) {
+                        // Overrides are recorded only when the Inspector received input this frame.
+                        m_tracker.Begin(scene.get(), current);
+                        const bool editedBefore = GImGui->ActiveIdHasBeenEditedThisFrame;
+                        DrawEntityInspector(current, context);
+                        const bool widgetEdited = !editedBefore && GImGui->ActiveIdHasBeenEditedThisFrame;
+                        const bool inspectorInput =
+                            ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+                            (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsKeyPressed(ImGuiKey_Enter) ||
+                             ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) || ImGui::IsKeyPressed(ImGuiKey_Tab));
+                        const bool dropped =
+                            ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+                            ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows |
+                                                   ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+                        m_tracker.End(context.GetSelectedEntity(), context, widgetEdited || inspectorInput || dropped);
+                    }
                 }
             }
         }
         ImGui::End();
     }
+
+private:
+    PrefabEditTracker m_tracker;
 };
 
 } // namespace

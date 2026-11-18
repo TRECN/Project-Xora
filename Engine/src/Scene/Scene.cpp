@@ -1,5 +1,7 @@
 #include "Xora2D/Scene/Scene.h"
 
+#include "Xora2D/Prefab/PrefabComponents.h"
+
 #include "SceneAnimationSystem.h"
 #include "SceneAudioSystem.h"
 #include "Scripting/ScenePythonScriptSystem.h"
@@ -83,7 +85,8 @@ std::shared_ptr<Scene> Scene::Copy(const Scene& source) {
         to.emplace<TagComponent>(created, TagComponent{tag != nullptr ? tag->Tag : std::string("Entity")});
         CopyComponents<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent,
                        BoxCollider2DComponent, CircleCollider2DComponent, AudioSourceComponent, AudioListenerComponent,
-                       PythonScriptComponent, AnimationComponent>(from, sourceEntity, to, created);
+                       PythonScriptComponent, AnimationComponent, PrefabInstanceComponent>(from, sourceEntity, to,
+                                                                                           created);
         if (!to.all_of<TransformComponent>(created)) {
             to.emplace<TransformComponent>(created).RecalculateLocalMatrix();
         }
@@ -437,7 +440,11 @@ void Scene::OnRender(Renderer2D& renderer) {
     if (cameraResult == SceneCamera::Result::MultiplePrimaryCameras) {
         XORA_LOG_WARN("Scene::OnRender: multiple primary cameras; using the first one discovered");
     }
+    OnRender(renderer, camera);
+}
 
+void Scene::OnRender(Renderer2D& renderer, const OrthographicCamera& camera) {
+    ResolveSpriteTextures();
     renderer.BeginScene(camera);
 
     auto& registry = m_registry->Registry;

@@ -59,6 +59,14 @@ Entities:
       # ...
 ```
 
+## Prefab instances (Milestone 18)
+
+An entity created from a prefab carries an optional `PrefabInstance` block: the prefab handle, the instance id, the
+source entity, the revision and its overrides. Scenes without it load unchanged. A malformed block is an error. A
+prefab missing from the registry is reported in `SceneSerializeResult::Warnings`, and the entity keeps its data. The
+per-entity parse, emit and apply code is shared with `PrefabSerializer` through
+`Engine/src/Serialization/EntitySerialization.h`. See [Prefabs.md](Prefabs.md).
+
 ## Format version
 
 `SceneSerializer::kFormatVersion` is **2** (`TextureAssetHandle` on sprites). Version **1** files with `TexturePath` remain readable; provide an `AssetManager` on `Deserialize` to migrate paths to handles automatically.

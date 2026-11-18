@@ -13,6 +13,7 @@
 #include "Xora2D/Scene/Components.h"
 
 #include "Xora2D/Core/Paths.h"
+#include "Xora2D/Prefab/PrefabUtility.h"
 
 #include <imgui.h>
 
@@ -50,6 +51,8 @@ ImU32 KindColor(ContentItemKind kind) {
         return IM_COL32(220, 120, 90, 255);
     case ContentItemKind::Animation:
         return IM_COL32(181, 206, 108, 255);
+    case ContentItemKind::Prefab:
+        return IM_COL32(64, 196, 255, 255);
     default:
         return IM_COL32(130, 136, 150, 255);
     }
@@ -67,6 +70,8 @@ const char* KindBadge(const ContentBrowserEntry& entry) {
         return "SCENE";
     case ContentItemKind::Animation:
         return "ANIM";
+    case ContentItemKind::Prefab:
+        return "PREFAB";
     default:
         return "FILE";
     }
@@ -120,6 +125,20 @@ void DrawFileIcon(ImDrawList* drawList, ImVec2 min, float size, const ContentBro
     const ImVec2 pageMax(min.x + size - pad, min.y + size - pad * 0.6f);
     drawList->AddRectFilled(pageMin, pageMax, IM_COL32(52, 56, 66, 255), 4.0f);
     drawList->AddRect(pageMin, pageMax, KindColor(entry.Kind), 4.0f, 0, 1.5f);
+    if (entry.Kind == ContentItemKind::Prefab) {
+        // Distinct prefab glyph: an isometric cube.
+        const float cx = (pageMin.x + pageMax.x) * 0.5f;
+        const float cy = pageMin.y + (pageMax.y - pageMin.y) * 0.36f;
+        const float r = (pageMax.x - pageMin.x) * 0.24f;
+        const ImU32 light = IM_COL32(120, 215, 255, 255);
+        const ImU32 mid = IM_COL32(64, 160, 225, 255);
+        const ImU32 dark = IM_COL32(36, 110, 170, 255);
+        const ImVec2 top(cx, cy - r), right(cx + r, cy - r * 0.5f), left(cx - r, cy - r * 0.5f), center(cx, cy);
+        const ImVec2 bottom(cx, cy + r), rightBottom(cx + r, cy + r * 0.5f), leftBottom(cx - r, cy + r * 0.5f);
+        drawList->AddQuadFilled(top, right, center, left, light);
+        drawList->AddQuadFilled(left, center, bottom, leftBottom, mid);
+        drawList->AddQuadFilled(center, right, rightBottom, bottom, dark);
+    }
     const char* badge = KindBadge(entry);
     const ImVec2 textSize = ImGui::CalcTextSize(badge);
     const ImVec2 badgeMin(pageMin.x + 4.0f, pageMax.y - textSize.y - 8.0f);
@@ -743,6 +762,11 @@ private:
             m_openScenePath = entry.ResourceRelativePath;
             m_openSceneConfirm = true;
         }
+        if (doubleClicked && entry.Kind == ContentItemKind::Prefab && !entry.IsMissing() &&
+            entry.RegisteredHandle.has_value() && !context.IsPlayModeActive()) {
+            const EditorSceneFileResult open = context.OpenPrefabEditor(*entry.RegisteredHandle);
+            SetStatus(open.Message, open.Success ? Severity::Success : Severity::Error);
+        }
     }
 
     void DrawItemInteractions(EditorContext& context, const ContentBrowserEntry& entry) {
@@ -846,7 +870,37 @@ private:
         if (ImGui::MenuItem("Show in Inspector")) {
             context.SelectContentItem(entry);
         }
-        if (entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+        if (entry.Kind == ContentItemKind::Prefab && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+            if (ImGui::MenuItem("Instantiate in Scene", nullptr, false, !context.IsEditingPrefab())) {
+                const auto result = context.InstantiatePrefab(*entry.RegisteredHandle);
+                SetStatus(result.Message, result.Success ? Severity::Success : Severity::Error);
+                if (result.Success) {
+                    context.SetInspectorFocus(InspectorFocus::Entity);
+                }
+            }
+            if (ImGui::MenuItem("Open Prefab", nullptr, false, !context.IsPlayModeActive())) {
+                const EditorSceneFileResult open = context.OpenPrefabEditor(*entry.RegisteredHandle);
+                SetStatus(open.Message, open.Success ? Severity::Success : Severity::Error);
+            }
+            if (ImGui::MenuItem("Refresh Instances in Scene", nullptr, false, !context.IsEditingPrefab())) {
+                std::size_t refreshed = 0;
+                std::string failure;
+                if (const auto scene = context.GetScene()) {
+                    for (const Xora2D::UUID& instance : Xora2D::FindPrefabInstances(*scene, *entry.RegisteredHandle)) {
+                        const auto result = Xora2D::RefreshPrefabInstance(*scene, instance, context.GetAssetManager());
+                        refreshed += result.Success ? 1 : 0;
+                        if (!result.Success) {
+                            failure = result.Message;
+                        }
+                    }
+                }
+                SetStatus(failure.empty() ? "Refreshed " + std::to_string(refreshed) + " instance(s) (overrides kept)"
+                                          : failure,
+                          failure.empty() ? Severity::Success : Severity::Error);
+            }
+            ImGui::Separator();
+        }
+        if (entry.RegisteredHandle.has_value() && !entry.IsMissing() && entry.Kind != ContentItemKind::Prefab) {
             const Xora2D::Entity selectedEntity = context.GetSelectedEntity();
             const char* target = AssignmentTargetLabel(entry.AssetType);
             if (target != nullptr) {

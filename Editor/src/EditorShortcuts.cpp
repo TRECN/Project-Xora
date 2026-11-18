@@ -12,7 +12,7 @@ void EditorShortcuts::HandleGlobalShortcuts(EditorContext& context, EditorUI& ui
     {
         const ImGuiIO& io = ImGui::GetIO();
         const bool primary = io.KeySuper || io.KeyCtrl;
-        if (!io.WantTextInput && primary && ImGui::IsKeyPressed(ImGuiKey_P, false)) {
+        if (!io.WantTextInput && primary && ImGui::IsKeyPressed(ImGuiKey_P, false) && !context.IsEditingPrefab()) {
             if (io.KeyShift) {
                 if (!context.PausePlayMode()) {
                     (void)context.ResumePlayMode();

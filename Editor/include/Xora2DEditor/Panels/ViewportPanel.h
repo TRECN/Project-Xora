@@ -5,6 +5,7 @@
 
 #include "Xora2D/Renderer/ColorRenderTarget.h"
 
+#include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
 #include <memory>
@@ -24,6 +25,8 @@ public:
     [[nodiscard]] int GetRenderWidth() const;
     [[nodiscard]] int GetRenderHeight() const;
     [[nodiscard]] bool HasValidTarget() const;
+    // Game-view pixel (origin bottom-left) -> world position through the active scene's primary camera.
+    [[nodiscard]] static glm::vec2 ViewToWorld(EditorContext& context, const glm::vec2& viewPixels);
 
 private:
     std::unique_ptr<Xora2D::ColorRenderTarget> m_renderTarget;

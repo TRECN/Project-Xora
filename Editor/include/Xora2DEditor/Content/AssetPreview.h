@@ -50,6 +50,16 @@ struct SceneDetails {
     std::size_t EntityCount = 0;
 };
 
+struct PrefabDetails {
+    std::string PrefabName;
+    std::uint32_t Revision = 0;
+    int FormatVersion = 0;
+    std::size_t EntityCount = 0;
+    std::vector<std::string> EntityNames;
+    std::vector<std::string> Components; // union of component types used
+    std::vector<std::string> MissingReferences;
+};
+
 struct AnimationDetails {
     std::string ClipName;
     std::size_t FrameCount = 0;
@@ -77,6 +87,7 @@ struct AssetDetails {
     std::optional<ScriptDetails> Script;
     std::optional<SceneDetails> Scene;
     std::optional<AnimationDetails> Animation;
+    std::optional<PrefabDetails> Prefab;
     std::string Error; // type-specific metadata could not be read
 };
 

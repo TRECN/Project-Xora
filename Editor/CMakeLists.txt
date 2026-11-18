@@ -9,6 +9,7 @@ add_executable(Xora2D-Editor
     src/EditorResourceAssets.cpp
     src/ComponentInspectorUI.cpp
     src/TransformEditing.cpp
+    src/PrefabEditorUI.cpp
     src/AssetInspectorUI.cpp
     src/Content/AssetPreview.cpp
     src/Content/ContentBrowserQuery.cpp

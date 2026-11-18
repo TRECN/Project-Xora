@@ -11,6 +11,8 @@
 #include "Xora2D/Renderer/Texture2D.h"
 #include "Xora2D/Scene/Components.h"
 
+#include "Xora2D/Prefab/PrefabUtility.h"
+
 #include <imgui.h>
 
 #include <algorithm>
@@ -214,6 +216,77 @@ void DrawSceneSection(EditorContext& context, const AssetDetails& details) {
             state.ConfirmOpenScene = false;
         }
     }
+}
+
+void DrawPrefabSection(EditorContext& context, const AssetDetails& details) {
+    ImGui::SeparatorText("Prefab");
+    if (details.Prefab && BeginProperties("PrefabProps")) {
+        const PrefabDetails& prefab = *details.Prefab;
+        PropertyRow("Prefab name", prefab.PrefabName.empty() ? "-" : prefab.PrefabName);
+        PropertyRow("Revision", std::to_string(prefab.Revision));
+        PropertyRow("Format version", std::to_string(prefab.FormatVersion));
+        PropertyRow("Entities", std::to_string(prefab.EntityCount));
+        std::string names;
+        for (const std::string& name : prefab.EntityNames) {
+            names += (names.empty() ? "" : ", ") + name;
+        }
+        PropertyRow("Contents", names.empty() ? "-" : names);
+        std::string components;
+        for (const std::string& component : prefab.Components) {
+            if (component != "TagComponent" && component != "TransformComponent") {
+                components += (components.empty() ? "" : ", ") + component;
+            }
+        }
+        PropertyRow("Components", components.empty() ? "Transform only" : components);
+        ImGui::EndTable();
+        for (const std::string& missing : prefab.MissingReferences) {
+            ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.35f, 1.0f), "Missing asset: %s", missing.c_str());
+        }
+    }
+    if (!details.Metadata || !details.Error.empty()) {
+        ImGui::TextDisabled(!details.Metadata ? "Not registered: Refresh the Content panel to register it."
+                                              : "The prefab is invalid and cannot be instantiated.");
+        return;
+    }
+    const Xora2D::AssetHandle handle = details.Metadata->Handle;
+    InspectorUiState& state = UiState();
+    if (const auto scene = context.GetScene()) {
+        const std::size_t instances = Xora2D::FindPrefabInstances(*scene, handle).size();
+        ImGui::TextDisabled("%zu instance(s) in the %s", instances,
+                            context.IsPlayModeActive() ? "runtime scene" : "open scene");
+    }
+    ImGui::BeginDisabled(context.IsEditingPrefab());
+    if (ImGui::Button("Instantiate")) {
+        const auto result = context.InstantiatePrefab(handle);
+        state.Message = result.Message;
+        state.MessageIsError = !result.Success;
+        state.MessageKey = details.ResourcePath;
+    }
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    ImGui::BeginDisabled(context.IsPlayModeActive());
+    if (ImGui::Button("Open Prefab")) {
+        const auto open = context.OpenPrefabEditor(handle);
+        state.Message = open.Message;
+        state.MessageIsError = !open.Success;
+        state.MessageKey = details.ResourcePath;
+    }
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    ImGui::BeginDisabled(context.IsEditingPrefab());
+    if (ImGui::Button("Refresh Instances")) {
+        std::size_t refreshed = 0;
+        if (const auto scene = context.GetScene()) {
+            for (const Xora2D::UUID& instance : Xora2D::FindPrefabInstances(*scene, handle)) {
+                refreshed += Xora2D::RefreshPrefabInstance(*scene, instance, context.GetAssetManager()).Success ? 1 : 0;
+            }
+        }
+        state.Message = "Refreshed " + std::to_string(refreshed) + " instance(s); overrides were kept";
+        state.MessageIsError = false;
+        state.MessageKey = details.ResourcePath;
+    }
+    ImGui::EndDisabled();
+    ImGui::SetItemTooltip("Explicitly update instances in the open scene to this prefab (overrides are kept)");
 }
 
 void DrawAnimationSection(EditorContext& context, const AssetDetails& details) {
@@ -429,6 +502,9 @@ void DrawAssetInspector(EditorContext& context) {
             break;
         case ContentItemKind::Animation:
             DrawAnimationSection(context, *details);
+            break;
+        case ContentItemKind::Prefab:
+            DrawPrefabSection(context, *details);
             break;
         default:
             break;

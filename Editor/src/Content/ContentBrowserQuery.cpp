@@ -41,6 +41,8 @@ const char* ContentTypeFilterLabel(ContentTypeFilter filter) {
         return "Scenes";
     case ContentTypeFilter::Animations:
         return "Animations";
+    case ContentTypeFilter::Prefabs:
+        return "Prefabs";
     case ContentTypeFilter::Missing:
         return "Missing";
     default:
@@ -78,6 +80,8 @@ bool MatchesTypeFilter(const ContentBrowserEntry& entry, ContentTypeFilter filte
         return entry.Kind == ContentItemKind::Scene;
     case ContentTypeFilter::Animations:
         return entry.Kind == ContentItemKind::Animation;
+    case ContentTypeFilter::Prefabs:
+        return entry.Kind == ContentItemKind::Prefab;
     case ContentTypeFilter::Missing:
         return entry.IsMissing();
     default:

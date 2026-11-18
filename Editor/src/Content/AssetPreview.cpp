@@ -10,6 +10,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
+#include <set>
 #include <cctype>
 #include <chrono>
 #include <fstream>
@@ -92,6 +93,71 @@ void GatherScene(const std::filesystem::path& file, AssetDetails& details) {
         details.Scene = scene;
     } catch (const YAML::Exception& exception) {
         details.Error = std::string("Scene YAML is invalid: ") + exception.what();
+    }
+}
+
+// Worker-thread safe: reads the YAML only (no Scene / AssetManager access). Full validation happens on load.
+void GatherPrefab(const std::filesystem::path& file, const std::vector<Xora2D::AssetMetadata>& registry,
+                  AssetDetails& details) {
+    try {
+        const YAML::Node root = YAML::LoadFile(file.string());
+        const YAML::Node header = root["Prefab"];
+        if (!header || !header.IsMap()) {
+            details.Error = "Not a valid prefab (missing 'Prefab' header)";
+            return;
+        }
+        PrefabDetails prefab{};
+        prefab.PrefabName = header["Name"] ? header["Name"].as<std::string>("") : std::string{};
+        prefab.Revision = header["Revision"] ? header["Revision"].as<std::uint32_t>(0) : 0;
+        prefab.FormatVersion = header["FormatVersion"] ? header["FormatVersion"].as<int>(0) : 0;
+        std::set<std::string> components;
+        std::set<std::string> missing;
+        const auto checkHandle = [&](const YAML::Node& node, const std::string& owner, const char* what) {
+            if (!node) {
+                return;
+            }
+            const std::string text = node.as<std::string>("");
+            const bool known = std::any_of(registry.begin(), registry.end(), [&](const Xora2D::AssetMetadata& meta) {
+                return meta.Handle.ToString() == text;
+            });
+            if (!known) {
+                missing.insert(owner + ": " + what + " " + text);
+            }
+        };
+        if (const YAML::Node entities = root["Entities"]; entities && entities.IsSequence()) {
+            prefab.EntityCount = entities.size();
+            for (const YAML::Node& entity : entities) {
+                const std::string name =
+                    entity["TagComponent"] ? entity["TagComponent"]["Tag"].as<std::string>("") : std::string{};
+                prefab.EntityNames.push_back(name);
+                for (const auto& item : entity) {
+                    const std::string key = item.first.Scalar();
+                    if (key != "Entity") {
+                        components.insert(key);
+                    }
+                }
+                if (const YAML::Node sprite = entity["SpriteRendererComponent"]) {
+                    checkHandle(sprite["TextureAssetHandle"], name, "texture");
+                }
+                if (const YAML::Node audio = entity["AudioSourceComponent"]) {
+                    checkHandle(audio["ClipAssetHandle"], name, "audio clip");
+                }
+                if (const YAML::Node script = entity["PythonScriptComponent"]) {
+                    checkHandle(script["ScriptAssetHandle"], name, "script");
+                }
+                if (const YAML::Node animation = entity["AnimationComponent"]) {
+                    checkHandle(animation["DefaultClip"], name, "animation clip");
+                }
+            }
+        }
+        if (prefab.FormatVersion < 1 || prefab.EntityCount == 0) {
+            details.Error = prefab.FormatVersion < 1 ? "Prefab has no valid FormatVersion" : "Prefab has no entities";
+        }
+        prefab.Components.assign(components.begin(), components.end());
+        prefab.MissingReferences.assign(missing.begin(), missing.end());
+        details.Prefab = std::move(prefab);
+    } catch (const YAML::Exception& exception) {
+        details.Error = std::string("Prefab YAML is invalid: ") + exception.what();
     }
 }
 
@@ -188,6 +254,9 @@ AssetDetails GatherAssetDetails(const std::string& resourcePath,
         break;
     case ContentItemKind::Animation:
         GatherAnimation(file, assetRelative.value_or(details.FileName), registrySnapshot, details);
+        break;
+    case ContentItemKind::Prefab:
+        GatherPrefab(file, registrySnapshot, details);
         break;
     default:
         break;

@@ -343,6 +343,7 @@ int RunContentBrowserTests();
 int RunTransformInspectorTests();
 int RunPlayModeTests();
 int RunProjectTests();
+int RunPrefabTests();
 
 int main() {
     XORA_LOG_INFO("Xora2D tests starting");
@@ -366,6 +367,7 @@ int main() {
     g_failures += RunTransformInspectorTests();
     g_failures += RunPlayModeTests();
     g_failures += RunProjectTests();
+    g_failures += RunPrefabTests();
 
     if (g_failures != 0) {
         XORA_LOG_ERROR("{} test check(s) failed", g_failures);

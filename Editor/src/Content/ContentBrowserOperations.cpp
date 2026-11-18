@@ -13,6 +13,10 @@
 #include "Xora2D/Scene/Scene.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
 
+#include "Xora2D/Prefab/PrefabComponents.h"
+#include "Xora2D/Prefab/Prefab.h"
+#include "Xora2D/Prefab/PrefabSerializer.h"
+
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
@@ -443,7 +447,8 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
         }
     }
 
-    for (const std::string_view extension : {std::string_view(".scene.yaml"), std::string_view(".anim.yaml")}) {
+    for (const std::string_view extension :
+         {std::string_view(".scene.yaml"), std::string_view(".anim.yaml"), std::string_view(".prefab.yaml")}) {
         for (const std::string& file : FindProjectFiles(extension)) {
             YAML::Node root;
             try {
@@ -451,7 +456,8 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
             } catch (const YAML::Exception&) {
                 continue;
             }
-            if (extension == ".scene.yaml" && root["Entities"] && root["Entities"].IsSequence()) {
+            // Scenes and prefabs share the entity format (scene PrefabInstance blocks reference prefab handles).
+            if (extension != ".anim.yaml" && root["Entities"] && root["Entities"].IsSequence()) {
                 for (const YAML::Node& entity : root["Entities"]) {
                     if (!entity.IsMap()) {
                         continue;
@@ -508,6 +514,9 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
             }
             if (entity.HasComponent<Xora2D::PythonScriptComponent>()) {
                 add(entity.GetComponent<Xora2D::PythonScriptComponent>().ScriptAsset, "PythonScript", tag);
+            }
+            if (entity.HasComponent<Xora2D::PrefabInstanceComponent>()) {
+                add(entity.GetComponent<Xora2D::PrefabInstanceComponent>().Prefab, "Prefab instance", tag);
             }
             if (entity.HasComponent<Xora2D::AnimationComponent>()) {
                 const auto& animation = entity.GetComponent<Xora2D::AnimationComponent>();
@@ -601,6 +610,21 @@ FilesystemOperationResult RegisterExistingFile(const std::string& resourceRelati
     std::error_code errorCode;
     if (absolute.empty() || !std::filesystem::is_regular_file(absolute, errorCode)) {
         return Fail("File does not exist");
+    }
+    if (Xora2D::IsSupportedPrefabExtension(absolute)) {
+        // Prefab files already inside the project (copied in, or registry entry lost) are registered in place after
+        // validation; the stable path-derived handle is used.
+        const Xora2D::PrefabLoadResult check = Xora2D::PrefabSerializer::Load(absolute, &assetManager);
+        if (!check.Success) {
+            return Fail("Invalid prefab: " + check.Message);
+        }
+        const Xora2D::AssetResult registered = assetManager.RegisterPrefabAtRelativePath(
+            *AssetRelativePathFromResourcePath(*path), check.Loaded->GetName());
+        FilesystemOperationResult result{};
+        result.Success = registered.Success;
+        result.Message = registered.Success ? "Prefab registered" : registered.Message;
+        result.ResultPath = *path;
+        return result;
     }
     std::string reason;
     const std::optional<ImportCategory> category = ClassifyImportSource(absolute, reason);

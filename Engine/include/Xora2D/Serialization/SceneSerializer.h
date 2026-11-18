@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace Xora2D {
 
@@ -11,6 +12,8 @@ class AssetManager;
 struct SceneSerializeResult {
     bool Success = false;
     std::string Message;
+    // Non-fatal problems found while loading (e.g. a prefab asset referenced by instances is missing).
+    std::vector<std::string> Warnings;
 };
 
 class SceneSerializer {

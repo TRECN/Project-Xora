@@ -7,6 +7,8 @@
 #include "Xora2D/Renderer/Texture2D.h"
 #include "Xora2D/Animation/AnimationClipAsset.h"
 #include "Xora2D/Scripting/PythonScriptAsset.h"
+#include "Xora2D/Prefab/Prefab.h"
+#include "Xora2D/Prefab/PrefabSerializer.h"
 
 #include <filesystem>
 #include <fstream>
@@ -523,9 +525,88 @@ std::shared_ptr<const AnimationClipAsset> AssetManager::GetLoadedAnimationClip(A
     return found->second;
 }
 
+AssetResult AssetManager::RegisterPrefabAtRelativePath(const std::string& normalizedRelativePath,
+                                                       const std::string& displayName) {
+    AssetResult result{};
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(normalizedRelativePath);
+    if (!normalized.has_value()) {
+        result.Message = "Invalid relative asset path";
+        return result;
+    }
+    if (const AssetMetadata* existing = m_registry.FindByRelativePath(*normalized)) {
+        result.Success = existing->Type == AssetType::Prefab;
+        result.Handle = existing->Handle;
+        result.Message = result.Success ? "Asset already registered" : "Path is registered as another asset type";
+        return result;
+    }
+    const std::filesystem::path absolute = ResolveAssetPath(*normalized);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Asset file does not exist: " + absolute.string();
+        return result;
+    }
+    if (!IsSupportedPrefabExtension(absolute)) {
+        result.Message = "Unsupported prefab extension (expected .prefab.yaml)";
+        return result;
+    }
+    AssetMetadata metadata{};
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
+    metadata.Type = AssetType::Prefab;
+    metadata.Name = displayName.empty() ? absolute.stem().stem().string() : displayName;
+    metadata.RelativePath = *normalized;
+    metadata.Available = true;
+    if (m_registry.Contains(metadata.Handle) || !m_registry.RegisterAsset(metadata)) {
+        result.Message = "Failed to register prefab metadata";
+        return result;
+    }
+    result.Success = true;
+    result.Handle = metadata.Handle;
+    return result;
+}
+
+AssetResult AssetManager::LoadPrefab(AssetHandle handle) {
+    return LoadPrefabInternal(handle, false);
+}
+
+AssetResult AssetManager::LoadPrefabInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    const AssetMetadata* metadata = handle.IsValid() ? m_registry.FindByHandle(handle) : nullptr;
+    if (metadata == nullptr) {
+        result.Message = "Prefab asset " + handle.ToString() + " is not registered";
+        return result;
+    }
+    if (metadata->Type != AssetType::Prefab) {
+        result.Message = "Asset '" + metadata->Name + "' is not a prefab";
+        return result;
+    }
+    if (!forceReload && m_prefabCache.contains(handle)) {
+        result.Success = true;
+        result.Handle = handle;
+        return result;
+    }
+    const PrefabLoadResult load = PrefabSerializer::Load(ResolveAssetPath(metadata->RelativePath), this);
+    if (!load.Success) {
+        // Keep a previously loaded revision on a failed reload rather than dropping working data.
+        result.Message = load.Message;
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+    for (const std::string& missing : load.MissingAssets) {
+        XORA_LOG_WARN("Prefab '{}': missing asset reference ({})", metadata->Name, missing);
+    }
+    m_prefabCache[handle] = load.Loaded;
+    result.Success = true;
+    result.Handle = handle;
+    return result;
+}
+
+std::shared_ptr<const Prefab> AssetManager::GetLoadedPrefab(AssetHandle handle) const {
+    const auto found = m_prefabCache.find(handle);
+    return found == m_prefabCache.end() ? nullptr : found->second;
+}
+
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
     return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle) ||
-           m_animationClipCache.contains(handle);
+           m_animationClipCache.contains(handle) || m_prefabCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
@@ -533,9 +614,14 @@ void AssetManager::UnloadAsset(AssetHandle handle) {
     m_audioCache.erase(handle);
     m_scriptCache.erase(handle);
     m_animationClipCache.erase(handle);
+    m_prefabCache.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
+    const AssetMetadata* metadata = m_registry.FindByHandle(handle);
+    if (metadata != nullptr && metadata->Type == AssetType::Prefab) {
+        return LoadPrefabInternal(handle, true);
+    }
     return LoadTextureInternal(handle, true);
 }
 
@@ -543,6 +629,9 @@ void AssetManager::UnloadAll() {
     m_textureCache.clear();
     m_audioCache.clear();
     m_scriptCache.clear();
+    // Path-derived handles repeat across projects: every cache must be dropped on a project switch.
+    m_animationClipCache.clear();
+    m_prefabCache.clear();
 }
 
 void AssetManager::PrepareShutdown() {

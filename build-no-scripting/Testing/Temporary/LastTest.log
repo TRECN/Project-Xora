@@ -1,1021 +1,1189 @@
-Start testing: Nov 18 08:29 IST
+Start testing: Nov 18 08:57 IST
 ----------------------------------------------------------
 1/1 Testing: Xora2D-Tests
 1/1 Test: Xora2D-Tests
 Command: "/Users/rishabh/Desktop/Project-Xora/Xora2D/build-no-scripting/Tests/Xora2D-Tests"
 Directory: /Users/rishabh/Desktop/Project-Xora/Xora2D/build-no-scripting/Tests
-"Xora2D-Tests" start time: Nov 18 08:29 IST
+"Xora2D-Tests" start time: Nov 18 08:57 IST
 Output:
 ----------------------------------------------------------
-[08:29:13.481] [INFO] Xora2D tests starting
-[08:29:13.482] [INFO] TEST logger started
-[08:29:13.482] [INFO]   formatted line: [09:08:07.042] [WARN] disk full
-[08:29:13.482] [INFO]   pass: timestamp is 09:08:07.042
-[08:29:13.482] [INFO]   pass: level and message are present
-[08:29:13.482] [INFO]   pass: WARN is hidden when the minimum level is ERROR
-[08:29:13.482] [INFO]   pass: ERROR stays visible when the minimum level is ERROR
-[08:29:13.482] [INFO] TEST logger passed (4 checks)
-[08:29:13.482] [INFO] TEST events started
-[08:29:13.482] [INFO]   pass: quit event type
-[08:29:13.482] [INFO]   pass: quit event name
-[08:29:13.482] [INFO]   pass: quit is an application event
-[08:29:13.482] [INFO]   pass: quit is not a window event
-[08:29:13.482] [INFO]   pass: close is an application event
-[08:29:13.482] [INFO]   pass: close is a window event
-[08:29:13.482] [INFO]   pass: close is not an input event
-[08:29:13.482] [INFO]   pass: resize stores 800x600
-[08:29:13.482] [INFO]   pass: resize text is WindowResize 800x600
-[08:29:13.482] [INFO]   key event: KeyPressed key=1 scan=4 repeat=true
-[08:29:13.482] [INFO]   pass: key press is a keyboard event
-[08:29:13.482] [INFO]   pass: key press is an input event
-[08:29:13.482] [INFO]   pass: key press is not a mouse event
-[08:29:13.482] [INFO]   pass: key press records repeat
-[08:29:13.482] [INFO]   mouse event: MouseButtonPressed button=1 at 20,30
-[08:29:13.482] [INFO]   pass: click is a mouse-button event
-[08:29:13.482] [INFO]   pass: click button is left
-[08:29:13.482] [INFO]   pass: dispatcher ignores a window-close handler for a resize
-[08:29:13.482] [INFO]   pass: dispatcher delivers the resize to its handler
-[08:29:13.482] [INFO]   pass: matched event is marked handled
-[08:29:13.482] [INFO]   pass: unmatched event stays unhandled
-[08:29:13.482] [INFO] TEST events passed (19 checks)
-[08:29:13.482] [INFO] TEST time started
-[08:29:13.483] [INFO]   pass: first tick at startup is 0 seconds
-[08:29:13.483] [INFO]   pass: delta after 100ms is 0.1 seconds
-[08:29:13.483] [INFO]   pass: elapsed after 100ms is 0.1 seconds
-[08:29:13.483] [INFO]   pass: delta after another 150ms is 0.15 seconds
-[08:29:13.483] [INFO]   pass: elapsed after 250ms is 0.25 seconds
-[08:29:13.483] [INFO]   pass: a backwards clock does not produce a negative delta
-[08:29:13.483] [INFO]   pass: elapsed stays 0.25 seconds when the clock moves backwards
-[08:29:13.483] [INFO] TEST time passed (7 checks)
-[08:29:13.483] [INFO] TEST sdl event translation started
-[08:29:13.483] [INFO]   pass: SDL quit becomes AppQuit
-[08:29:13.483] [INFO]   pass: SDL window close becomes WindowClose
-[08:29:13.483] [INFO]   pass: SDL resize reports 640x480
-[08:29:13.483] [INFO]   pass: SDL resize becomes WindowResize
-[08:29:13.483] [INFO]   translated key down: KeyPressed key=38 scan=41 repeat=false
-[08:29:13.483] [INFO]   pass: Escape key down becomes KeyPressed
-[08:29:13.483] [INFO]   translated key up: KeyReleased key=1 scan=4
-[08:29:13.483] [INFO]   pass: A key up becomes KeyReleased
-[08:29:13.483] [INFO]   translated click: MouseButtonPressed button=1 at 15,25
-[08:29:13.483] [INFO]   pass: left mouse down becomes MouseButtonPressed
-[08:29:13.483] [INFO]   translated release: MouseButtonReleased button=3 at 15,25
-[08:29:13.483] [INFO]   pass: right mouse up becomes MouseButtonReleased
-[08:29:13.483] [INFO]   translated scroll: MouseScrolled -1,-2
-[08:29:13.483] [INFO]   pass: flipped scroll is normalized to -1, -2
-[08:29:13.483] [INFO]   translated motion: MouseMoved 12.5,8
-[08:29:13.483] [INFO]   pass: mouse motion keeps 12.5, 8
-[08:29:13.483] [INFO] TEST sdl event translation passed (10 checks)
-[08:29:13.483] [INFO] TEST window event delivery started
-[08:29:13.673] [INFO]   pass: resize event was queued
-[08:29:13.673] [INFO]   pass: space key event was queued
-[08:29:13.673] [INFO]   pass: mouse click event was queued
-[08:29:13.673] [INFO]   pass: quit event was queued
-[08:29:13.678] [INFO]   window delivered: WindowResize 400x300
-[08:29:13.678] [INFO]   window delivered: KeyPressed key=41 scan=44 repeat=false
-[08:29:13.678] [INFO]   window delivered: MouseButtonPressed button=1 at 4,5
-[08:29:13.678] [INFO]   window delivered: AppQuit
-[08:29:13.678] [INFO]   pass: window callback received resize
-[08:29:13.678] [INFO]   pass: window callback received the space key
-[08:29:13.678] [INFO]   pass: window callback received the left click
-[08:29:13.678] [INFO]   pass: window callback received quit
-[08:29:13.678] [INFO]   pass: window size updated to 400x300
-[08:29:13.678] [INFO]   pass: window title updated
-[08:29:13.704] [INFO] TEST window event delivery passed (10 checks)
-[08:29:13.704] [INFO] TEST graphics context started
-[08:29:13.734] [INFO] OpenGL vendor: Apple
-[08:29:13.734] [INFO] OpenGL renderer: Apple M1
-[08:29:13.734] [INFO] OpenGL version: 4.1 Metal - 90.5
-[08:29:13.734] [INFO]   graphics vendor: Apple
-[08:29:13.734] [INFO]   graphics renderer: Apple M1
-[08:29:13.734] [INFO]   graphics version: 4.1 Metal - 90.5
-[08:29:13.734] [INFO]   pass: OpenGL version is at least 3.3
-[08:29:13.734] [INFO]   pass: OpenGL vendor is reported
-[08:29:13.734] [INFO]   pass: OpenGL renderer is reported
-[08:29:13.734] [INFO]   pass: OpenGL version string is reported
-[08:29:13.734] [INFO]   pass: VSync can be enabled
-[08:29:13.734] [INFO]   pass: VSync stays enabled
-[08:29:13.734] [INFO]   pass: VSync can be disabled
-[08:29:13.734] [INFO]   pass: VSync stays disabled
-[08:29:13.734] [INFO]   pass: VSync can be enabled again
-[08:29:13.734] [INFO]   pass: framebuffer is at least the requested window size
-[08:29:13.736] [INFO]   cleared pixel: 64, 128, 191, 255
-[08:29:13.736] [INFO]   pass: framebuffer pixel matches the clear color
-[08:29:13.736] [INFO]   pass: OpenGL context has a current window
-[08:29:13.742] [INFO]   pass: window resize was requested
-[08:29:13.745] [INFO]   pass: window resize completed
-[08:29:13.745] [INFO]   framebuffer after resize: 640x360
-[08:29:13.745] [INFO]   viewport after resize: 640x360
-[08:29:13.745] [INFO]   pass: resized framebuffer grew to the new size
-[08:29:13.745] [INFO]   pass: viewport matches the framebuffer after resize
-[08:29:13.787] [INFO] OpenGL vendor: Apple
-[08:29:13.787] [INFO] OpenGL renderer: Apple M1
-[08:29:13.787] [INFO] OpenGL version: 4.1 Metal - 90.5
-[08:29:13.790] [INFO] Renderer2D initialized
-[08:29:13.889] [INFO] Xora2D Engine initialized
-[08:29:13.904] [INFO]   pass: application frame loop exits cleanly
-[08:29:13.904] [INFO]   pass: application rendered at least two frames
-[08:29:13.904] [INFO]   pass: application viewport follows the framebuffer
-[08:29:13.904] [INFO]   application viewport: 1280x720
-[08:29:13.933] [INFO] Xora2D Engine shutdown
-[08:29:13.955] [INFO] TEST graphics context passed
-[08:29:13.955] [INFO] TEST buffer layout started
-[08:29:13.955] [INFO]   pass: layout stride is 40 bytes
-[08:29:13.955] [INFO]   pass: position offset is 0
-[08:29:13.955] [INFO]   pass: color offset is 12
-[08:29:13.955] [INFO]   pass: texcoord offset is 28
-[08:29:13.955] [INFO]   pass: texindex offset is 36
-[08:29:13.955] [INFO] TEST buffer layout finished
-[08:29:13.955] [INFO] TEST orthographic camera started
-[08:29:13.955] [INFO]   pass: view-projection keeps w at 1 for affine transforms
-[08:29:13.955] [INFO]   pass: camera zoom stored
-[08:29:13.955] [INFO]   pass: projection matrix stays valid after zoom
-[08:29:13.955] [INFO] TEST orthographic camera finished
-[08:29:13.955] [INFO] TEST shader and texture started
-[08:29:13.956] [INFO]   pass: invalid shader source throws
-[08:29:13.956] [INFO]   pass: invalid texture path throws
-[08:29:13.964] [INFO] OpenGL vendor: Apple
-[08:29:13.964] [INFO] OpenGL renderer: Apple M1
-[08:29:13.964] [INFO] OpenGL version: 4.1 Metal - 90.5
-[08:29:13.964] [INFO]   pass: texture loads with non-zero dimensions
-[08:29:13.965] [INFO]   pass: valid shader program id is non-zero
-[08:29:13.965] [INFO] TEST shader and texture finished
-[08:29:13.987] [INFO] TEST renderer2d batching started
-[08:29:13.997] [INFO] OpenGL vendor: Apple
-[08:29:13.997] [INFO] OpenGL renderer: Apple M1
-[08:29:13.997] [INFO] OpenGL version: 4.1 Metal - 90.5
-[08:29:14.000] [INFO] Renderer2D initialized
-[08:29:14.002] [INFO]   batch stats: drawCalls=2 quads=80 vertices=320 indices=480
-[08:29:14.002] [INFO]   pass: batching uses at most three draw calls for this scene
-[08:29:14.002] [INFO]   pass: quad count matches submitted sprites
-[08:29:14.002] [INFO]   pass: vertex count matches submitted sprites
-[08:29:14.002] [INFO]   pass: index count matches submitted sprites
-[08:29:14.002] [INFO] TEST renderer2d batching finished
-[08:29:14.025] [INFO] Renderer unit tests passed
-[08:29:14.025] [INFO] TEST entity and components started
-[08:29:14.025] [INFO]   pass: empty scene has zero entities
-[08:29:14.025] [INFO]   pass: created entity is valid
-[08:29:14.025] [INFO]   pass: entity name matches
-[08:29:14.025] [INFO]   pass: entity uuid is valid
-[08:29:14.026] [INFO]   pass: sprite component exists
-[08:29:14.026] [INFO]   pass: transform matrix changes after TRS
-[08:29:14.026] [INFO]   pass: entity copies share identity
-[08:29:14.026] [INFO]   pass: entity lookup by name works
-[08:29:14.026] [INFO]   pass: lookup by name returns same entity
-[08:29:14.026] [INFO]   pass: entity lookup by uuid works
-[08:29:14.026] [INFO]   pass: destroyed entity is invalid
-[08:29:14.026] [INFO]   pass: stale entity cannot access components
-[08:29:14.026] [INFO]   pass: scene keeps remaining entities
-[08:29:14.026] [INFO]   pass: component removal works
-[08:29:14.026] [INFO] TEST scene render integration started
-[08:29:14.026] [INFO]   pass: scene without camera does not pick an arbitrary camera
-[08:29:14.026] [INFO]   pass: primary camera resolves
-[08:29:14.033] [INFO] OpenGL vendor: Apple
-[08:29:14.033] [INFO] OpenGL renderer: Apple M1
-[08:29:14.033] [INFO] OpenGL version: 4.1 Metal - 90.5
-[08:29:14.036] [INFO] Renderer2D initialized
+[08:57:38.765] [INFO] Xora2D tests starting
+[08:57:38.770] [INFO] TEST logger started
+[08:57:38.770] [INFO]   formatted line: [09:08:07.042] [WARN] disk full
+[08:57:38.770] [INFO]   pass: timestamp is 09:08:07.042
+[08:57:38.770] [INFO]   pass: level and message are present
+[08:57:38.770] [INFO]   pass: WARN is hidden when the minimum level is ERROR
+[08:57:38.770] [INFO]   pass: ERROR stays visible when the minimum level is ERROR
+[08:57:38.770] [INFO] TEST logger passed (4 checks)
+[08:57:38.770] [INFO] TEST events started
+[08:57:38.770] [INFO]   pass: quit event type
+[08:57:38.770] [INFO]   pass: quit event name
+[08:57:38.770] [INFO]   pass: quit is an application event
+[08:57:38.770] [INFO]   pass: quit is not a window event
+[08:57:38.770] [INFO]   pass: close is an application event
+[08:57:38.770] [INFO]   pass: close is a window event
+[08:57:38.770] [INFO]   pass: close is not an input event
+[08:57:38.770] [INFO]   pass: resize stores 800x600
+[08:57:38.770] [INFO]   pass: resize text is WindowResize 800x600
+[08:57:38.770] [INFO]   key event: KeyPressed key=1 scan=4 repeat=true
+[08:57:38.770] [INFO]   pass: key press is a keyboard event
+[08:57:38.770] [INFO]   pass: key press is an input event
+[08:57:38.770] [INFO]   pass: key press is not a mouse event
+[08:57:38.770] [INFO]   pass: key press records repeat
+[08:57:38.770] [INFO]   mouse event: MouseButtonPressed button=1 at 20,30
+[08:57:38.770] [INFO]   pass: click is a mouse-button event
+[08:57:38.770] [INFO]   pass: click button is left
+[08:57:38.770] [INFO]   pass: dispatcher ignores a window-close handler for a resize
+[08:57:38.770] [INFO]   pass: dispatcher delivers the resize to its handler
+[08:57:38.770] [INFO]   pass: matched event is marked handled
+[08:57:38.770] [INFO]   pass: unmatched event stays unhandled
+[08:57:38.770] [INFO] TEST events passed (19 checks)
+[08:57:38.770] [INFO] TEST time started
+[08:57:38.771] [INFO]   pass: first tick at startup is 0 seconds
+[08:57:38.771] [INFO]   pass: delta after 100ms is 0.1 seconds
+[08:57:38.771] [INFO]   pass: elapsed after 100ms is 0.1 seconds
+[08:57:38.771] [INFO]   pass: delta after another 150ms is 0.15 seconds
+[08:57:38.771] [INFO]   pass: elapsed after 250ms is 0.25 seconds
+[08:57:38.771] [INFO]   pass: a backwards clock does not produce a negative delta
+[08:57:38.771] [INFO]   pass: elapsed stays 0.25 seconds when the clock moves backwards
+[08:57:38.771] [INFO] TEST time passed (7 checks)
+[08:57:38.771] [INFO] TEST sdl event translation started
+[08:57:38.771] [INFO]   pass: SDL quit becomes AppQuit
+[08:57:38.771] [INFO]   pass: SDL window close becomes WindowClose
+[08:57:38.771] [INFO]   pass: SDL resize reports 640x480
+[08:57:38.771] [INFO]   pass: SDL resize becomes WindowResize
+[08:57:38.771] [INFO]   translated key down: KeyPressed key=38 scan=41 repeat=false
+[08:57:38.771] [INFO]   pass: Escape key down becomes KeyPressed
+[08:57:38.771] [INFO]   translated key up: KeyReleased key=1 scan=4
+[08:57:38.771] [INFO]   pass: A key up becomes KeyReleased
+[08:57:38.771] [INFO]   translated click: MouseButtonPressed button=1 at 15,25
+[08:57:38.771] [INFO]   pass: left mouse down becomes MouseButtonPressed
+[08:57:38.771] [INFO]   translated release: MouseButtonReleased button=3 at 15,25
+[08:57:38.771] [INFO]   pass: right mouse up becomes MouseButtonReleased
+[08:57:38.771] [INFO]   translated scroll: MouseScrolled -1,-2
+[08:57:38.771] [INFO]   pass: flipped scroll is normalized to -1, -2
+[08:57:38.771] [INFO]   translated motion: MouseMoved 12.5,8
+[08:57:38.771] [INFO]   pass: mouse motion keeps 12.5, 8
+[08:57:38.771] [INFO] TEST sdl event translation passed (10 checks)
+[08:57:38.771] [INFO] TEST window event delivery started
+[08:57:38.913] [INFO]   pass: resize event was queued
+[08:57:38.913] [INFO]   pass: space key event was queued
+[08:57:38.913] [INFO]   pass: mouse click event was queued
+[08:57:38.913] [INFO]   pass: quit event was queued
+[08:57:38.945] [INFO]   window delivered: WindowResize 400x300
+[08:57:38.945] [INFO]   window delivered: KeyPressed key=41 scan=44 repeat=false
+[08:57:38.945] [INFO]   window delivered: MouseButtonPressed button=1 at 4,5
+[08:57:38.945] [INFO]   window delivered: AppQuit
+[08:57:38.945] [INFO]   window delivered: WindowFocusGained
+[08:57:38.945] [INFO]   pass: window callback received resize
+[08:57:38.945] [INFO]   pass: window callback received the space key
+[08:57:38.945] [INFO]   pass: window callback received the left click
+[08:57:38.945] [INFO]   pass: window callback received quit
+[08:57:38.945] [INFO]   pass: window size updated to 400x300
+[08:57:38.945] [INFO]   pass: window title updated
+[08:57:38.970] [INFO] TEST window event delivery passed (10 checks)
+[08:57:38.970] [INFO] TEST graphics context started
+[08:57:38.993] [INFO] OpenGL vendor: Apple
+[08:57:38.993] [INFO] OpenGL renderer: Apple M1
+[08:57:38.993] [INFO] OpenGL version: 4.1 Metal - 90.5
+[08:57:38.993] [INFO]   graphics vendor: Apple
+[08:57:38.993] [INFO]   graphics renderer: Apple M1
+[08:57:38.993] [INFO]   graphics version: 4.1 Metal - 90.5
+[08:57:38.993] [INFO]   pass: OpenGL version is at least 3.3
+[08:57:38.993] [INFO]   pass: OpenGL vendor is reported
+[08:57:38.993] [INFO]   pass: OpenGL renderer is reported
+[08:57:38.993] [INFO]   pass: OpenGL version string is reported
+[08:57:38.993] [INFO]   pass: VSync can be enabled
+[08:57:38.993] [INFO]   pass: VSync stays enabled
+[08:57:38.993] [INFO]   pass: VSync can be disabled
+[08:57:38.993] [INFO]   pass: VSync stays disabled
+[08:57:38.993] [INFO]   pass: VSync can be enabled again
+[08:57:38.993] [INFO]   pass: framebuffer is at least the requested window size
+[08:57:38.995] [INFO]   cleared pixel: 64, 128, 191, 255
+[08:57:38.995] [INFO]   pass: framebuffer pixel matches the clear color
+[08:57:38.995] [INFO]   pass: OpenGL context has a current window
+[08:57:38.999] [INFO]   pass: window resize was requested
+[08:57:39.002] [INFO]   pass: window resize completed
+[08:57:39.002] [INFO]   framebuffer after resize: 640x360
+[08:57:39.002] [INFO]   viewport after resize: 640x360
+[08:57:39.002] [INFO]   pass: resized framebuffer grew to the new size
+[08:57:39.002] [INFO]   pass: viewport matches the framebuffer after resize
+[08:57:39.049] [INFO] OpenGL vendor: Apple
+[08:57:39.049] [INFO] OpenGL renderer: Apple M1
+[08:57:39.049] [INFO] OpenGL version: 4.1 Metal - 90.5
+[08:57:39.052] [INFO] Renderer2D initialized
+[08:57:40.141] [INFO] Xora2D Engine initialized
+[08:57:40.189] [INFO]   pass: application frame loop exits cleanly
+[08:57:40.189] [INFO]   pass: application rendered at least two frames
+[08:57:40.189] [INFO]   pass: application viewport follows the framebuffer
+[08:57:40.189] [INFO]   application viewport: 1280x720
+[08:57:40.216] [INFO] Xora2D Engine shutdown
+[08:57:40.240] [INFO] TEST graphics context passed
+[08:57:40.240] [INFO] TEST buffer layout started
+[08:57:40.240] [INFO]   pass: layout stride is 40 bytes
+[08:57:40.240] [INFO]   pass: position offset is 0
+[08:57:40.240] [INFO]   pass: color offset is 12
+[08:57:40.240] [INFO]   pass: texcoord offset is 28
+[08:57:40.240] [INFO]   pass: texindex offset is 36
+[08:57:40.240] [INFO] TEST buffer layout finished
+[08:57:40.240] [INFO] TEST orthographic camera started
+[08:57:40.241] [INFO]   pass: view-projection keeps w at 1 for affine transforms
+[08:57:40.241] [INFO]   pass: camera zoom stored
+[08:57:40.241] [INFO]   pass: projection matrix stays valid after zoom
+[08:57:40.241] [INFO] TEST orthographic camera finished
+[08:57:40.241] [INFO] TEST shader and texture started
+[08:57:40.241] [INFO]   pass: invalid shader source throws
+[08:57:40.241] [INFO]   pass: invalid texture path throws
+[08:57:40.252] [INFO] OpenGL vendor: Apple
+[08:57:40.252] [INFO] OpenGL renderer: Apple M1
+[08:57:40.252] [INFO] OpenGL version: 4.1 Metal - 90.5
+[08:57:40.252] [INFO]   pass: texture loads with non-zero dimensions
+[08:57:40.252] [INFO]   pass: valid shader program id is non-zero
+[08:57:40.252] [INFO] TEST shader and texture finished
+[08:57:40.276] [INFO] TEST renderer2d batching started
+[08:57:40.285] [INFO] OpenGL vendor: Apple
+[08:57:40.285] [INFO] OpenGL renderer: Apple M1
+[08:57:40.285] [INFO] OpenGL version: 4.1 Metal - 90.5
+[08:57:40.288] [INFO] Renderer2D initialized
+[08:57:40.289] [INFO]   batch stats: drawCalls=2 quads=80 vertices=320 indices=480
+[08:57:40.289] [INFO]   pass: batching uses at most three draw calls for this scene
+[08:57:40.289] [INFO]   pass: quad count matches submitted sprites
+[08:57:40.289] [INFO]   pass: vertex count matches submitted sprites
+[08:57:40.289] [INFO]   pass: index count matches submitted sprites
+[08:57:40.289] [INFO] TEST renderer2d batching finished
+[08:57:40.315] [INFO] Renderer unit tests passed
+[08:57:40.315] [INFO] TEST entity and components started
+[08:57:40.315] [INFO]   pass: empty scene has zero entities
+[08:57:40.315] [INFO]   pass: created entity is valid
+[08:57:40.315] [INFO]   pass: entity name matches
+[08:57:40.315] [INFO]   pass: entity uuid is valid
+[08:57:40.315] [INFO]   pass: sprite component exists
+[08:57:40.315] [INFO]   pass: transform matrix changes after TRS
+[08:57:40.316] [INFO]   pass: entity copies share identity
+[08:57:40.316] [INFO]   pass: entity lookup by name works
+[08:57:40.316] [INFO]   pass: lookup by name returns same entity
+[08:57:40.316] [INFO]   pass: entity lookup by uuid works
+[08:57:40.316] [INFO]   pass: destroyed entity is invalid
+[08:57:40.316] [INFO]   pass: stale entity cannot access components
+[08:57:40.316] [INFO]   pass: scene keeps remaining entities
+[08:57:40.316] [INFO]   pass: component removal works
+[08:57:40.316] [INFO] TEST scene render integration started
+[08:57:40.316] [INFO]   pass: scene without camera does not pick an arbitrary camera
+[08:57:40.316] [INFO]   pass: primary camera resolves
+[08:57:40.326] [INFO] OpenGL vendor: Apple
+[08:57:40.326] [INFO] OpenGL renderer: Apple M1
+[08:57:40.326] [INFO] OpenGL version: 4.1 Metal - 90.5
+[08:57:40.329] [INFO] Renderer2D initialized
 UNSUPPORTED (log once): POSSIBLE ISSUE: unit 0 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
-[08:29:14.037] [INFO]   scene stats: drawCalls=2 quads=2
-[08:29:14.037] [INFO]   pass: scene uses separate color and textured batches
-[08:29:14.037] [INFO]   pass: scene renders both sprite entities
-[08:29:14.037] [INFO]   pass: camera uses entity transform position
-[08:29:14.060] [INFO] Scene tests passed
-[08:29:14.060] [INFO] TEST scene serialization started
-[08:29:14.062] [INFO]   pass: save empty scene succeeds
-[08:29:14.062] [INFO]   pass: load empty scene succeeds
-[08:29:14.062] [INFO]   pass: empty scene stays empty
-[08:29:14.062] [INFO]   pass: scene name round-trips
-[08:29:14.063] [INFO]   pass: save one entity
-[08:29:14.064] [INFO]   pass: load one entity
-[08:29:14.064] [INFO]   pass: one entity count preserved
-[08:29:14.064] [INFO]   pass: UUID preserved on reload
-[08:29:14.064] [INFO]   pass: tag preserved
-[08:29:14.064] [INFO]   pass: transform translation X preserved
-[08:29:14.064] [INFO]   pass: transform translation Y preserved
-[08:29:14.065] [INFO]   pass: save multi-component scene
-[08:29:14.067] [INFO]   pass: load multi-component scene
-[08:29:14.067] [INFO]   pass: multiple entities preserved
-[08:29:14.067] [INFO]   pass: sprite color preserved
-[08:29:14.067] [INFO]   pass: sprite visibility preserved
-[08:29:14.067] [INFO]   pass: camera zoom preserved
-[08:29:14.067] [INFO]   pass: rigid body settings preserved
-[08:29:14.067] [INFO]   pass: box collider preserved
-[08:29:14.067] [INFO]   pass: circle collider present after load
-[08:29:14.067] [INFO]   pass: circle sensor flag preserved
-[08:29:14.067] [INFO]   pass: physics body created after load
-[08:29:14.068] [INFO]   pass: reject duplicate UUIDs
-[08:29:14.069] [INFO]   pass: reject malformed YAML
-[08:29:14.069] [INFO]   pass: failed parse leaves scene unchanged
-[08:29:14.069] [INFO]   pass: reject missing required TransformComponent
-[08:29:14.069] [INFO]   pass: missing field leaves scene unchanged
-[08:29:14.069] [INFO]   pass: reject invalid rigid body enum
-[08:29:14.070] [INFO]   pass: reject invalid camera zoom
-[08:29:14.070] [INFO]   pass: reject missing texture asset
-[08:29:14.070] [INFO]   pass: missing texture leaves scene unchanged
-[08:29:14.070] [INFO]   pass: setup cycle entity count
-[08:29:14.071] [INFO]   pass: repeated save succeeds
-[08:29:14.073] [INFO]   pass: repeated load succeeds
-[08:29:14.073] [INFO]   pass: repeated load preserves entity count
-[08:29:14.074] [INFO]   pass: repeated save succeeds
-[08:29:14.075] [INFO]   pass: repeated load succeeds
-[08:29:14.075] [INFO]   pass: repeated load preserves entity count
-[08:29:14.076] [INFO]   pass: repeated save succeeds
-[08:29:14.077] [INFO]   pass: repeated load succeeds
-[08:29:14.077] [INFO]   pass: repeated load preserves entity count
-[08:29:14.078] [INFO]   pass: physics body exists before scene replace load
-[08:29:14.078] [INFO]   pass: save scene with physics
-[08:29:14.079] [INFO]   pass: load replaces scene in place
-[08:29:14.079] [INFO]   pass: entity survives in-place load
-[08:29:14.079] [INFO]   pass: physics body recreated after load
-[08:29:14.079] [INFO]   pass: loaded UUID stays registered
-[08:29:14.079] [INFO]   pass: newly generated UUID differs from a loaded UUID
-[08:29:14.079] [INFO]   pass: generated UUID is tracked in registry
-[08:29:14.080] [INFO] Serialization tests passed
-[08:29:14.080] [INFO] TEST asset system started
-[08:29:14.080] [INFO]   pass: stable asset handle from relative path
-[08:29:14.080] [INFO]   pass: asset handle round-trips through string
-[08:29:14.080] [INFO]   pass: register asset
-[08:29:14.080] [INFO]   pass: find asset by handle
-[08:29:14.080] [INFO]   pass: find asset by relative path
-[08:29:14.080] [INFO]   pass: reject duplicate handle
-[08:29:14.080] [INFO]   pass: remove asset
-[08:29:14.080] [INFO]   pass: asset removed
-[08:29:14.080] [INFO]   pass: re-register asset
-[08:29:14.080] [INFO]   pass: enumerate registered assets
-[08:29:14.081] [INFO]   pass: save asset registry
-[08:29:14.081] [INFO]   pass: load asset registry
-[08:29:14.081] [INFO]   pass: registry preserves handle across reload
-[08:29:14.081] [INFO]   pass: reject malformed registry
-[08:29:14.081] [INFO]   pass: failed registry load leaves in-memory registry unchanged
-[08:29:14.081] [INFO]   pass: reject duplicate handle in file
-[08:29:14.081] [INFO]   pass: reject path traversal
-[08:29:14.081] [INFO]   pass: accept safe relative path
-[08:29:14.081] [INFO]   pass: import valid texture
-[08:29:14.081] [INFO]   pass: re-import returns stable handle
-[08:29:14.082] [INFO]   pass: save scene with texture asset handle
-[08:29:14.083] [INFO]   pass: load scene with asset handle
-[08:29:14.083] [INFO]   pass: scene preserves texture asset handle
-[08:29:14.083] [INFO] Asset tests passed
-[08:29:14.083] [INFO] TEST input system started
-[08:29:14.083] [INFO]   pass: key starts up
-[08:29:14.083] [INFO]   pass: key starts not down
-[08:29:14.083] [INFO]   pass: press sets pressed
-[08:29:14.083] [INFO]   pass: press sets down
-[08:29:14.083] [INFO]   pass: pressed clears next frame
-[08:29:14.083] [INFO]   pass: held remains down
-[08:29:14.083] [INFO]   pass: repeat does not retrigger pressed
-[08:29:14.083] [INFO]   pass: release sets released
-[08:29:14.083] [INFO]   pass: release clears down
-[08:29:14.083] [INFO]   pass: released clears next frame
-[08:29:14.083] [INFO]   pass: multiple keys independent
-[08:29:14.083] [INFO]   pass: press and release same frame
-[08:29:14.083] [INFO]   pass: not down after same-frame tap
-[08:29:14.083] [INFO]   pass: invalid key handled safely
-[08:29:14.083] [INFO]   pass: clear state releases keys
-[08:29:14.083] [INFO]   pass: mouse press
-[08:29:14.083] [INFO]   pass: mouse down
-[08:29:14.083] [INFO]   pass: mouse position
-[08:29:14.083] [INFO]   pass: mouse delta
-[08:29:14.083] [INFO]   pass: mouse delta resets each frame
-[08:29:14.083] [INFO]   pass: scroll delta
-[08:29:14.083] [INFO]   pass: scroll delta resets
-[08:29:14.083] [INFO]   pass: focus loss clears key down
-[08:29:14.083] [INFO]   pass: focus loss reports release
-[08:29:14.083] [INFO]   pass: focus loss clears mouse
-[08:29:14.083] [INFO]   pass: bind key action
-[08:29:14.083] [INFO]   pass: second bind same action
-[08:29:14.083] [INFO]   pass: bind mouse action
-[08:29:14.083] [INFO]   pass: action pressed via alternate binding
-[08:29:14.083] [INFO]   pass: action down
-[08:29:14.083] [INFO]   pass: unknown action safe
-[08:29:14.083] [INFO]   pass: remove binding
-[08:29:14.083] [INFO]   pass: clear action
-[08:29:14.083] [INFO]   pass: save mapping
-[08:29:14.084] [INFO]   pass: load mapping
-[08:29:14.084] [INFO]   pass: multiple bindings preserved
-[08:29:14.084] [INFO]   pass: reject invalid key
-[08:29:14.084] [INFO]   pass: failed load leaves mapping unchanged
-[08:29:14.084] [INFO]   pass: SDL key down translates
-[08:29:14.084] [INFO]   pass: SDL escape updates input
-[08:29:14.084] [INFO]   pass: shutdown clears input
-[08:29:14.084] [INFO] TEST input system finished (0 failures)
-[08:29:14.084] [INFO] TEST audio system started
-[08:29:14.084] [INFO]   pass: null backend initializes
-[08:29:14.084] [INFO]   pass: repeated initialize safe
-[08:29:14.085] [INFO]   pass: load valid wav
-[08:29:14.085] [INFO]   pass: duration metadata available
-[08:29:14.085] [INFO]   pass: missing file rejected
-[08:29:14.085] [INFO]   pass: playback starts
-[08:29:14.085] [INFO]   pass: playback active
-[08:29:14.085] [INFO]   pass: playback pauses
-[08:29:14.085] [INFO]   pass: playback resumes
-[08:29:14.085] [INFO]   pass: multiple instances coexist
-[08:29:14.085] [INFO]   pass: master volume stored
-[08:29:14.085] [INFO]   pass: audio source wrapper plays
-[08:29:14.085] [INFO]   pass: stop all clears playback
-[08:29:14.085] [INFO]   pass: register audio asset
-[08:29:14.085] [INFO]   pass: load audio through asset manager
-[08:29:14.085] [INFO]   pass: audio cache reuse
-[08:29:14.086] [INFO]   pass: serialize audio components
-[08:29:14.086] [INFO]   pass: deserialize audio components
-[08:29:14.086] [INFO]   pass: audio source restored
-[08:29:14.086] [INFO]   pass: init after shutdown
-[08:29:14.087] [INFO] TEST audio system finished (0 failures)
-[08:29:14.087] [INFO] TEST physics world basics started
-[08:29:14.087] [INFO]   pass: gravity configuration updates
-[08:29:14.087] [INFO]   pass: paused simulation performs no substeps
-[08:29:14.087] [INFO]   pass: enabled simulation runs fixed substeps
-[08:29:14.088] [INFO]   pass: dynamic body falls under gravity
-[08:29:14.088] [INFO]   pass: dynamic body lands near the static ground
-[08:29:14.088] [INFO]   pass: static ground transform stays unchanged
-[08:29:14.088] [INFO]   pass: kinematic transform drives physics
-[08:29:14.089] [INFO]   pass: scene creates a runtime physics body
-[08:29:14.089] [INFO]   pass: linear impulse changes velocity
-[08:29:14.089] [INFO]   pass: velocity can be cleared
-[08:29:14.089] [INFO]   pass: compound collider entity gets one physics body
-[08:29:14.089] [INFO]   pass: body exists before destruction
-[08:29:14.089] [INFO]   pass: entity is invalid after destruction
-[08:29:14.089] [INFO]   pass: physics body removed with entity
-[08:29:14.090] [INFO]   pass: collision event uses valid UUIDs
-[08:29:14.090] [INFO]   pass: collision begin event reported
-[08:29:14.090] [INFO]   pass: sensor begin event reported
-[08:29:14.090] [INFO] TEST collision event lifecycle started
-[08:29:14.092] [INFO]   pass: resting contact emits exactly one collision begin
-[08:29:14.092] [INFO]   pass: resting contact does not emit collision end
-[08:29:14.093] [INFO]   pass: separating bodies emit one collision end
-[08:29:14.094] [INFO]   pass: re-entering contact emits a second collision begin
-[08:29:14.095] [INFO]   pass: sensor overlap emits exactly one sensor begin
-[08:29:14.095] [INFO]   pass: leaving sensor emits one sensor end
-[08:29:14.097] [INFO]   pass: multiple fixtures on one body produce one entity-level collision begin
-[08:29:14.098] [INFO]   pass: destroyed entity stays invalid after physics step
-[08:29:14.098] [INFO]   pass: physics body is gone after entity destroy
-[08:29:14.101] [INFO]   pass: sustained contact produces one collision begin
-[08:29:14.101] [INFO]   pass: sustained contact produces no collision end
-[08:29:14.101] [INFO]   pass: no additional contact events while bodies remain at rest
-[08:29:14.104] [INFO]   pass: dual fixtures still emit one entity begin
-[08:29:14.104] [INFO]   pass: dual fixtures resting together emit no entity end
-[08:29:14.104] [INFO]   pass: fixture-level churn does not surface as duplicate entity events while resting
-[08:29:14.106] [INFO]   pass: bouncy contact may legitimately begin again after separating
-[08:29:14.106] [INFO]   pass: bouncy contact emits end when bodies separate mid-bounce
-[08:29:14.108] [INFO]   pass: compound settles with one entity-level begin
-[08:29:14.108] [INFO]   pass: incremental lift does not emit entity end while a fixture remains touching
-[08:29:14.108] [INFO]   pass: full separation emits exactly one entity end
-[08:29:14.109] [INFO]   pass: PrepareForShutdown disables contact gameplay dispatch
-[08:29:14.109] [INFO]   pass: physics updates after PrepareForShutdown do not dispatch gameplay collision events
-[08:29:14.110] [INFO]   pass: scene shutdown does not dispatch additional collision events
-[08:29:14.110] [INFO]   pass: scene destruction cleans up physics world
-[08:29:14.110] [INFO] Physics tests passed
-[08:29:14.110] [INFO] TEST python scripting started
-[08:29:14.110] [INFO]   pass: scripting disabled at compile time
-[08:29:14.110] [INFO]   pass: scripting disabled build reports unavailable init
-[08:29:14.110] [INFO] TEST python scripting passed
-[08:29:14.110] [INFO] TEST animation started
-[08:29:14.110] [INFO]   pass: valid multi-row sheet
-[08:29:14.110] [INFO]   pass: first and last frame UV
-[08:29:14.110] [INFO]   pass: out-of-range frame rejected
-[08:29:14.110] [INFO]   pass: invalid dimensions rejected
-[08:29:14.110] [INFO]   pass: custom sequence validated
-[08:29:14.110] [INFO]   pass: custom sequence UV
-[08:29:14.110] [INFO]   pass: initial frame
-[08:29:14.110] [INFO]   pass: frame advances with delta
-[08:29:14.110] [INFO]   pass: playback speed affects timing
-[08:29:14.110] [INFO]   pass: pause preserves frame
-[08:29:14.110] [INFO]   pass: stop resets playback state
-[08:29:14.110] [INFO]   pass: non-looping animation completes
-[08:29:14.110] [INFO]   pass: completed state
-[08:29:14.110] [INFO]   pass: completion emitted once
-[08:29:14.110] [INFO]   pass: restart plays again
-[08:29:14.111] [INFO]   pass: register walk clip asset
-[08:29:14.112] [INFO]   pass: load walk clip
-[08:29:14.112] [INFO]   pass: scene update advances animation
-[08:29:14.112] [INFO]   pass: completion dispatched once per playthrough
-[08:29:14.112] [INFO]   pass: replay can dispatch completion again
-[08:29:14.112] [INFO]   pass: entity destruction does not crash animation system
-[08:29:14.113] [INFO]   pass: serialize animation component
-[08:29:14.113] [INFO]   pass: deserialize animation component
-[08:29:14.113] [INFO]   pass: animated entity round trip
-[08:29:14.113] [INFO]   pass: playback speed round trip
-[08:29:14.113] [INFO]   pass: looping round trip
-[08:29:14.114] [INFO]   pass: invalid animation data rejected
-[08:29:14.114] [INFO]   pass: failed animation deserialize is transactional
-[08:29:14.114] [INFO] TEST animation passed
-[08:29:14.114] [INFO] TEST editor started
-[08:29:14.114] [INFO]   pass: editor config save
-[08:29:14.114] [INFO]   pass: editor config load
-[08:29:14.114] [INFO]   pass: editor config width round-trip
-[08:29:14.114] [INFO]   pass: editor config recent projects
-[08:29:14.114] [INFO]   pass: editor config missing file handled
-[08:29:14.114] [INFO]   pass: editor panel id
-[08:29:14.114] [INFO]   pass: editor panel visibility
-[08:29:14.126] [INFO]   pass: render target rejects zero size
-[08:29:14.126] [INFO]   pass: render target resize valid
-[08:29:14.126] [INFO]   pass: render target valid after resize
-[08:29:14.126] [INFO]   pass: render target dimensions
-[08:29:14.126] [INFO]   pass: render target texture id
-[08:29:14.126] [INFO]   pass: render target idempotent resize
-[08:29:14.149] [INFO]   pass: editor selection valid after select
-[08:29:14.149] [INFO]   pass: editor selection resolves entity
-[08:29:14.149] [INFO]   pass: editor selection cleared
-[08:29:14.149] [INFO]   pass: editor destroy entity
-[08:29:14.149] [INFO]   pass: stale uuid selection sanitized
-[08:29:14.149] [INFO]   pass: selection cleared on scene replace
-[08:29:14.149] [INFO]   pass: editor rename entity
-[08:29:14.149] [INFO]   pass: entity name updated after rename
-[08:29:14.149] [INFO]   pass: add sprite renderer
-[08:29:14.149] [INFO]   pass: sprite renderer present
-[08:29:14.149] [INFO]   pass: duplicate component prevented
-[08:29:14.149] [INFO]   pass: inspector-style component mutation
-[08:29:14.149] [INFO]   pass: remove sprite renderer
-[08:29:14.149] [INFO]   pass: sprite renderer removed
-[08:29:14.149] [INFO]   pass: add rigid body
-[08:29:14.149] [INFO]   pass: remove rigid body
-[08:29:14.149] [INFO] TEST editor passed
-[08:29:14.149] [INFO] TEST content browser started
-[08:29:14.149] [INFO] TEST content: path safety
-[08:29:14.149] [INFO]   pass: normalize collapses empty and '.' segments
-[08:29:14.149] [INFO]   pass: normalize converts backslashes
-[08:29:14.149] [INFO]   pass: reject leading '..'
-[08:29:14.149] [INFO]   pass: reject embedded '..'
-[08:29:14.149] [INFO]   pass: reject absolute path
-[08:29:14.149] [INFO]   pass: reject drive letter
-[08:29:14.149] [INFO]   pass: reject NUL byte
-[08:29:14.149] [INFO]   pass: allow '..' inside a file name
-[08:29:14.149] [INFO]   pass: valid entry name
-[08:29:14.149] [INFO]   pass: invalid entry names rejected
-[08:29:14.149] [INFO]   pass: project roots and registry are protected
-[08:29:14.149] [INFO]   pass: ordinary folders are not protected
-[08:29:14.149] [INFO]   pass: subtree check respects segment boundaries
-[08:29:14.149] [INFO]   pass: compound extensions detected
-[08:29:14.149] [INFO]   pass: content classification
-[08:29:14.149] [INFO] TEST content: navigation state
-[08:29:14.149] [INFO]   pass: browser starts in Assets
-[08:29:14.149] [INFO]   pass: navigate into folder
-[08:29:14.149] [INFO]   pass: navigate deeper
-[08:29:14.149] [INFO]   pass: back
-[08:29:14.149] [INFO]   pass: forward
-[08:29:14.149] [INFO]   pass: up
-[08:29:14.149] [INFO]   pass: navigating after back truncates forward history
-[08:29:14.149] [INFO]   pass: unsafe navigation rejected
-[08:29:14.149] [INFO]   pass: history follows folder rename
-[08:29:14.149] [INFO]   pass: history leaves deleted folder
-[08:29:14.149] [INFO] TEST content: filter / search / sort
-[08:29:14.149] [INFO]   pass: folders first
-[08:29:14.149] [INFO]   pass: name sort is case-insensitive
-[08:29:14.149] [INFO]   pass: descending keeps folders first
-[08:29:14.149] [INFO]   pass: sort by size
-[08:29:14.149] [INFO]   pass: sort by modified date (oldest first)
-[08:29:14.149] [INFO]   pass: sort by type
-[08:29:14.149] [INFO]   pass: texture filter
-[08:29:14.149] [INFO]   pass: scene filter
-[08:29:14.149] [INFO]   pass: folder filter
-[08:29:14.149] [INFO]   pass: missing filter
-[08:29:14.149] [INFO]   pass: case-insensitive search
-[08:29:14.150] [INFO]   pass: multi-term search
-[08:29:14.150] [INFO]   pass: search with no matches
-[08:29:14.150] [INFO]   pass: search combined with filter
-[08:29:14.150] [INFO] TEST content: enumeration and folder creation
-[08:29:14.151] [INFO]   pass: register fixture texture
-[08:29:14.151] [INFO]   pass: hidden and temp files are not listed
-[08:29:14.151] [INFO]   pass: registered texture enumerated with handle and size
-[08:29:14.151] [INFO]   pass: unmanaged file enumerated
-[08:29:14.152] [INFO]   pass: folders enumerated
-[08:29:14.152] [INFO]   pass: missing folder reports an error
-[08:29:14.152] [INFO]   pass: traversal listing rejected
-[08:29:14.152] [INFO]   pass: create folder
-[08:29:14.152] [INFO]   pass: folder exists on disk
-[08:29:14.152] [INFO]   pass: duplicate folder rejected
-[08:29:14.152] [INFO]   pass: folder name with traversal rejected
-[08:29:14.152] [INFO]   pass: parent outside project rejected
-[08:29:14.152] [INFO]   pass: folder inside registry rejected
-[08:29:14.152] [INFO]   pass: nothing created outside the project
-[08:29:14.153] [INFO]   pass: recursive folder listing
-[08:29:14.153] [INFO]   pass: directory cache avoids rescans
-[08:29:14.154] [INFO]   pass: invalidation picks up external changes
-[08:29:14.154] [INFO]   pass: stale listings rescan automatically
-[08:29:14.154] [INFO]   pass: symlink escaping the project is not resolved
-[08:29:14.155] [INFO]   pass: escaping symlink not listed
-[08:29:14.155] [INFO]   pass: cannot create through escaping symlink
-[08:29:14.156] [INFO] TEST content: import
-[08:29:14.158] [INFO]   pass: valid image import succeeds
-[08:29:14.158] [INFO]   pass: image routed to Assets/Textures
-[08:29:14.158] [INFO]   pass: image copied into project
-[08:29:14.158] [INFO]   pass: imported image gets the stable path-derived handle
-[08:29:14.158] [INFO]   pass: image registered as Texture2D
-[08:29:14.158] [INFO]   pass: create audio subfolder
-[08:29:14.158] [INFO]   pass: audio import respects current folder inside the audio tree
-[08:29:14.158] [INFO]   pass: audio registered
-[08:29:14.159] [INFO]   pass: audio imported from the texture folder goes to Assets/Audio
-[08:29:14.160] [INFO]   pass: re-importing identical file reuses the existing handle
-[08:29:14.160] [INFO]   pass: duplicate import adds no registry entry
-[08:29:14.160] [INFO]   pass: duplicate import does not copy again
-[08:29:14.160] [INFO]   pass: name clash with different content imports under a unique name
-[08:29:14.160] [INFO]   pass: clash gets its own handle
-[08:29:14.162] [INFO]   pass: all invalid files rejected
-[08:29:14.162] [INFO]   pass: rejected files are not registered
-[08:29:14.162] [INFO]   pass: rejected files are not copied
-[08:29:14.162] [INFO]   pass: no temporary files left after failed imports
-[08:29:14.162] [INFO]   pass: OGG rejection explains why
-[08:29:14.163] [INFO]   pass: scene imported into Scenes without registration
-[08:29:14.164] [INFO]   pass: animation + texture batch imports
-[08:29:14.164] [INFO]   pass: animation clip registered without texture warning
-[08:29:14.165] [INFO]   pass: python script rejected when scripting is disabled
-[08:29:14.165] [INFO]   pass: in-project file registered in place
-[08:29:14.166] [INFO]   pass: save registry
-[08:29:14.167] [INFO]   pass: reload registry
-[08:29:14.167] [INFO]   pass: registry persists handles and paths
-[08:29:14.167] [INFO]   pass: registry persists animation clip type
-[08:29:14.169] [INFO]   pass: import queue stages on worker
-[08:29:14.169] [INFO]   pass: import queue commits on poll
-[08:29:14.169] [INFO]   pass: import queue idle afterwards
-[08:29:14.169] [INFO]   pass: no temporary files after imports
-[08:29:14.172] [INFO] TEST content: rename / move / delete
-[08:29:14.175] [INFO]   pass: fixtures imported
-[08:29:14.175] [INFO]   pass: clip registered
-[08:29:14.175] [WARN] Sprite 'Hero' failed to resolve texture asset bba9085f656d16bc: Graphics resources are disabled
-[08:29:14.175] [INFO]   pass: assign texture
-[08:29:14.175] [INFO]   pass: assign audio
-[08:29:14.176] [INFO]   pass: save scene
-[08:29:14.177] [INFO]   pass: rename appends original extension
-[08:29:14.177] [INFO]   pass: rename preserves handle and updates registry path
-[08:29:14.177] [INFO]   pass: display name follows file name
-[08:29:14.177] [INFO]   pass: file renamed on disk
-[08:29:14.177] [INFO]   pass: animation clip texture path rewritten
-[08:29:14.177] [INFO]   pass: clip now carries new path and stable texture handle
-[08:29:14.178] [INFO]   pass: renamed texture still resolves from the animation clip
-[08:29:14.178] [INFO]   pass: changing extension rejected
-[08:29:14.178] [INFO]   pass: rename with traversal rejected
-[08:29:14.178] [INFO]   pass: rename onto existing file rejected without overwriting
-[08:29:14.178] [INFO]   pass: protected folder rename rejected
-[08:29:14.178] [INFO]   pass: create destination
-[08:29:14.179] [INFO]   pass: move preserves handle
-[08:29:14.179] [INFO]   pass: clip follows moved texture
-[08:29:14.180] [INFO]   pass: folder rename relocates contained assets
-[08:29:14.180] [INFO]   pass: moving folder onto itself is a no-op
-[08:29:14.180] [INFO]   pass: create inner folder
-[08:29:14.181] [INFO]   pass: folder cannot move into its own subfolder
-[08:29:14.182] [INFO]   pass: scene with references loads after rename/move
-[08:29:14.182] [INFO]   pass: scene sprite still references the moved texture handle
-[08:29:14.182] [INFO]   pass: registered asset cannot leave the Assets folder
-[08:29:14.182] [INFO]   pass: refused move changed nothing
-[08:29:14.182] [INFO]   pass: move to missing folder changes nothing
-[08:29:14.182] [INFO]   pass: register conflicting entry
-[08:29:14.182] [INFO]   pass: rename conflicting with registry entry refused
-[08:29:14.182] [INFO]   pass: conflicting rename left disk and registry untouched
-[08:29:14.182] [INFO]   pass: remove conflicting entry
-[08:29:14.183] [INFO]   pass: re-using an old path does not steal the moved asset's handle
-[08:29:14.185] [INFO]   pass: texture referenced by scene file and animation clip
-[08:29:14.187] [INFO]   pass: referenced asset deletion refused and nothing changed
-[08:29:14.187] [INFO]   pass: references in the open scene are reported
-[08:29:14.188] [INFO]   pass: confirmed delete removes file and registry entry
-[08:29:14.189] [INFO]   pass: create pack folder
-[08:29:14.191] [INFO]   pass: move into pack
-[08:29:14.195] [INFO]   pass: folder delete removes contents and registry entries
-[08:29:14.195] [INFO]   pass: protected folder delete rejected
-[08:29:14.195] [INFO]   pass: registry file delete rejected
-[08:29:14.195] [INFO]   pass: delete with traversal rejected
-[08:29:14.195] [INFO]   pass: no trash or temp files left behind
-[08:29:14.197] [INFO] TEST content: missing asset detection
-[08:29:14.198] [INFO]   pass: nothing missing initially
-[08:29:14.198] [INFO]   pass: file deleted outside the editor detected
-[08:29:14.199] [INFO]   pass: missing asset shown as ghost entry
-[08:29:14.199] [INFO]   pass: missing asset cannot be assigned
-[08:29:14.199] [INFO]   pass: restored file detected
-[08:29:14.199] [INFO]   pass: missing asset can be forgotten
-[08:29:14.199] [INFO]   pass: file added outside the editor shown as not imported
-[08:29:14.199] [INFO]   pass: external file registered in place
-[08:29:14.199] [INFO]   pass: invalid external file not registered (and not deleted)
-[08:29:14.201] [INFO] TEST content: thumbnails
-[08:29:14.202] [INFO]   pass: thumbnail fits requested size
-[08:29:14.202] [INFO]   pass: thumbnail preserves aspect ratio
-[08:29:14.202] [INFO]   pass: RGBA8 pixels
-[08:29:14.202] [INFO]   pass: thumbnails never upscale
-[08:29:14.202] [INFO]   pass: corrupt image yields error
-[08:29:14.202] [INFO]   pass: first request is pending
-[08:29:14.203] [INFO]   pass: worker finishes
-[08:29:14.203] [INFO]   pass: one upload processed
-[08:29:14.203] [INFO]   pass: thumbnail ready after upload
-[08:29:14.203] [INFO]   pass: cached thumbnail is not regenerated
-[08:29:14.203] [INFO]   pass: modified source invalidates cached thumbnail
-[08:29:14.203] [INFO]   pass: regeneration finishes
-[08:29:14.203] [INFO]   pass: thumbnail regenerated after change
-[08:29:14.204] [INFO]   pass: corrupt decode finishes
-[08:29:14.204] [INFO]   pass: corrupt image marked failed
-[08:29:14.204] [INFO]   pass: cache respects capacity (LRU eviction)
-[08:29:14.204] [INFO]   pass: invalidate drops entry
-[08:29:14.204] [INFO]   pass: thumbnail worker shuts down cleanly
-[08:29:14.205] [INFO] TEST content: details and scene assignment
-[08:29:14.208] [INFO]   pass: texture details: dimensions and handle
-[08:29:14.208] [INFO]   pass: audio details: duration and sample rate
-[08:29:14.210] [INFO]   pass: animation details: frames, duration, texture
-[08:29:14.210] [INFO]   pass: script details: read-only preview without execution
-[08:29:14.211] [INFO]   pass: missing file details report error
-[08:29:14.211] [WARN] Sprite 'Hero' failed to resolve texture asset 4123b1be39166dfa: Graphics resources are disabled
-[08:29:14.211] [INFO]   pass: texture assigned to SpriteRenderer (component added)
-[08:29:14.211] [INFO]   pass: audio assigned to AudioSource
-[08:29:14.211] [INFO]   pass: animation clip assigned as default clip
-[08:29:14.211] [INFO]   pass: re-assigning clip does not duplicate clip list entry
-[08:29:14.211] [INFO]   pass: unregistered handle rejected
-[08:29:14.211] [INFO]   pass: invalid entity rejected
-[08:29:14.212] [INFO]   pass: serialize assigned scene
-[08:29:14.213] [INFO]   pass: deserialize assigned scene
-[08:29:14.213] [INFO]   pass: assigned handles survive serialization round-trip
-[08:29:14.214] [INFO]   pass: scene details: entity count
-[08:29:14.216] [INFO] TEST content browser finished (0 failure(s))
-[08:29:14.216] [INFO] TEST transform inspector started
-[08:29:14.216] [INFO]   pass: inspector shows rotation in degrees
-[08:29:14.216] [INFO]   pass: position X edit reports change
-[08:29:14.216] [INFO]   pass: editing position X updates the component
-[08:29:14.216] [INFO]   pass: editing position X preserves Y
-[08:29:14.216] [INFO]   pass: editing position preserves rotation exactly
-[08:29:14.216] [INFO]   pass: editing position preserves scale
-[08:29:14.216] [INFO]   pass: editing position Y updates Y and preserves X
-[08:29:14.216] [INFO]   pass: 90 degrees is stored as pi/2 radians
-[08:29:14.216] [INFO]   pass: -180 degrees is stored as -pi radians
-[08:29:14.216] [INFO]   pass: editing rotation preserves position and scale
-[08:29:14.216] [INFO]   pass: editing scale X updates X and preserves Y
-[08:29:14.216] [INFO]   pass: editing scale Y updates Y and preserves X
-[08:29:14.216] [INFO]   pass: unchanged inspector frame reports no change
-[08:29:14.216] [INFO]   pass: unchanged inspector frame leaves rotation bit-exact
-[08:29:14.216] [INFO]   pass: transform matrix recalculated after edit
-[08:29:14.216] [INFO]   pass: edit mode does not let gravity move a dynamic body
-[08:29:14.216] [INFO]   pass: inspector position edit survives editor updates on a dynamic body
-[08:29:14.216] [INFO]   pass: inspector rotation edit survives editor updates
-[08:29:14.216] [INFO]   pass: inspector scale edit survives editor updates
-[08:29:14.216] [INFO] Play mode: started 'Untitled' (1 entities)
-[08:29:14.216] [INFO]   pass: play mode starts
-[08:29:14.217] [INFO]   pass: play mode simulates dynamic bodies
-[08:29:14.217] [INFO]   pass: play mode leaves the edited transform untouched
-[08:29:14.217] [INFO] Play mode: stopped after 30 simulation frame(s)
-[08:29:14.217] [INFO]   pass: play mode stops
-[08:29:14.217] [INFO]   pass: reselecting resolves the same entity
-[08:29:14.217] [INFO]   pass: position persists after reselect
-[08:29:14.217] [INFO]   pass: rotation persists after reselect
-[08:29:14.217] [INFO]   pass: scale persists after reselect
-[08:29:14.217] [INFO]   pass: editing another entity does not leak edits
-[08:29:14.218] [INFO]   pass: scene with inspector edits serializes
-[08:29:14.218] [INFO]   pass: scene with inspector edits deserializes
-[08:29:14.218] [INFO]   pass: edited entity reloaded
-[08:29:14.218] [INFO]   pass: serialized transform matches inspector edits (rotation stored as radians)
-[08:29:14.231] [INFO] Renderer2D initialized
-[08:29:14.233] [INFO]   pass: viewport draws sprite at its initial position
-[08:29:14.233] [INFO]   pass: viewport background above a flat sprite
-[08:29:14.233] [INFO]   pass: viewport reflects inspector rotation (sprite now vertical)
-[08:29:14.234] [INFO]   pass: viewport background just above an unscaled sprite
-[08:29:14.234] [INFO]   pass: viewport reflects inspector scale
-[08:29:14.234] [INFO]   pass: viewport no longer draws sprite at the old position
-[08:29:14.235] [INFO]   pass: viewport reflects inspector position
-[08:29:14.281] [INFO]   pass: text input event queued
-[08:29:14.282] [INFO]   pass: window forwards text input to the UI event hook
-[08:29:14.282] [INFO]   pass: window forwards mouse-leave to the UI event hook
-[08:29:14.304] [INFO] TEST transform inspector finished with 0 failure(s)
-[08:29:14.304] [INFO] TEST play mode started
-[08:29:14.307] [INFO]   pass: runtime copy is a distinct scene instance
-[08:29:14.307] [INFO]   pass: runtime copy has the same entity count
-[08:29:14.309] [INFO]   pass: runtime copy serializes identically (all components and UUIDs copied)
-[08:29:14.309] [INFO]   pass: runtime copy keeps the scene name
-[08:29:14.309] [INFO]   pass: runtime copy keeps the viewport size
-[08:29:14.309] [INFO]   pass: runtime copy keeps physics settings
-[08:29:14.309] [INFO]   pass: runtime entity keeps its UUID
-[08:29:14.309] [INFO]   pass: runtime entity keeps its name
-[08:29:14.309] [INFO]   pass: runtime entity is owned by the runtime scene
-[08:29:14.309] [INFO]   pass: editable entity is not owned by the runtime scene
-[08:29:14.311] [INFO]   pass: runtime transform/component/name/destroy/create changes leave the edit scene intact
-[08:29:14.311] [INFO]   pass: entity destroyed at runtime still exists in the edit scene
-[08:29:14.311] [INFO]   pass: entity created at runtime is absent from the edit scene
-[08:29:14.311] [INFO]   pass: runtime-created name not indexed in the edit scene
-[08:29:14.311] [INFO]   pass: edit transform unchanged after runtime simulation
-[08:29:14.312] [INFO]   pass: a new copy picks up later edit-scene changes
-[08:29:14.325] [INFO] Renderer2D initialized
-[08:29:14.327] [INFO]   draw order: edit=ff0000 runtime=ff0000
-[08:29:14.327] [INFO]   pass: runtime copy renders overlapping sprites in the same order
-[08:29:14.352] [INFO]   pass: starts in edit mode
-[08:29:14.352] [INFO]   pass: edit mode shows the editable scene
-[08:29:14.352] [INFO]   pass: pause/resume/step/stop are rejected in edit mode
-[08:29:14.352] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.352] [INFO]   pass: Edit -> Play
-[08:29:14.352] [INFO]   pass: play mode shows the runtime scene
-[08:29:14.352] [INFO]   pass: play/resume/step are rejected while playing
-[08:29:14.352] [INFO]   pass: Play -> Pause
-[08:29:14.352] [INFO]   pass: pause/play are rejected while paused
-[08:29:14.352] [INFO]   pass: Pause -> Resume
-[08:29:14.352] [INFO]   pass: Pause -> Step accepted
-[08:29:14.352] [INFO]   pass: a second step request before the frame runs is rejected (no double step)
-[08:29:14.352] [INFO]   pass: Step keeps the editor paused
-[08:29:14.352] [INFO]   pass: Step advances exactly one simulation frame
-[08:29:14.352] [INFO]   pass: no further frames run while paused
-[08:29:14.353] [INFO] Play mode: stopped after 1 simulation frame(s)
-[08:29:14.353] [INFO]   pass: Pause -> Stop
-[08:29:14.353] [INFO]   pass: stop returns to the editable scene
-[08:29:14.353] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.353] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.353] [INFO]   pass: Play -> Stop
-[08:29:14.353] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.353] [INFO] Play mode: stopped after 10 simulation frame(s)
-[08:29:14.353] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.354] [INFO] Play mode: stopped after 10 simulation frame(s)
-[08:29:14.354] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.354] [INFO] Play mode: stopped after 10 simulation frame(s)
-[08:29:14.354] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.354] [INFO] Play mode: stopped after 10 simulation frame(s)
-[08:29:14.354] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.355] [INFO] Play mode: stopped after 10 simulation frame(s)
-[08:29:14.355] [INFO]   pass: multiple play/stop cycles each create and destroy a runtime scene
-[08:29:14.357] [INFO]   pass: edit scene identical after repeated play sessions
-[08:29:14.357] [INFO]   pass: gameplay input is cleared on play, pause and stop
-[08:29:14.357] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.357] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.357] [INFO]   pass: scene replacement while playing stops play mode
-[08:29:14.357] [INFO]   pass: edit mode does not simulate physics
-[08:29:14.357] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.357] [INFO]   pass: runtime physics bodies exist after Play
-[08:29:14.358] [INFO]   pass: physics advances while playing
-[08:29:14.358] [INFO]   pass: physics never moves the edit-scene body
-[08:29:14.358] [INFO]   pass: the edit scene has no simulated body
-[08:29:14.358] [INFO]   pass: physics does not advance while paused
-[08:29:14.358] [INFO]   pass: step runs exactly one physics fixed step
-[08:29:14.358] [INFO]   pass: step moves the simulation forward
-[08:29:14.358] [INFO]   pass: simulation stays frozen after the step
-[08:29:14.358] [INFO]   pass: physics continues after resume
-[08:29:14.358] [INFO] Play mode: stopped after 22 simulation frame(s)
-[08:29:14.358] [INFO]   pass: runtime scene (and its physics world/bodies) is destroyed on Stop
-[08:29:14.358] [INFO]   pass: edit transform restored exactly after Stop
-[08:29:14.358] [INFO]   pass: register demo walk clip
-[08:29:14.358] [INFO]   pass: edit mode does not advance animations
-[08:29:14.358] [INFO] Play mode: started 'Untitled' (1 entities)
-[08:29:14.359] [INFO]   pass: animations advance while playing
-[08:29:14.359] [INFO]   pass: animations do not advance while paused
-[08:29:14.359] [INFO]   pass: animations continue after resume
-[08:29:14.359] [INFO] Play mode: stopped after 3 simulation frame(s)
-[08:29:14.359] [INFO]   pass: edit-scene animation state untouched by play mode
-[08:29:14.359] [INFO]   pass: null audio engine initializes
-[08:29:14.359] [INFO]   pass: register beep audio
-[08:29:14.359] [INFO]   pass: edit mode never plays scene audio
-[08:29:14.359] [INFO] Play mode: started 'Untitled' (1 entities)
-[08:29:14.360] [INFO]   pass: runtime audio source plays on start
-[08:29:14.360] [INFO]   pass: pausing play mode pauses runtime audio
-[08:29:14.360] [INFO]   pass: runtime audio stays paused across a step
-[08:29:14.360] [INFO]   pass: resuming play mode resumes audio
-[08:29:14.360] [INFO] Play mode: stopped after 2 simulation frame(s)
-[08:29:14.360] [INFO]   pass: stopping play mode stops runtime audio
-[08:29:14.360] [INFO] Play mode: started 'Untitled' (1 entities)
-[08:29:14.360] [INFO]   pass: a new session starts its own audio
-[08:29:14.360] [INFO] Play mode: stopped after 1 simulation frame(s)
-[08:29:14.360] [INFO]   pass: second session audio stopped
-[08:29:14.360] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.360] [INFO]   pass: selection resolves to the runtime copy while playing
-[08:29:14.360] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.360] [INFO]   pass: runtime-only selection is cleared on Stop
-[08:29:14.360] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.360] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.360] [INFO]   pass: selection of an edit entity survives play and resolves to the edit entity
-[08:29:14.361] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
-[08:29:14.361] [INFO]   pass: destroying the selected runtime entity clears the selection
-[08:29:14.361] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.361] [INFO]   pass: runtime-destroyed entity restored on Stop
-[08:29:14.361] [INFO]   pass: input reaches the game while playing with the viewport focused
-[08:29:14.361] [INFO]   pass: no game input when the viewport is not focused
-[08:29:14.361] [INFO]   pass: mouse input only while hovering the game view
-[08:29:14.361] [INFO]   pass: keyboard input withheld while an editor text field is active
-[08:29:14.361] [INFO]   pass: no game input in edit or paused mode
-[08:29:14.361] [INFO] TEST play mode finished with 0 failure(s)
-[08:29:14.361] [INFO] TEST projects started
-[08:29:14.361] [INFO] TEST project creation
-[08:29:14.363] [INFO]   pass: create Empty 2D project: Created project 'My Game' (Empty 2D Project) at /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_98770698/My Game
-[08:29:14.363] [INFO]   pass: project created in <parent>/<name>
-[08:29:14.363] [INFO]   pass: project file is <name>.xora
-[08:29:14.363] [INFO]   pass: project file written
-[08:29:14.363] [INFO]   pass: standard directory structure generated
-[08:29:14.363] [INFO]   pass: main scene generated
-[08:29:14.363] [INFO]   pass: asset registry generated
-[08:29:14.363] [INFO]   pass: no staging folder left after success
-[08:29:14.364] [INFO]   pass: generated project file parses
-[08:29:14.364] [INFO]   pass: metadata: name
-[08:29:14.364] [INFO]   pass: metadata: format version
-[08:29:14.364] [INFO]   pass: metadata: engine version
-[08:29:14.364] [INFO]   pass: metadata: startup scene
-[08:29:14.364] [INFO]   pass: metadata: default directories
-[08:29:14.364] [INFO]   pass: metadata: default settings
-[08:29:14.364] [INFO]   pass: project file is versioned YAML
-[08:29:14.386] [INFO]   pass: multiple projects can be created in one folder
-[08:29:14.389] [INFO] TEST project templates
-[08:29:14.389] [INFO]   pass: template id lookup: empty-2d
-[08:29:14.389] [INFO]   pass: template id lookup: basic-2d-game
-[08:29:14.389] [INFO]   pass: template id lookup: physics-demo
-[08:29:14.389] [INFO]   pass: three templates are offered
-[08:29:14.391] [INFO]   pass: create template project EmptyT
-[08:29:14.392] [INFO]   pass: template project loads without warnings: EmptyT
-[08:29:14.394] [INFO] Opened project 'EmptyT' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_39064911/EmptyT)
-[08:29:14.394] [INFO]   pass: template startup scene opens: EmptyT
-[08:29:14.394] [INFO]   pass: template has a primary camera: EmptyT
-[08:29:14.394] [INFO]   pass: empty template: only the camera
-[08:29:14.394] [INFO]   pass: no engine source / shader files in the project: EmptyT
-[08:29:14.400] [INFO]   pass: create template project BasicT
-[08:29:14.401] [INFO]   pass: template project loads without warnings: BasicT
-[08:29:14.407] [INFO] Opened project 'BasicT' (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_39064911/BasicT)
-[08:29:14.407] [INFO]   pass: template startup scene opens: BasicT
-[08:29:14.407] [INFO]   pass: template has a primary camera: BasicT
-[08:29:14.407] [INFO]   pass: basic game: player with physics and a script
-[08:29:14.407] [INFO]   pass: basic game: static ground
-[08:29:14.407] [INFO]   pass: basic game: script reference resolves through the project registry
-[08:29:14.407] [INFO]   pass: basic game: script class name
-[08:29:14.407] [INFO]   pass: basic game: script file inside the project
-[08:29:14.407] [INFO]   pass: no engine source / shader files in the project: BasicT
-[08:29:14.423] [INFO]   pass: create template project PhysicsT
-[08:29:14.424] [INFO]   pass: template project loads without warnings: PhysicsT
-[08:29:14.442] [INFO] Opened project 'PhysicsT' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_39064911/PhysicsT)
-[08:29:14.442] [INFO]   pass: template startup scene opens: PhysicsT
-[08:29:14.442] [INFO]   pass: template has a primary camera: PhysicsT
-[08:29:14.442] [INFO]   pass: physics demo: ground plus dynamic boxes and balls
-[08:29:14.442] [INFO] Play mode: started 'Main' (21 entities)
-[08:29:14.472] [INFO]   pass: physics demo: boxes fall and stay above the ground
-[08:29:14.473] [INFO] Play mode: stopped after 240 simulation frame(s)
-[08:29:14.473] [INFO]   pass: no engine source / shader files in the project: PhysicsT
-[08:29:14.477] [INFO] TEST invalid project creation
-[08:29:14.477] [INFO]   pass: invalid name rejected: ''
-[08:29:14.477] [INFO]   pass: invalid name rejected: '../Escape'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'a/b'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'a\b'
-[08:29:14.477] [INFO]   pass: invalid name rejected: '.hidden'
-[08:29:14.477] [INFO]   pass: invalid name rejected: '-dash'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'colon:name'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'trailing '
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'dot.'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'tab	name'
-[08:29:14.477] [INFO]   pass: invalid name rejected: 'star*'
-[08:29:14.477] [INFO]   pass: rejected names create nothing
-[08:29:14.477] [INFO]   pass: path traversal through the name is impossible
-[08:29:14.477] [INFO]   pass: relative location rejected
-[08:29:14.477] [INFO]   pass: missing location rejected
-[08:29:14.477] [INFO]   pass: file as location rejected
-[08:29:14.477] [INFO]   pass: empty location rejected
-[08:29:14.478] [INFO] TEST existing directory handling
-[08:29:14.478] [INFO]   pass: non-empty folder is refused
-[08:29:14.478] [INFO]   pass: existing folder content left untouched
-[08:29:14.478] [INFO]   pass: file with the project name refused
-[08:29:14.480] [INFO]   pass: empty folder with the project name is reused
-[08:29:14.480] [INFO]   pass: second creation refused, first project unchanged
-[08:29:14.480] [INFO]   pass: no staging folders left after refusals
-[08:29:14.482] [INFO] TEST failed creation cleanup
-[08:29:14.482] [INFO]   pass: creation fails at step 'directories'
-[08:29:14.482] [INFO]   pass: no project folder after failure at directories
-[08:29:14.482] [INFO]   pass: staging folder removed after failure at directories
-[08:29:14.484] [INFO]   pass: creation fails at step 'assets'
-[08:29:14.484] [INFO]   pass: no project folder after failure at assets
-[08:29:14.484] [INFO]   pass: staging folder removed after failure at assets
-[08:29:14.486] [INFO]   pass: creation fails at step 'scene'
-[08:29:14.486] [INFO]   pass: no project folder after failure at scene
-[08:29:14.486] [INFO]   pass: staging folder removed after failure at scene
-[08:29:14.493] [INFO]   pass: creation fails at step 'project-file'
-[08:29:14.493] [INFO]   pass: no project folder after failure at project-file
-[08:29:14.493] [INFO]   pass: staging folder removed after failure at project-file
-[08:29:14.500] [INFO]   pass: creation fails at step 'finalize'
-[08:29:14.500] [INFO]   pass: no project folder after failure at finalize
-[08:29:14.500] [INFO]   pass: staging folder removed after failure at finalize
-[08:29:14.500] [INFO]   pass: unrelated files survive failed creations
-[08:29:14.501] [INFO]   pass: pre-existing empty folder kept (and left empty) after a failed creation
-[08:29:14.502] [INFO] TEST project loading
-[08:29:14.509] [INFO]   pass: valid project loads
-[08:29:14.509] [INFO]   pass: loaded project name and root
-[08:29:14.509] [INFO]   pass: project directories resolve under the root
-[08:29:14.509] [INFO]   pass: startup scene found
-[08:29:14.510] [INFO]   pass: scenes listed
-[08:29:14.510] [INFO]   pass: project file found in folder
-[08:29:14.510] [INFO]   pass: rejected: invalid YAML (InvalidYaml: Broken.xora is not valid YAML: yaml-cpp: error at line 2, column 7: end of sequence flow not found)
-[08:29:14.510] [INFO]   pass: rejected: not a project file (NotAProjectFile: Broken.xora is not a Xora2D project (missing 'XoraProject'))
-[08:29:14.511] [INFO]   pass: rejected: empty file (NotAProjectFile: Broken.xora is not a Xora2D project (missing 'XoraProject'))
-[08:29:14.511] [INFO]   pass: rejected: unsupported newer version (UnsupportedVersion: Broken.xora uses project format version 99, which is newer than this engine supports (1). Open it with a newer Xora2D.)
-[08:29:14.511] [INFO]   pass: rejected: unsupported version 0 (UnsupportedVersion: Broken.xora: invalid project format version 0)
-[08:29:14.511] [INFO]   pass: rejected: missing FormatVersion (MissingField: Broken.xora: missing required field 'FormatVersion')
-[08:29:14.511] [INFO]   pass: rejected: missing Name (MissingField: Broken.xora: missing required field 'Name')
-[08:29:14.511] [INFO]   pass: rejected: invalid name (InvalidName: Broken.xora: Project name cannot start with '.', '-' or a space)
-[08:29:14.512] [INFO]   pass: rejected: non-numeric version (InvalidValue: Broken.xora: invalid value (yaml-cpp: error at line 2, column 18: bad conversion))
-[08:29:14.512] [INFO]   pass: rejected: bad window size (InvalidValue: Broken.xora: Window size -5x720 is out of range (160x120 to 16384x16384))
-[08:29:14.512] [INFO]   pass: rejected: bad gravity (InvalidValue: Broken.xora: Settings.Physics.Gravity must be [x, y])
-[08:29:14.512] [INFO]   pass: rejected: asset directory escaping the root (InvalidValue: Broken.xora: Asset directory '../outside' must be a non-empty project-relative path (forward slashes, no '..'); Asset directory must be 'Assets' in project format version 1)
-[08:29:14.513] [INFO]   pass: rejected: absolute scene directory (InvalidValue: Broken.xora: Scene directory '/etc' must be a non-empty project-relative path (forward slashes, no '..'))
-[08:29:14.513] [INFO]   pass: rejected: startup scene escaping the root (InvalidValue: Broken.xora: Startup scene '../../x.scene.yaml' must be a project-relative path (forward slashes, no '..'))
-[08:29:14.513] [INFO]   pass: rejected: startup scene not a scene (InvalidValue: Broken.xora: Startup scene must be a .scene.yaml file)
-[08:29:14.513] [INFO]   pass: missing project file reported
-[08:29:14.513] [INFO]   pass: non-.xora file refused
-[08:29:14.513] [INFO]   pass: minimal project file loads with defaults
-[08:29:14.513] [INFO]   pass: missing optional folders / startup scene are warnings
-[08:29:14.514] [INFO]   pass: project file round-trips every field
-[08:29:14.516] [INFO] TEST missing startup scene / directories
-[08:29:14.519] [INFO]   pass: project with a missing startup scene still loads
-[08:29:14.519] [INFO]   pass: missing startup scene and folder are warnings
-[08:29:14.519] [INFO]   pass: HasStartupScene is false
-[08:29:14.520] [WARN] Gappy: Created missing folder 'Config'
-[08:29:14.520] [WARN] Gappy: Startup scene 'Scenes/Main.scene.yaml' was not found
-[08:29:14.520] [INFO] Opened project 'Gappy' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_1127982/Gappy)
-[08:29:14.520] [INFO]   pass: editor opens the project with an empty scene
-[08:29:14.520] [INFO]   pass: replacement scene is unsaved and holds only a camera
-[08:29:14.520] [INFO]   pass: missing standard folder recreated on open
-[08:29:14.521] [INFO]   pass: replacement startup scene created
-[08:29:14.521] [INFO]   pass: replacement scene opened with a camera
-[08:29:14.522] [INFO]   pass: new startup scene persisted in the project file
-[08:29:14.522] [INFO]   pass: creating a scene over an existing file is refused
-[08:29:14.522] [INFO]   pass: saving a scene outside is refused
-[08:29:14.523] [INFO]   pass: missing asset directory reported
-[08:29:14.524] [INFO] TEST project-relative path resolution
-[08:29:14.527] [INFO]   pass: relative path resolves
-[08:29:14.527] [INFO]   pass: backslashes normalized
-[08:29:14.527] [INFO]   pass: '.' segments removed
-[08:29:14.527] [INFO]   pass: empty path is the root
-[08:29:14.527] [INFO]   pass: '..' rejected
-[08:29:14.527] [INFO]   pass: nested '..' rejected
-[08:29:14.527] [INFO]   pass: absolute path rejected
-[08:29:14.527] [INFO]   pass: drive letter rejected
-[08:29:14.527] [INFO]   pass: symlink escaping the project rejected
-[08:29:14.527] [INFO]   pass: absolute -> project-relative
-[08:29:14.527] [INFO]   pass: outside path has no relative form
-[08:29:14.527] [INFO]   pass: Contains() checks the root
-[08:29:14.529] [INFO] Opened project 'Paths' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_30624265/Paths)
-[08:29:14.529] [INFO]   pass: content root is the project root
-[08:29:14.529] [INFO]   pass: asset root inside the project
-[08:29:14.529] [INFO]   pass: asset path resolution
-[08:29:14.529] [INFO]   pass: asset traversal rejected
-[08:29:14.529] [INFO]   pass: registry path inside the project
-[08:29:14.529] [INFO]   pass: content root restored when the editor context goes away
-[08:29:14.530] [INFO] TEST project settings persistence
-[08:29:14.533] [INFO]   pass: invalid settings rejected; memory and file unchanged
-[08:29:14.533] [INFO]   pass: valid settings saved
-[08:29:14.534] [INFO]   pass: settings persisted to the project file
-[08:29:14.534] [INFO]   pass: renaming the project keeps the file name
-[08:29:14.535] [INFO] Opened project 'Renamed Game' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_38615017/Settings)
-[08:29:14.535] [INFO] Play mode: started 'Main' (1 entities)
-[08:29:14.535] [INFO]   pass: project gravity applied in Play mode
-[08:29:14.535] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.535] [INFO]   pass: edit scene gravity untouched
-[08:29:14.536] [INFO] TEST recent projects
-[08:29:14.541] [INFO]   pass: newest project listed first
-[08:29:14.541] [INFO]   pass: duplicate paths collapse into one entry
-[08:29:14.541] [INFO]   pass: re-opening moves the project to the front and refreshes the timestamp
-[08:29:14.541] [INFO]   pass: Contains() matches entries
-[08:29:14.542] [INFO]   pass: history saved
-[08:29:14.542] [INFO]   pass: history loaded
-[08:29:14.542] [INFO]   pass: order, names, paths and timestamps survive a reload
-[08:29:14.542] [INFO]   pass: project removed from history
-[08:29:14.543] [INFO]   pass: removing twice reports nothing removed
-[08:29:14.543] [INFO]   pass: removed project's files remain intact
-[08:29:14.543] [INFO]   pass: only the other entry remains
-[08:29:14.543] [INFO]   pass: moved project is reported missing
-[08:29:14.543] [INFO]   pass: missing project entry survives a reload
-[08:29:14.543] [INFO]   pass: opening a moved project fails cleanly
-[08:29:14.545] [INFO]   pass: history limited to the capacity
-[08:29:14.545] [INFO]   pass: oldest entries dropped first
-[08:29:14.545] [INFO]   pass: invalid history file ignored
-[08:29:14.545] [INFO]   pass: missing history is empty
-[08:29:14.547] [INFO] TEST project isolation
-[08:29:14.570] [INFO]   pass: nothing is open initially
-[08:29:14.577] [INFO] Opened project 'ProjectA' (2 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_10266633/ProjectA)
-[08:29:14.577] [INFO]   pass: project A opened
-[08:29:14.577] [INFO]   pass: A's registry sees only A's assets
-[08:29:14.577] [INFO]   pass: A's startup scene loaded
-[08:29:14.577] [INFO] Play mode: started 'Main' (9 entities)
-[08:29:14.577] [INFO]   pass: A is playing before the switch
-[08:29:14.577] [INFO] Play mode: stopped after 0 simulation frame(s)
-[08:29:14.595] [INFO] Opened project 'ProjectB' (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_10266633/ProjectB)
-[08:29:14.595] [INFO]   pass: switched to project B
-[08:29:14.595] [INFO]   pass: switching stops Play and frees A's runtime scene
-[08:29:14.595] [INFO]   pass: A's edit scene is released (no stale scene references)
-[08:29:14.595] [INFO]   pass: A's project object is released
-[08:29:14.595] [INFO]   pass: selection cleared on switch
-[08:29:14.596] [INFO]   pass: content browser reset to Assets
-[08:29:14.596] [INFO]   pass: content root moved to B
-[08:29:14.596] [INFO]   pass: B's registry sees only B's assets
-[08:29:14.596] [INFO]   pass: no asset handle of A resolves to A's files in B
-[08:29:14.596] [INFO]   pass: B's scene contains only B's entities
-[08:29:14.596] [INFO]   pass: asset paths resolve inside B
-[08:29:14.596] [INFO]   pass: script state reset and host notified on every switch
-[08:29:14.596] [INFO]   pass: A's registry file persisted with only A's assets
-[08:29:14.596] [INFO]   pass: B's registry file never received A's assets
-[08:29:14.597] [INFO]   pass: B's settings changed
-[08:29:14.597] [INFO]   pass: A's configuration unaffected by B's settings
-[08:29:14.604] [INFO] Opened project 'ProjectA' (2 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_10266633/ProjectA)
-[08:29:14.604] [INFO]   pass: switched back to A
-[08:29:14.604] [INFO]   pass: A's scene reloaded from disk without B's or unsaved entities
-[08:29:14.604] [INFO]   pass: A's settings are A's
-[08:29:14.605] [INFO]   pass: closing the project clears the registry
-[08:29:14.605] [INFO]   pass: closing the project restores the default content root
-[08:29:14.605] [INFO]   pass: closing never deletes project files
-[08:29:14.608] [INFO] TEST engine samples (no project)
-[08:29:14.612] [INFO] Opened project 'WithProject' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_66610595/WithProject)
-[08:29:14.613] [WARN] Engine samples: Startup scene 'Scenes/ExampleScene.scene.yaml' was not found
-[08:29:14.613] [INFO] Opened engine samples (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_40920813)
-[08:29:14.613] [INFO]   pass: engine samples open without a project
-[08:29:14.613] [INFO]   pass: engine samples use the resource root
-[08:29:14.613] [INFO]   pass: engine sample assets registered
-[08:29:14.613] [INFO]   pass: missing sample scene replaced by a starter scene
-[08:29:14.613] [INFO]   pass: sample registry persisted in the resource root on close
-[08:29:14.613] [INFO]   pass: sample assets never copied into a project
-[08:29:14.615] [INFO] TEST projects finished with 0 failure(s)
-[08:29:14.615] [INFO] All Xora2D tests passed
+[08:57:40.330] [INFO]   scene stats: drawCalls=2 quads=2
+[08:57:40.330] [INFO]   pass: scene uses separate color and textured batches
+[08:57:40.330] [INFO]   pass: scene renders both sprite entities
+[08:57:40.330] [INFO]   pass: camera uses entity transform position
+[08:57:40.354] [INFO] Scene tests passed
+[08:57:40.354] [INFO] TEST scene serialization started
+[08:57:40.356] [INFO]   pass: save empty scene succeeds
+[08:57:40.357] [INFO]   pass: load empty scene succeeds
+[08:57:40.357] [INFO]   pass: empty scene stays empty
+[08:57:40.357] [INFO]   pass: scene name round-trips
+[08:57:40.358] [INFO]   pass: save one entity
+[08:57:40.358] [INFO]   pass: load one entity
+[08:57:40.358] [INFO]   pass: one entity count preserved
+[08:57:40.358] [INFO]   pass: UUID preserved on reload
+[08:57:40.358] [INFO]   pass: tag preserved
+[08:57:40.358] [INFO]   pass: transform translation X preserved
+[08:57:40.358] [INFO]   pass: transform translation Y preserved
+[08:57:40.360] [INFO]   pass: save multi-component scene
+[08:57:40.361] [INFO]   pass: load multi-component scene
+[08:57:40.361] [INFO]   pass: multiple entities preserved
+[08:57:40.361] [INFO]   pass: sprite color preserved
+[08:57:40.361] [INFO]   pass: sprite visibility preserved
+[08:57:40.361] [INFO]   pass: camera zoom preserved
+[08:57:40.361] [INFO]   pass: rigid body settings preserved
+[08:57:40.361] [INFO]   pass: box collider preserved
+[08:57:40.361] [INFO]   pass: circle collider present after load
+[08:57:40.361] [INFO]   pass: circle sensor flag preserved
+[08:57:40.362] [INFO]   pass: physics body created after load
+[08:57:40.362] [INFO]   pass: reject duplicate UUIDs
+[08:57:40.363] [INFO]   pass: reject malformed YAML
+[08:57:40.363] [INFO]   pass: failed parse leaves scene unchanged
+[08:57:40.363] [INFO]   pass: reject missing required TransformComponent
+[08:57:40.363] [INFO]   pass: missing field leaves scene unchanged
+[08:57:40.363] [INFO]   pass: reject invalid rigid body enum
+[08:57:40.364] [INFO]   pass: reject invalid camera zoom
+[08:57:40.364] [INFO]   pass: reject missing texture asset
+[08:57:40.364] [INFO]   pass: missing texture leaves scene unchanged
+[08:57:40.364] [INFO]   pass: setup cycle entity count
+[08:57:40.365] [INFO]   pass: repeated save succeeds
+[08:57:40.366] [INFO]   pass: repeated load succeeds
+[08:57:40.367] [INFO]   pass: repeated load preserves entity count
+[08:57:40.368] [INFO]   pass: repeated save succeeds
+[08:57:40.369] [INFO]   pass: repeated load succeeds
+[08:57:40.369] [INFO]   pass: repeated load preserves entity count
+[08:57:40.370] [INFO]   pass: repeated save succeeds
+[08:57:40.371] [INFO]   pass: repeated load succeeds
+[08:57:40.371] [INFO]   pass: repeated load preserves entity count
+[08:57:40.371] [INFO]   pass: physics body exists before scene replace load
+[08:57:40.372] [INFO]   pass: save scene with physics
+[08:57:40.373] [INFO]   pass: load replaces scene in place
+[08:57:40.373] [INFO]   pass: entity survives in-place load
+[08:57:40.373] [INFO]   pass: physics body recreated after load
+[08:57:40.373] [INFO]   pass: loaded UUID stays registered
+[08:57:40.373] [INFO]   pass: newly generated UUID differs from a loaded UUID
+[08:57:40.373] [INFO]   pass: generated UUID is tracked in registry
+[08:57:40.373] [INFO] Serialization tests passed
+[08:57:40.373] [INFO] TEST asset system started
+[08:57:40.373] [INFO]   pass: stable asset handle from relative path
+[08:57:40.373] [INFO]   pass: asset handle round-trips through string
+[08:57:40.373] [INFO]   pass: register asset
+[08:57:40.373] [INFO]   pass: find asset by handle
+[08:57:40.373] [INFO]   pass: find asset by relative path
+[08:57:40.373] [INFO]   pass: reject duplicate handle
+[08:57:40.373] [INFO]   pass: remove asset
+[08:57:40.373] [INFO]   pass: asset removed
+[08:57:40.373] [INFO]   pass: re-register asset
+[08:57:40.373] [INFO]   pass: enumerate registered assets
+[08:57:40.374] [INFO]   pass: save asset registry
+[08:57:40.374] [INFO]   pass: load asset registry
+[08:57:40.374] [INFO]   pass: registry preserves handle across reload
+[08:57:40.374] [INFO]   pass: reject malformed registry
+[08:57:40.374] [INFO]   pass: failed registry load leaves in-memory registry unchanged
+[08:57:40.374] [INFO]   pass: reject duplicate handle in file
+[08:57:40.375] [INFO]   pass: reject path traversal
+[08:57:40.375] [INFO]   pass: accept safe relative path
+[08:57:40.375] [INFO]   pass: import valid texture
+[08:57:40.375] [INFO]   pass: re-import returns stable handle
+[08:57:40.375] [INFO]   pass: save scene with texture asset handle
+[08:57:40.376] [INFO]   pass: load scene with asset handle
+[08:57:40.376] [INFO]   pass: scene preserves texture asset handle
+[08:57:40.376] [INFO] Asset tests passed
+[08:57:40.376] [INFO] TEST input system started
+[08:57:40.376] [INFO]   pass: key starts up
+[08:57:40.376] [INFO]   pass: key starts not down
+[08:57:40.376] [INFO]   pass: press sets pressed
+[08:57:40.376] [INFO]   pass: press sets down
+[08:57:40.376] [INFO]   pass: pressed clears next frame
+[08:57:40.376] [INFO]   pass: held remains down
+[08:57:40.376] [INFO]   pass: repeat does not retrigger pressed
+[08:57:40.376] [INFO]   pass: release sets released
+[08:57:40.376] [INFO]   pass: release clears down
+[08:57:40.376] [INFO]   pass: released clears next frame
+[08:57:40.376] [INFO]   pass: multiple keys independent
+[08:57:40.376] [INFO]   pass: press and release same frame
+[08:57:40.376] [INFO]   pass: not down after same-frame tap
+[08:57:40.376] [INFO]   pass: invalid key handled safely
+[08:57:40.376] [INFO]   pass: clear state releases keys
+[08:57:40.376] [INFO]   pass: mouse press
+[08:57:40.376] [INFO]   pass: mouse down
+[08:57:40.376] [INFO]   pass: mouse position
+[08:57:40.376] [INFO]   pass: mouse delta
+[08:57:40.376] [INFO]   pass: mouse delta resets each frame
+[08:57:40.376] [INFO]   pass: scroll delta
+[08:57:40.376] [INFO]   pass: scroll delta resets
+[08:57:40.376] [INFO]   pass: focus loss clears key down
+[08:57:40.376] [INFO]   pass: focus loss reports release
+[08:57:40.376] [INFO]   pass: focus loss clears mouse
+[08:57:40.376] [INFO]   pass: bind key action
+[08:57:40.376] [INFO]   pass: second bind same action
+[08:57:40.376] [INFO]   pass: bind mouse action
+[08:57:40.376] [INFO]   pass: action pressed via alternate binding
+[08:57:40.376] [INFO]   pass: action down
+[08:57:40.376] [INFO]   pass: unknown action safe
+[08:57:40.376] [INFO]   pass: remove binding
+[08:57:40.376] [INFO]   pass: clear action
+[08:57:40.377] [INFO]   pass: save mapping
+[08:57:40.377] [INFO]   pass: load mapping
+[08:57:40.377] [INFO]   pass: multiple bindings preserved
+[08:57:40.377] [INFO]   pass: reject invalid key
+[08:57:40.377] [INFO]   pass: failed load leaves mapping unchanged
+[08:57:40.377] [INFO]   pass: SDL key down translates
+[08:57:40.377] [INFO]   pass: SDL escape updates input
+[08:57:40.377] [INFO]   pass: shutdown clears input
+[08:57:40.377] [INFO] TEST input system finished (0 failures)
+[08:57:40.377] [INFO] TEST audio system started
+[08:57:40.377] [INFO]   pass: null backend initializes
+[08:57:40.377] [INFO]   pass: repeated initialize safe
+[08:57:40.378] [INFO]   pass: load valid wav
+[08:57:40.378] [INFO]   pass: duration metadata available
+[08:57:40.378] [INFO]   pass: missing file rejected
+[08:57:40.378] [INFO]   pass: playback starts
+[08:57:40.378] [INFO]   pass: playback active
+[08:57:40.378] [INFO]   pass: playback pauses
+[08:57:40.378] [INFO]   pass: playback resumes
+[08:57:40.378] [INFO]   pass: multiple instances coexist
+[08:57:40.378] [INFO]   pass: master volume stored
+[08:57:40.378] [INFO]   pass: audio source wrapper plays
+[08:57:40.378] [INFO]   pass: stop all clears playback
+[08:57:40.378] [INFO]   pass: register audio asset
+[08:57:40.378] [INFO]   pass: load audio through asset manager
+[08:57:40.378] [INFO]   pass: audio cache reuse
+[08:57:40.379] [INFO]   pass: serialize audio components
+[08:57:40.380] [INFO]   pass: deserialize audio components
+[08:57:40.380] [INFO]   pass: audio source restored
+[08:57:40.380] [INFO]   pass: init after shutdown
+[08:57:40.380] [INFO] TEST audio system finished (0 failures)
+[08:57:40.380] [INFO] TEST physics world basics started
+[08:57:40.380] [INFO]   pass: gravity configuration updates
+[08:57:40.380] [INFO]   pass: paused simulation performs no substeps
+[08:57:40.380] [INFO]   pass: enabled simulation runs fixed substeps
+[08:57:40.381] [INFO]   pass: dynamic body falls under gravity
+[08:57:40.381] [INFO]   pass: dynamic body lands near the static ground
+[08:57:40.381] [INFO]   pass: static ground transform stays unchanged
+[08:57:40.382] [INFO]   pass: kinematic transform drives physics
+[08:57:40.382] [INFO]   pass: scene creates a runtime physics body
+[08:57:40.382] [INFO]   pass: linear impulse changes velocity
+[08:57:40.382] [INFO]   pass: velocity can be cleared
+[08:57:40.382] [INFO]   pass: compound collider entity gets one physics body
+[08:57:40.382] [INFO]   pass: body exists before destruction
+[08:57:40.382] [INFO]   pass: entity is invalid after destruction
+[08:57:40.382] [INFO]   pass: physics body removed with entity
+[08:57:40.383] [INFO]   pass: collision event uses valid UUIDs
+[08:57:40.383] [INFO]   pass: collision begin event reported
+[08:57:40.383] [INFO]   pass: sensor begin event reported
+[08:57:40.383] [INFO] TEST collision event lifecycle started
+[08:57:40.384] [INFO]   pass: resting contact emits exactly one collision begin
+[08:57:40.384] [INFO]   pass: resting contact does not emit collision end
+[08:57:40.385] [INFO]   pass: separating bodies emit one collision end
+[08:57:40.386] [INFO]   pass: re-entering contact emits a second collision begin
+[08:57:40.387] [INFO]   pass: sensor overlap emits exactly one sensor begin
+[08:57:40.388] [INFO]   pass: leaving sensor emits one sensor end
+[08:57:40.389] [INFO]   pass: multiple fixtures on one body produce one entity-level collision begin
+[08:57:40.391] [INFO]   pass: destroyed entity stays invalid after physics step
+[08:57:40.391] [INFO]   pass: physics body is gone after entity destroy
+[08:57:40.393] [INFO]   pass: sustained contact produces one collision begin
+[08:57:40.394] [INFO]   pass: sustained contact produces no collision end
+[08:57:40.394] [INFO]   pass: no additional contact events while bodies remain at rest
+[08:57:40.396] [INFO]   pass: dual fixtures still emit one entity begin
+[08:57:40.396] [INFO]   pass: dual fixtures resting together emit no entity end
+[08:57:40.396] [INFO]   pass: fixture-level churn does not surface as duplicate entity events while resting
+[08:57:40.398] [INFO]   pass: bouncy contact may legitimately begin again after separating
+[08:57:40.398] [INFO]   pass: bouncy contact emits end when bodies separate mid-bounce
+[08:57:40.399] [INFO]   pass: compound settles with one entity-level begin
+[08:57:40.399] [INFO]   pass: incremental lift does not emit entity end while a fixture remains touching
+[08:57:40.400] [INFO]   pass: full separation emits exactly one entity end
+[08:57:40.400] [INFO]   pass: PrepareForShutdown disables contact gameplay dispatch
+[08:57:40.400] [INFO]   pass: physics updates after PrepareForShutdown do not dispatch gameplay collision events
+[08:57:40.401] [INFO]   pass: scene shutdown does not dispatch additional collision events
+[08:57:40.401] [INFO]   pass: scene destruction cleans up physics world
+[08:57:40.401] [INFO] Physics tests passed
+[08:57:40.401] [INFO] TEST python scripting started
+[08:57:40.401] [INFO]   pass: scripting disabled at compile time
+[08:57:40.401] [INFO]   pass: scripting disabled build reports unavailable init
+[08:57:40.401] [INFO] TEST python scripting passed
+[08:57:40.401] [INFO] TEST animation started
+[08:57:40.401] [INFO]   pass: valid multi-row sheet
+[08:57:40.401] [INFO]   pass: first and last frame UV
+[08:57:40.401] [INFO]   pass: out-of-range frame rejected
+[08:57:40.401] [INFO]   pass: invalid dimensions rejected
+[08:57:40.401] [INFO]   pass: custom sequence validated
+[08:57:40.401] [INFO]   pass: custom sequence UV
+[08:57:40.401] [INFO]   pass: initial frame
+[08:57:40.401] [INFO]   pass: frame advances with delta
+[08:57:40.401] [INFO]   pass: playback speed affects timing
+[08:57:40.401] [INFO]   pass: pause preserves frame
+[08:57:40.401] [INFO]   pass: stop resets playback state
+[08:57:40.401] [INFO]   pass: non-looping animation completes
+[08:57:40.401] [INFO]   pass: completed state
+[08:57:40.401] [INFO]   pass: completion emitted once
+[08:57:40.401] [INFO]   pass: restart plays again
+[08:57:40.402] [INFO]   pass: register walk clip asset
+[08:57:40.402] [INFO]   pass: load walk clip
+[08:57:40.403] [INFO]   pass: scene update advances animation
+[08:57:40.403] [INFO]   pass: completion dispatched once per playthrough
+[08:57:40.403] [INFO]   pass: replay can dispatch completion again
+[08:57:40.403] [INFO]   pass: entity destruction does not crash animation system
+[08:57:40.403] [INFO]   pass: serialize animation component
+[08:57:40.404] [INFO]   pass: deserialize animation component
+[08:57:40.404] [INFO]   pass: animated entity round trip
+[08:57:40.404] [INFO]   pass: playback speed round trip
+[08:57:40.404] [INFO]   pass: looping round trip
+[08:57:40.404] [INFO]   pass: invalid animation data rejected
+[08:57:40.404] [INFO]   pass: failed animation deserialize is transactional
+[08:57:40.405] [INFO] TEST animation passed
+[08:57:40.405] [INFO] TEST editor started
+[08:57:40.405] [INFO]   pass: editor config save
+[08:57:40.405] [INFO]   pass: editor config load
+[08:57:40.405] [INFO]   pass: editor config width round-trip
+[08:57:40.405] [INFO]   pass: editor config recent projects
+[08:57:40.405] [INFO]   pass: editor config missing file handled
+[08:57:40.405] [INFO]   pass: editor panel id
+[08:57:40.405] [INFO]   pass: editor panel visibility
+[08:57:40.417] [INFO]   pass: render target rejects zero size
+[08:57:40.417] [INFO]   pass: render target resize valid
+[08:57:40.417] [INFO]   pass: render target valid after resize
+[08:57:40.417] [INFO]   pass: render target dimensions
+[08:57:40.417] [INFO]   pass: render target texture id
+[08:57:40.417] [INFO]   pass: render target idempotent resize
+[08:57:40.441] [INFO]   pass: editor selection valid after select
+[08:57:40.441] [INFO]   pass: editor selection resolves entity
+[08:57:40.441] [INFO]   pass: editor selection cleared
+[08:57:40.441] [INFO]   pass: editor destroy entity
+[08:57:40.441] [INFO]   pass: stale uuid selection sanitized
+[08:57:40.441] [INFO]   pass: selection cleared on scene replace
+[08:57:40.441] [INFO]   pass: editor rename entity
+[08:57:40.441] [INFO]   pass: entity name updated after rename
+[08:57:40.441] [INFO]   pass: add sprite renderer
+[08:57:40.441] [INFO]   pass: sprite renderer present
+[08:57:40.441] [INFO]   pass: duplicate component prevented
+[08:57:40.441] [INFO]   pass: inspector-style component mutation
+[08:57:40.441] [INFO]   pass: remove sprite renderer
+[08:57:40.441] [INFO]   pass: sprite renderer removed
+[08:57:40.441] [INFO]   pass: add rigid body
+[08:57:40.441] [INFO]   pass: remove rigid body
+[08:57:40.441] [INFO] TEST editor passed
+[08:57:40.441] [INFO] TEST content browser started
+[08:57:40.441] [INFO] TEST content: path safety
+[08:57:40.441] [INFO]   pass: normalize collapses empty and '.' segments
+[08:57:40.441] [INFO]   pass: normalize converts backslashes
+[08:57:40.441] [INFO]   pass: reject leading '..'
+[08:57:40.441] [INFO]   pass: reject embedded '..'
+[08:57:40.441] [INFO]   pass: reject absolute path
+[08:57:40.441] [INFO]   pass: reject drive letter
+[08:57:40.441] [INFO]   pass: reject NUL byte
+[08:57:40.441] [INFO]   pass: allow '..' inside a file name
+[08:57:40.441] [INFO]   pass: valid entry name
+[08:57:40.441] [INFO]   pass: invalid entry names rejected
+[08:57:40.441] [INFO]   pass: project roots and registry are protected
+[08:57:40.441] [INFO]   pass: ordinary folders are not protected
+[08:57:40.441] [INFO]   pass: subtree check respects segment boundaries
+[08:57:40.441] [INFO]   pass: compound extensions detected
+[08:57:40.441] [INFO]   pass: content classification
+[08:57:40.441] [INFO] TEST content: navigation state
+[08:57:40.441] [INFO]   pass: browser starts in Assets
+[08:57:40.441] [INFO]   pass: navigate into folder
+[08:57:40.441] [INFO]   pass: navigate deeper
+[08:57:40.441] [INFO]   pass: back
+[08:57:40.441] [INFO]   pass: forward
+[08:57:40.441] [INFO]   pass: up
+[08:57:40.441] [INFO]   pass: navigating after back truncates forward history
+[08:57:40.441] [INFO]   pass: unsafe navigation rejected
+[08:57:40.441] [INFO]   pass: history follows folder rename
+[08:57:40.441] [INFO]   pass: history leaves deleted folder
+[08:57:40.441] [INFO] TEST content: filter / search / sort
+[08:57:40.441] [INFO]   pass: folders first
+[08:57:40.441] [INFO]   pass: name sort is case-insensitive
+[08:57:40.441] [INFO]   pass: descending keeps folders first
+[08:57:40.441] [INFO]   pass: sort by size
+[08:57:40.441] [INFO]   pass: sort by modified date (oldest first)
+[08:57:40.441] [INFO]   pass: sort by type
+[08:57:40.441] [INFO]   pass: texture filter
+[08:57:40.441] [INFO]   pass: scene filter
+[08:57:40.441] [INFO]   pass: folder filter
+[08:57:40.441] [INFO]   pass: missing filter
+[08:57:40.441] [INFO]   pass: case-insensitive search
+[08:57:40.441] [INFO]   pass: multi-term search
+[08:57:40.441] [INFO]   pass: search with no matches
+[08:57:40.442] [INFO]   pass: search combined with filter
+[08:57:40.442] [INFO] TEST content: enumeration and folder creation
+[08:57:40.443] [INFO]   pass: register fixture texture
+[08:57:40.443] [INFO]   pass: hidden and temp files are not listed
+[08:57:40.443] [INFO]   pass: registered texture enumerated with handle and size
+[08:57:40.443] [INFO]   pass: unmanaged file enumerated
+[08:57:40.443] [INFO]   pass: folders enumerated
+[08:57:40.443] [INFO]   pass: missing folder reports an error
+[08:57:40.443] [INFO]   pass: traversal listing rejected
+[08:57:40.443] [INFO]   pass: create folder
+[08:57:40.443] [INFO]   pass: folder exists on disk
+[08:57:40.443] [INFO]   pass: duplicate folder rejected
+[08:57:40.443] [INFO]   pass: folder name with traversal rejected
+[08:57:40.443] [INFO]   pass: parent outside project rejected
+[08:57:40.443] [INFO]   pass: folder inside registry rejected
+[08:57:40.443] [INFO]   pass: nothing created outside the project
+[08:57:40.445] [INFO]   pass: recursive folder listing
+[08:57:40.445] [INFO]   pass: directory cache avoids rescans
+[08:57:40.445] [INFO]   pass: invalidation picks up external changes
+[08:57:40.445] [INFO]   pass: stale listings rescan automatically
+[08:57:40.446] [INFO]   pass: symlink escaping the project is not resolved
+[08:57:40.446] [INFO]   pass: escaping symlink not listed
+[08:57:40.446] [INFO]   pass: cannot create through escaping symlink
+[08:57:40.448] [INFO] TEST content: import
+[08:57:40.449] [INFO]   pass: valid image import succeeds
+[08:57:40.449] [INFO]   pass: image routed to Assets/Textures
+[08:57:40.449] [INFO]   pass: image copied into project
+[08:57:40.449] [INFO]   pass: imported image gets the stable path-derived handle
+[08:57:40.449] [INFO]   pass: image registered as Texture2D
+[08:57:40.449] [INFO]   pass: create audio subfolder
+[08:57:40.450] [INFO]   pass: audio import respects current folder inside the audio tree
+[08:57:40.450] [INFO]   pass: audio registered
+[08:57:40.450] [INFO]   pass: audio imported from the texture folder goes to Assets/Audio
+[08:57:40.451] [INFO]   pass: re-importing identical file reuses the existing handle
+[08:57:40.451] [INFO]   pass: duplicate import adds no registry entry
+[08:57:40.451] [INFO]   pass: duplicate import does not copy again
+[08:57:40.451] [INFO]   pass: name clash with different content imports under a unique name
+[08:57:40.451] [INFO]   pass: clash gets its own handle
+[08:57:40.452] [INFO]   pass: all invalid files rejected
+[08:57:40.452] [INFO]   pass: rejected files are not registered
+[08:57:40.452] [INFO]   pass: rejected files are not copied
+[08:57:40.453] [INFO]   pass: no temporary files left after failed imports
+[08:57:40.453] [INFO]   pass: OGG rejection explains why
+[08:57:40.453] [INFO]   pass: scene imported into Scenes without registration
+[08:57:40.455] [INFO]   pass: animation + texture batch imports
+[08:57:40.455] [INFO]   pass: animation clip registered without texture warning
+[08:57:40.455] [INFO]   pass: python script rejected when scripting is disabled
+[08:57:40.455] [INFO]   pass: in-project file registered in place
+[08:57:40.456] [INFO]   pass: save registry
+[08:57:40.457] [INFO]   pass: reload registry
+[08:57:40.457] [INFO]   pass: registry persists handles and paths
+[08:57:40.457] [INFO]   pass: registry persists animation clip type
+[08:57:40.459] [INFO]   pass: import queue stages on worker
+[08:57:40.459] [INFO]   pass: import queue commits on poll
+[08:57:40.459] [INFO]   pass: import queue idle afterwards
+[08:57:40.459] [INFO]   pass: no temporary files after imports
+[08:57:40.462] [INFO] TEST content: rename / move / delete
+[08:57:40.464] [INFO]   pass: fixtures imported
+[08:57:40.464] [INFO]   pass: clip registered
+[08:57:40.464] [WARN] Sprite 'Hero' failed to resolve texture asset bba9085f656d16bc: Graphics resources are disabled
+[08:57:40.464] [INFO]   pass: assign texture
+[08:57:40.464] [INFO]   pass: assign audio
+[08:57:40.464] [INFO]   pass: save scene
+[08:57:40.465] [INFO]   pass: rename appends original extension
+[08:57:40.465] [INFO]   pass: rename preserves handle and updates registry path
+[08:57:40.465] [INFO]   pass: display name follows file name
+[08:57:40.465] [INFO]   pass: file renamed on disk
+[08:57:40.465] [INFO]   pass: animation clip texture path rewritten
+[08:57:40.465] [INFO]   pass: clip now carries new path and stable texture handle
+[08:57:40.466] [INFO]   pass: renamed texture still resolves from the animation clip
+[08:57:40.466] [INFO]   pass: changing extension rejected
+[08:57:40.466] [INFO]   pass: rename with traversal rejected
+[08:57:40.466] [INFO]   pass: rename onto existing file rejected without overwriting
+[08:57:40.466] [INFO]   pass: protected folder rename rejected
+[08:57:40.466] [INFO]   pass: create destination
+[08:57:40.467] [INFO]   pass: move preserves handle
+[08:57:40.467] [INFO]   pass: clip follows moved texture
+[08:57:40.468] [INFO]   pass: folder rename relocates contained assets
+[08:57:40.468] [INFO]   pass: moving folder onto itself is a no-op
+[08:57:40.468] [INFO]   pass: create inner folder
+[08:57:40.469] [INFO]   pass: folder cannot move into its own subfolder
+[08:57:40.469] [INFO]   pass: scene with references loads after rename/move
+[08:57:40.469] [INFO]   pass: scene sprite still references the moved texture handle
+[08:57:40.470] [INFO]   pass: registered asset cannot leave the Assets folder
+[08:57:40.470] [INFO]   pass: refused move changed nothing
+[08:57:40.470] [INFO]   pass: move to missing folder changes nothing
+[08:57:40.470] [INFO]   pass: register conflicting entry
+[08:57:40.470] [INFO]   pass: rename conflicting with registry entry refused
+[08:57:40.470] [INFO]   pass: conflicting rename left disk and registry untouched
+[08:57:40.470] [INFO]   pass: remove conflicting entry
+[08:57:40.471] [INFO]   pass: re-using an old path does not steal the moved asset's handle
+[08:57:40.472] [INFO]   pass: texture referenced by scene file and animation clip
+[08:57:40.474] [INFO]   pass: referenced asset deletion refused and nothing changed
+[08:57:40.474] [INFO]   pass: references in the open scene are reported
+[08:57:40.475] [INFO]   pass: confirmed delete removes file and registry entry
+[08:57:40.475] [INFO]   pass: create pack folder
+[08:57:40.476] [INFO]   pass: move into pack
+[08:57:40.478] [INFO]   pass: folder delete removes contents and registry entries
+[08:57:40.478] [INFO]   pass: protected folder delete rejected
+[08:57:40.478] [INFO]   pass: registry file delete rejected
+[08:57:40.478] [INFO]   pass: delete with traversal rejected
+[08:57:40.479] [INFO]   pass: no trash or temp files left behind
+[08:57:40.480] [INFO] TEST content: missing asset detection
+[08:57:40.482] [INFO]   pass: nothing missing initially
+[08:57:40.482] [INFO]   pass: file deleted outside the editor detected
+[08:57:40.482] [INFO]   pass: missing asset shown as ghost entry
+[08:57:40.482] [INFO]   pass: missing asset cannot be assigned
+[08:57:40.482] [INFO]   pass: restored file detected
+[08:57:40.482] [INFO]   pass: missing asset can be forgotten
+[08:57:40.482] [INFO]   pass: file added outside the editor shown as not imported
+[08:57:40.483] [INFO]   pass: external file registered in place
+[08:57:40.483] [INFO]   pass: invalid external file not registered (and not deleted)
+[08:57:40.484] [INFO] TEST content: thumbnails
+[08:57:40.485] [INFO]   pass: thumbnail fits requested size
+[08:57:40.485] [INFO]   pass: thumbnail preserves aspect ratio
+[08:57:40.485] [INFO]   pass: RGBA8 pixels
+[08:57:40.485] [INFO]   pass: thumbnails never upscale
+[08:57:40.485] [INFO]   pass: corrupt image yields error
+[08:57:40.485] [INFO]   pass: first request is pending
+[08:57:40.486] [INFO]   pass: worker finishes
+[08:57:40.486] [INFO]   pass: one upload processed
+[08:57:40.486] [INFO]   pass: thumbnail ready after upload
+[08:57:40.486] [INFO]   pass: cached thumbnail is not regenerated
+[08:57:40.486] [INFO]   pass: modified source invalidates cached thumbnail
+[08:57:40.486] [INFO]   pass: regeneration finishes
+[08:57:40.486] [INFO]   pass: thumbnail regenerated after change
+[08:57:40.486] [INFO]   pass: corrupt decode finishes
+[08:57:40.486] [INFO]   pass: corrupt image marked failed
+[08:57:40.486] [INFO]   pass: cache respects capacity (LRU eviction)
+[08:57:40.486] [INFO]   pass: invalidate drops entry
+[08:57:40.486] [INFO]   pass: thumbnail worker shuts down cleanly
+[08:57:40.487] [INFO] TEST content: details and scene assignment
+[08:57:40.489] [INFO]   pass: texture details: dimensions and handle
+[08:57:40.490] [INFO]   pass: audio details: duration and sample rate
+[08:57:40.490] [INFO]   pass: animation details: frames, duration, texture
+[08:57:40.490] [INFO]   pass: script details: read-only preview without execution
+[08:57:40.490] [INFO]   pass: missing file details report error
+[08:57:40.490] [WARN] Sprite 'Hero' failed to resolve texture asset 4123b1be39166dfa: Graphics resources are disabled
+[08:57:40.490] [INFO]   pass: texture assigned to SpriteRenderer (component added)
+[08:57:40.490] [INFO]   pass: audio assigned to AudioSource
+[08:57:40.490] [INFO]   pass: animation clip assigned as default clip
+[08:57:40.490] [INFO]   pass: re-assigning clip does not duplicate clip list entry
+[08:57:40.490] [INFO]   pass: unregistered handle rejected
+[08:57:40.490] [INFO]   pass: invalid entity rejected
+[08:57:40.491] [INFO]   pass: serialize assigned scene
+[08:57:40.492] [INFO]   pass: deserialize assigned scene
+[08:57:40.492] [INFO]   pass: assigned handles survive serialization round-trip
+[08:57:40.493] [INFO]   pass: scene details: entity count
+[08:57:40.494] [INFO] TEST content browser finished (0 failure(s))
+[08:57:40.494] [INFO] TEST transform inspector started
+[08:57:40.494] [INFO]   pass: inspector shows rotation in degrees
+[08:57:40.494] [INFO]   pass: position X edit reports change
+[08:57:40.494] [INFO]   pass: editing position X updates the component
+[08:57:40.494] [INFO]   pass: editing position X preserves Y
+[08:57:40.494] [INFO]   pass: editing position preserves rotation exactly
+[08:57:40.494] [INFO]   pass: editing position preserves scale
+[08:57:40.494] [INFO]   pass: editing position Y updates Y and preserves X
+[08:57:40.494] [INFO]   pass: 90 degrees is stored as pi/2 radians
+[08:57:40.494] [INFO]   pass: -180 degrees is stored as -pi radians
+[08:57:40.494] [INFO]   pass: editing rotation preserves position and scale
+[08:57:40.494] [INFO]   pass: editing scale X updates X and preserves Y
+[08:57:40.494] [INFO]   pass: editing scale Y updates Y and preserves X
+[08:57:40.494] [INFO]   pass: unchanged inspector frame reports no change
+[08:57:40.494] [INFO]   pass: unchanged inspector frame leaves rotation bit-exact
+[08:57:40.494] [INFO]   pass: transform matrix recalculated after edit
+[08:57:40.494] [INFO]   pass: edit mode does not let gravity move a dynamic body
+[08:57:40.494] [INFO]   pass: inspector position edit survives editor updates on a dynamic body
+[08:57:40.494] [INFO]   pass: inspector rotation edit survives editor updates
+[08:57:40.494] [INFO]   pass: inspector scale edit survives editor updates
+[08:57:40.495] [INFO] Play mode: started 'Untitled' (1 entities)
+[08:57:40.495] [INFO]   pass: play mode starts
+[08:57:40.495] [INFO]   pass: play mode simulates dynamic bodies
+[08:57:40.495] [INFO]   pass: play mode leaves the edited transform untouched
+[08:57:40.495] [INFO] Play mode: stopped after 30 simulation frame(s)
+[08:57:40.495] [INFO]   pass: play mode stops
+[08:57:40.495] [INFO]   pass: reselecting resolves the same entity
+[08:57:40.495] [INFO]   pass: position persists after reselect
+[08:57:40.495] [INFO]   pass: rotation persists after reselect
+[08:57:40.495] [INFO]   pass: scale persists after reselect
+[08:57:40.495] [INFO]   pass: editing another entity does not leak edits
+[08:57:40.496] [INFO]   pass: scene with inspector edits serializes
+[08:57:40.496] [INFO]   pass: scene with inspector edits deserializes
+[08:57:40.496] [INFO]   pass: edited entity reloaded
+[08:57:40.496] [INFO]   pass: serialized transform matches inspector edits (rotation stored as radians)
+[08:57:40.507] [INFO] Renderer2D initialized
+[08:57:40.508] [INFO]   pass: viewport draws sprite at its initial position
+[08:57:40.509] [INFO]   pass: viewport background above a flat sprite
+[08:57:40.509] [INFO]   pass: viewport reflects inspector rotation (sprite now vertical)
+[08:57:40.509] [INFO]   pass: viewport background just above an unscaled sprite
+[08:57:40.510] [INFO]   pass: viewport reflects inspector scale
+[08:57:40.510] [INFO]   pass: viewport no longer draws sprite at the old position
+[08:57:40.510] [INFO]   pass: viewport reflects inspector position
+[08:57:40.556] [INFO]   pass: text input event queued
+[08:57:40.566] [INFO]   pass: window forwards text input to the UI event hook
+[08:57:40.566] [INFO]   pass: window forwards mouse-leave to the UI event hook
+[08:57:40.590] [INFO] TEST transform inspector finished with 0 failure(s)
+[08:57:40.590] [INFO] TEST play mode started
+[08:57:40.593] [INFO]   pass: runtime copy is a distinct scene instance
+[08:57:40.593] [INFO]   pass: runtime copy has the same entity count
+[08:57:40.595] [INFO]   pass: runtime copy serializes identically (all components and UUIDs copied)
+[08:57:40.595] [INFO]   pass: runtime copy keeps the scene name
+[08:57:40.595] [INFO]   pass: runtime copy keeps the viewport size
+[08:57:40.595] [INFO]   pass: runtime copy keeps physics settings
+[08:57:40.595] [INFO]   pass: runtime entity keeps its UUID
+[08:57:40.595] [INFO]   pass: runtime entity keeps its name
+[08:57:40.595] [INFO]   pass: runtime entity is owned by the runtime scene
+[08:57:40.595] [INFO]   pass: editable entity is not owned by the runtime scene
+[08:57:40.597] [INFO]   pass: runtime transform/component/name/destroy/create changes leave the edit scene intact
+[08:57:40.597] [INFO]   pass: entity destroyed at runtime still exists in the edit scene
+[08:57:40.597] [INFO]   pass: entity created at runtime is absent from the edit scene
+[08:57:40.597] [INFO]   pass: runtime-created name not indexed in the edit scene
+[08:57:40.597] [INFO]   pass: edit transform unchanged after runtime simulation
+[08:57:40.597] [INFO]   pass: a new copy picks up later edit-scene changes
+[08:57:40.609] [INFO] Renderer2D initialized
+[08:57:40.611] [INFO]   draw order: edit=ff0000 runtime=ff0000
+[08:57:40.611] [INFO]   pass: runtime copy renders overlapping sprites in the same order
+[08:57:40.636] [INFO]   pass: starts in edit mode
+[08:57:40.636] [INFO]   pass: edit mode shows the editable scene
+[08:57:40.636] [INFO]   pass: pause/resume/step/stop are rejected in edit mode
+[08:57:40.637] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.637] [INFO]   pass: Edit -> Play
+[08:57:40.637] [INFO]   pass: play mode shows the runtime scene
+[08:57:40.637] [INFO]   pass: play/resume/step are rejected while playing
+[08:57:40.637] [INFO]   pass: Play -> Pause
+[08:57:40.637] [INFO]   pass: pause/play are rejected while paused
+[08:57:40.637] [INFO]   pass: Pause -> Resume
+[08:57:40.637] [INFO]   pass: Pause -> Step accepted
+[08:57:40.637] [INFO]   pass: a second step request before the frame runs is rejected (no double step)
+[08:57:40.637] [INFO]   pass: Step keeps the editor paused
+[08:57:40.637] [INFO]   pass: Step advances exactly one simulation frame
+[08:57:40.637] [INFO]   pass: no further frames run while paused
+[08:57:40.637] [INFO] Play mode: stopped after 1 simulation frame(s)
+[08:57:40.637] [INFO]   pass: Pause -> Stop
+[08:57:40.637] [INFO]   pass: stop returns to the editable scene
+[08:57:40.637] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.637] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.637] [INFO]   pass: Play -> Stop
+[08:57:40.637] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.637] [INFO] Play mode: stopped after 10 simulation frame(s)
+[08:57:40.637] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.638] [INFO] Play mode: stopped after 10 simulation frame(s)
+[08:57:40.638] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.638] [INFO] Play mode: stopped after 10 simulation frame(s)
+[08:57:40.638] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.638] [INFO] Play mode: stopped after 10 simulation frame(s)
+[08:57:40.638] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.639] [INFO] Play mode: stopped after 10 simulation frame(s)
+[08:57:40.639] [INFO]   pass: multiple play/stop cycles each create and destroy a runtime scene
+[08:57:40.640] [INFO]   pass: edit scene identical after repeated play sessions
+[08:57:40.640] [INFO]   pass: gameplay input is cleared on play, pause and stop
+[08:57:40.640] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.640] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.641] [INFO]   pass: scene replacement while playing stops play mode
+[08:57:40.641] [INFO]   pass: edit mode does not simulate physics
+[08:57:40.641] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.641] [INFO]   pass: runtime physics bodies exist after Play
+[08:57:40.641] [INFO]   pass: physics advances while playing
+[08:57:40.641] [INFO]   pass: physics never moves the edit-scene body
+[08:57:40.641] [INFO]   pass: the edit scene has no simulated body
+[08:57:40.641] [INFO]   pass: physics does not advance while paused
+[08:57:40.641] [INFO]   pass: step runs exactly one physics fixed step
+[08:57:40.641] [INFO]   pass: step moves the simulation forward
+[08:57:40.641] [INFO]   pass: simulation stays frozen after the step
+[08:57:40.641] [INFO]   pass: physics continues after resume
+[08:57:40.641] [INFO] Play mode: stopped after 22 simulation frame(s)
+[08:57:40.641] [INFO]   pass: runtime scene (and its physics world/bodies) is destroyed on Stop
+[08:57:40.641] [INFO]   pass: edit transform restored exactly after Stop
+[08:57:40.641] [INFO]   pass: register demo walk clip
+[08:57:40.642] [INFO]   pass: edit mode does not advance animations
+[08:57:40.642] [INFO] Play mode: started 'Untitled' (1 entities)
+[08:57:40.642] [INFO]   pass: animations advance while playing
+[08:57:40.642] [INFO]   pass: animations do not advance while paused
+[08:57:40.642] [INFO]   pass: animations continue after resume
+[08:57:40.643] [INFO] Play mode: stopped after 3 simulation frame(s)
+[08:57:40.643] [INFO]   pass: edit-scene animation state untouched by play mode
+[08:57:40.643] [INFO]   pass: null audio engine initializes
+[08:57:40.643] [INFO]   pass: register beep audio
+[08:57:40.643] [INFO]   pass: edit mode never plays scene audio
+[08:57:40.643] [INFO] Play mode: started 'Untitled' (1 entities)
+[08:57:40.643] [INFO]   pass: runtime audio source plays on start
+[08:57:40.643] [INFO]   pass: pausing play mode pauses runtime audio
+[08:57:40.643] [INFO]   pass: runtime audio stays paused across a step
+[08:57:40.643] [INFO]   pass: resuming play mode resumes audio
+[08:57:40.643] [INFO] Play mode: stopped after 2 simulation frame(s)
+[08:57:40.643] [INFO]   pass: stopping play mode stops runtime audio
+[08:57:40.643] [INFO] Play mode: started 'Untitled' (1 entities)
+[08:57:40.643] [INFO]   pass: a new session starts its own audio
+[08:57:40.643] [INFO] Play mode: stopped after 1 simulation frame(s)
+[08:57:40.643] [INFO]   pass: second session audio stopped
+[08:57:40.644] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.644] [INFO]   pass: selection resolves to the runtime copy while playing
+[08:57:40.644] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.644] [INFO]   pass: runtime-only selection is cleared on Stop
+[08:57:40.644] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.644] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.644] [INFO]   pass: selection of an edit entity survives play and resolves to the edit entity
+[08:57:40.644] [INFO] Play mode: started 'PlayModeDemo' (4 entities)
+[08:57:40.644] [INFO]   pass: destroying the selected runtime entity clears the selection
+[08:57:40.644] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.644] [INFO]   pass: runtime-destroyed entity restored on Stop
+[08:57:40.644] [INFO]   pass: input reaches the game while playing with the viewport focused
+[08:57:40.644] [INFO]   pass: no game input when the viewport is not focused
+[08:57:40.644] [INFO]   pass: mouse input only while hovering the game view
+[08:57:40.644] [INFO]   pass: keyboard input withheld while an editor text field is active
+[08:57:40.644] [INFO]   pass: no game input in edit or paused mode
+[08:57:40.644] [INFO] TEST play mode finished with 0 failure(s)
+[08:57:40.644] [INFO] TEST projects started
+[08:57:40.644] [INFO] TEST project creation
+[08:57:40.646] [INFO]   pass: create Empty 2D project: Created project 'My Game' (Empty 2D Project) at /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_42783065/My Game
+[08:57:40.646] [INFO]   pass: project created in <parent>/<name>
+[08:57:40.646] [INFO]   pass: project file is <name>.xora
+[08:57:40.646] [INFO]   pass: project file written
+[08:57:40.646] [INFO]   pass: standard directory structure generated
+[08:57:40.646] [INFO]   pass: main scene generated
+[08:57:40.646] [INFO]   pass: asset registry generated
+[08:57:40.646] [INFO]   pass: no staging folder left after success
+[08:57:40.647] [INFO]   pass: generated project file parses
+[08:57:40.647] [INFO]   pass: metadata: name
+[08:57:40.647] [INFO]   pass: metadata: format version
+[08:57:40.647] [INFO]   pass: metadata: engine version
+[08:57:40.647] [INFO]   pass: metadata: startup scene
+[08:57:40.647] [INFO]   pass: metadata: default directories
+[08:57:40.647] [INFO]   pass: metadata: default settings
+[08:57:40.647] [INFO]   pass: project file is versioned YAML
+[08:57:40.668] [INFO]   pass: multiple projects can be created in one folder
+[08:57:40.671] [INFO] TEST project templates
+[08:57:40.671] [INFO]   pass: template id lookup: empty-2d
+[08:57:40.671] [INFO]   pass: template id lookup: basic-2d-game
+[08:57:40.671] [INFO]   pass: template id lookup: physics-demo
+[08:57:40.671] [INFO]   pass: three templates are offered
+[08:57:40.673] [INFO]   pass: create template project EmptyT
+[08:57:40.674] [INFO]   pass: template project loads without warnings: EmptyT
+[08:57:40.675] [INFO] Opened project 'EmptyT' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_54195595/EmptyT)
+[08:57:40.675] [INFO]   pass: template startup scene opens: EmptyT
+[08:57:40.675] [INFO]   pass: template has a primary camera: EmptyT
+[08:57:40.675] [INFO]   pass: empty template: only the camera
+[08:57:40.675] [INFO]   pass: no engine source / shader files in the project: EmptyT
+[08:57:40.681] [INFO]   pass: create template project BasicT
+[08:57:40.682] [INFO]   pass: template project loads without warnings: BasicT
+[08:57:40.688] [INFO] Opened project 'BasicT' (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_54195595/BasicT)
+[08:57:40.688] [INFO]   pass: template startup scene opens: BasicT
+[08:57:40.688] [INFO]   pass: template has a primary camera: BasicT
+[08:57:40.688] [INFO]   pass: basic game: player with physics and a script
+[08:57:40.688] [INFO]   pass: basic game: static ground
+[08:57:40.688] [INFO]   pass: basic game: script reference resolves through the project registry
+[08:57:40.688] [INFO]   pass: basic game: script class name
+[08:57:40.688] [INFO]   pass: basic game: script file inside the project
+[08:57:40.689] [INFO]   pass: no engine source / shader files in the project: BasicT
+[08:57:40.704] [INFO]   pass: create template project PhysicsT
+[08:57:40.705] [INFO]   pass: template project loads without warnings: PhysicsT
+[08:57:40.722] [INFO] Opened project 'PhysicsT' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_54195595/PhysicsT)
+[08:57:40.722] [INFO]   pass: template startup scene opens: PhysicsT
+[08:57:40.722] [INFO]   pass: template has a primary camera: PhysicsT
+[08:57:40.722] [INFO]   pass: physics demo: ground plus dynamic boxes and balls
+[08:57:40.722] [INFO] Play mode: started 'Main' (21 entities)
+[08:57:40.748] [INFO]   pass: physics demo: boxes fall and stay above the ground
+[08:57:40.748] [INFO] Play mode: stopped after 240 simulation frame(s)
+[08:57:40.749] [INFO]   pass: no engine source / shader files in the project: PhysicsT
+[08:57:40.752] [INFO] TEST invalid project creation
+[08:57:40.752] [INFO]   pass: invalid name rejected: ''
+[08:57:40.752] [INFO]   pass: invalid name rejected: '../Escape'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'a/b'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'a\b'
+[08:57:40.752] [INFO]   pass: invalid name rejected: '.hidden'
+[08:57:40.752] [INFO]   pass: invalid name rejected: '-dash'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'colon:name'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'trailing '
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'dot.'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'tab	name'
+[08:57:40.752] [INFO]   pass: invalid name rejected: 'star*'
+[08:57:40.752] [INFO]   pass: rejected names create nothing
+[08:57:40.752] [INFO]   pass: path traversal through the name is impossible
+[08:57:40.752] [INFO]   pass: relative location rejected
+[08:57:40.752] [INFO]   pass: missing location rejected
+[08:57:40.752] [INFO]   pass: file as location rejected
+[08:57:40.752] [INFO]   pass: empty location rejected
+[08:57:40.752] [INFO] TEST existing directory handling
+[08:57:40.753] [INFO]   pass: non-empty folder is refused
+[08:57:40.753] [INFO]   pass: existing folder content left untouched
+[08:57:40.753] [INFO]   pass: file with the project name refused
+[08:57:40.755] [INFO]   pass: empty folder with the project name is reused
+[08:57:40.755] [INFO]   pass: second creation refused, first project unchanged
+[08:57:40.755] [INFO]   pass: no staging folders left after refusals
+[08:57:40.756] [INFO] TEST failed creation cleanup
+[08:57:40.756] [INFO]   pass: creation fails at step 'directories'
+[08:57:40.756] [INFO]   pass: no project folder after failure at directories
+[08:57:40.756] [INFO]   pass: staging folder removed after failure at directories
+[08:57:40.758] [INFO]   pass: creation fails at step 'assets'
+[08:57:40.758] [INFO]   pass: no project folder after failure at assets
+[08:57:40.758] [INFO]   pass: staging folder removed after failure at assets
+[08:57:40.760] [INFO]   pass: creation fails at step 'scene'
+[08:57:40.760] [INFO]   pass: no project folder after failure at scene
+[08:57:40.760] [INFO]   pass: staging folder removed after failure at scene
+[08:57:40.766] [INFO]   pass: creation fails at step 'project-file'
+[08:57:40.766] [INFO]   pass: no project folder after failure at project-file
+[08:57:40.766] [INFO]   pass: staging folder removed after failure at project-file
+[08:57:40.773] [INFO]   pass: creation fails at step 'finalize'
+[08:57:40.773] [INFO]   pass: no project folder after failure at finalize
+[08:57:40.773] [INFO]   pass: staging folder removed after failure at finalize
+[08:57:40.773] [INFO]   pass: unrelated files survive failed creations
+[08:57:40.775] [INFO]   pass: pre-existing empty folder kept (and left empty) after a failed creation
+[08:57:40.775] [INFO] TEST project loading
+[08:57:40.782] [INFO]   pass: valid project loads
+[08:57:40.782] [INFO]   pass: loaded project name and root
+[08:57:40.782] [INFO]   pass: project directories resolve under the root
+[08:57:40.782] [INFO]   pass: startup scene found
+[08:57:40.782] [INFO]   pass: scenes listed
+[08:57:40.782] [INFO]   pass: project file found in folder
+[08:57:40.783] [INFO]   pass: rejected: invalid YAML (InvalidYaml: Broken.xora is not valid YAML: yaml-cpp: error at line 2, column 7: end of sequence flow not found)
+[08:57:40.783] [INFO]   pass: rejected: not a project file (NotAProjectFile: Broken.xora is not a Xora2D project (missing 'XoraProject'))
+[08:57:40.783] [INFO]   pass: rejected: empty file (NotAProjectFile: Broken.xora is not a Xora2D project (missing 'XoraProject'))
+[08:57:40.783] [INFO]   pass: rejected: unsupported newer version (UnsupportedVersion: Broken.xora uses project format version 99, which is newer than this engine supports (1). Open it with a newer Xora2D.)
+[08:57:40.783] [INFO]   pass: rejected: unsupported version 0 (UnsupportedVersion: Broken.xora: invalid project format version 0)
+[08:57:40.783] [INFO]   pass: rejected: missing FormatVersion (MissingField: Broken.xora: missing required field 'FormatVersion')
+[08:57:40.784] [INFO]   pass: rejected: missing Name (MissingField: Broken.xora: missing required field 'Name')
+[08:57:40.784] [INFO]   pass: rejected: invalid name (InvalidName: Broken.xora: Project name cannot start with '.', '-' or a space)
+[08:57:40.784] [INFO]   pass: rejected: non-numeric version (InvalidValue: Broken.xora: invalid value (yaml-cpp: error at line 2, column 18: bad conversion))
+[08:57:40.784] [INFO]   pass: rejected: bad window size (InvalidValue: Broken.xora: Window size -5x720 is out of range (160x120 to 16384x16384))
+[08:57:40.785] [INFO]   pass: rejected: bad gravity (InvalidValue: Broken.xora: Settings.Physics.Gravity must be [x, y])
+[08:57:40.785] [INFO]   pass: rejected: asset directory escaping the root (InvalidValue: Broken.xora: Asset directory '../outside' must be a non-empty project-relative path (forward slashes, no '..'); Asset directory must be 'Assets' in project format version 1)
+[08:57:40.785] [INFO]   pass: rejected: absolute scene directory (InvalidValue: Broken.xora: Scene directory '/etc' must be a non-empty project-relative path (forward slashes, no '..'))
+[08:57:40.785] [INFO]   pass: rejected: startup scene escaping the root (InvalidValue: Broken.xora: Startup scene '../../x.scene.yaml' must be a project-relative path (forward slashes, no '..'))
+[08:57:40.785] [INFO]   pass: rejected: startup scene not a scene (InvalidValue: Broken.xora: Startup scene must be a .scene.yaml file)
+[08:57:40.785] [INFO]   pass: missing project file reported
+[08:57:40.786] [INFO]   pass: non-.xora file refused
+[08:57:40.786] [INFO]   pass: minimal project file loads with defaults
+[08:57:40.786] [INFO]   pass: missing optional folders / startup scene are warnings
+[08:57:40.787] [INFO]   pass: project file round-trips every field
+[08:57:40.788] [INFO] TEST missing startup scene / directories
+[08:57:40.791] [INFO]   pass: project with a missing startup scene still loads
+[08:57:40.791] [INFO]   pass: missing startup scene and folder are warnings
+[08:57:40.791] [INFO]   pass: HasStartupScene is false
+[08:57:40.792] [WARN] Gappy: Created missing folder 'Config'
+[08:57:40.792] [WARN] Gappy: Startup scene 'Scenes/Main.scene.yaml' was not found
+[08:57:40.792] [INFO] Opened project 'Gappy' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_64654729/Gappy)
+[08:57:40.792] [INFO]   pass: editor opens the project with an empty scene
+[08:57:40.792] [INFO]   pass: replacement scene is unsaved and holds only a camera
+[08:57:40.792] [INFO]   pass: missing standard folder recreated on open
+[08:57:40.793] [INFO]   pass: replacement startup scene created
+[08:57:40.793] [INFO]   pass: replacement scene opened with a camera
+[08:57:40.794] [INFO]   pass: new startup scene persisted in the project file
+[08:57:40.794] [INFO]   pass: creating a scene over an existing file is refused
+[08:57:40.794] [INFO]   pass: saving a scene outside is refused
+[08:57:40.795] [INFO]   pass: missing asset directory reported
+[08:57:40.796] [INFO] TEST project-relative path resolution
+[08:57:40.798] [INFO]   pass: relative path resolves
+[08:57:40.798] [INFO]   pass: backslashes normalized
+[08:57:40.798] [INFO]   pass: '.' segments removed
+[08:57:40.798] [INFO]   pass: empty path is the root
+[08:57:40.798] [INFO]   pass: '..' rejected
+[08:57:40.798] [INFO]   pass: nested '..' rejected
+[08:57:40.798] [INFO]   pass: absolute path rejected
+[08:57:40.798] [INFO]   pass: drive letter rejected
+[08:57:40.798] [INFO]   pass: symlink escaping the project rejected
+[08:57:40.798] [INFO]   pass: absolute -> project-relative
+[08:57:40.798] [INFO]   pass: outside path has no relative form
+[08:57:40.798] [INFO]   pass: Contains() checks the root
+[08:57:40.800] [INFO] Opened project 'Paths' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_39258616/Paths)
+[08:57:40.800] [INFO]   pass: content root is the project root
+[08:57:40.800] [INFO]   pass: asset root inside the project
+[08:57:40.800] [INFO]   pass: asset path resolution
+[08:57:40.800] [INFO]   pass: asset traversal rejected
+[08:57:40.800] [INFO]   pass: registry path inside the project
+[08:57:40.800] [INFO]   pass: content root restored when the editor context goes away
+[08:57:40.801] [INFO] TEST project settings persistence
+[08:57:40.804] [INFO]   pass: invalid settings rejected; memory and file unchanged
+[08:57:40.804] [INFO]   pass: valid settings saved
+[08:57:40.805] [INFO]   pass: settings persisted to the project file
+[08:57:40.805] [INFO]   pass: renaming the project keeps the file name
+[08:57:40.806] [INFO] Opened project 'Renamed Game' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_62490949/Settings)
+[08:57:40.806] [INFO] Play mode: started 'Main' (1 entities)
+[08:57:40.806] [INFO]   pass: project gravity applied in Play mode
+[08:57:40.806] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.806] [INFO]   pass: edit scene gravity untouched
+[08:57:40.807] [INFO] TEST recent projects
+[08:57:40.811] [INFO]   pass: newest project listed first
+[08:57:40.811] [INFO]   pass: duplicate paths collapse into one entry
+[08:57:40.811] [INFO]   pass: re-opening moves the project to the front and refreshes the timestamp
+[08:57:40.811] [INFO]   pass: Contains() matches entries
+[08:57:40.812] [INFO]   pass: history saved
+[08:57:40.812] [INFO]   pass: history loaded
+[08:57:40.812] [INFO]   pass: order, names, paths and timestamps survive a reload
+[08:57:40.812] [INFO]   pass: project removed from history
+[08:57:40.812] [INFO]   pass: removing twice reports nothing removed
+[08:57:40.812] [INFO]   pass: removed project's files remain intact
+[08:57:40.812] [INFO]   pass: only the other entry remains
+[08:57:40.812] [INFO]   pass: moved project is reported missing
+[08:57:40.813] [INFO]   pass: missing project entry survives a reload
+[08:57:40.813] [INFO]   pass: opening a moved project fails cleanly
+[08:57:40.814] [INFO]   pass: history limited to the capacity
+[08:57:40.814] [INFO]   pass: oldest entries dropped first
+[08:57:40.814] [INFO]   pass: invalid history file ignored
+[08:57:40.814] [INFO]   pass: missing history is empty
+[08:57:40.816] [INFO] TEST project isolation
+[08:57:40.838] [INFO]   pass: nothing is open initially
+[08:57:40.843] [INFO] Opened project 'ProjectA' (2 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_94974564/ProjectA)
+[08:57:40.843] [INFO]   pass: project A opened
+[08:57:40.843] [INFO]   pass: A's registry sees only A's assets
+[08:57:40.843] [INFO]   pass: A's startup scene loaded
+[08:57:40.844] [INFO] Play mode: started 'Main' (9 entities)
+[08:57:40.844] [INFO]   pass: A is playing before the switch
+[08:57:40.844] [INFO] Play mode: stopped after 0 simulation frame(s)
+[08:57:40.861] [INFO] Opened project 'ProjectB' (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_94974564/ProjectB)
+[08:57:40.861] [INFO]   pass: switched to project B
+[08:57:40.861] [INFO]   pass: switching stops Play and frees A's runtime scene
+[08:57:40.861] [INFO]   pass: A's edit scene is released (no stale scene references)
+[08:57:40.861] [INFO]   pass: A's project object is released
+[08:57:40.861] [INFO]   pass: selection cleared on switch
+[08:57:40.861] [INFO]   pass: content browser reset to Assets
+[08:57:40.861] [INFO]   pass: content root moved to B
+[08:57:40.861] [INFO]   pass: B's registry sees only B's assets
+[08:57:40.861] [INFO]   pass: no asset handle of A resolves to A's files in B
+[08:57:40.861] [INFO]   pass: B's scene contains only B's entities
+[08:57:40.861] [INFO]   pass: asset paths resolve inside B
+[08:57:40.861] [INFO]   pass: script state reset and host notified on every switch
+[08:57:40.862] [INFO]   pass: A's registry file persisted with only A's assets
+[08:57:40.862] [INFO]   pass: B's registry file never received A's assets
+[08:57:40.862] [INFO]   pass: B's settings changed
+[08:57:40.863] [INFO]   pass: A's configuration unaffected by B's settings
+[08:57:40.869] [INFO] Opened project 'ProjectA' (2 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_94974564/ProjectA)
+[08:57:40.869] [INFO]   pass: switched back to A
+[08:57:40.869] [INFO]   pass: A's scene reloaded from disk without B's or unsaved entities
+[08:57:40.869] [INFO]   pass: A's settings are A's
+[08:57:40.869] [INFO]   pass: closing the project clears the registry
+[08:57:40.869] [INFO]   pass: closing the project restores the default content root
+[08:57:40.869] [INFO]   pass: closing never deletes project files
+[08:57:40.871] [INFO] TEST engine samples (no project)
+[08:57:40.875] [INFO] Opened project 'WithProject' (0 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_5098786/WithProject)
+[08:57:40.876] [WARN] Engine samples: Startup scene 'Scenes/ExampleScene.scene.yaml' was not found
+[08:57:40.876] [INFO] Opened engine samples (1 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_projects_45092269)
+[08:57:40.876] [INFO]   pass: engine samples open without a project
+[08:57:40.876] [INFO]   pass: engine samples use the resource root
+[08:57:40.876] [INFO]   pass: engine sample assets registered
+[08:57:40.876] [INFO]   pass: missing sample scene replaced by a starter scene
+[08:57:40.877] [INFO]   pass: sample registry persisted in the resource root on close
+[08:57:40.877] [INFO]   pass: sample assets never copied into a project
+[08:57:40.878] [INFO] TEST projects finished with 0 failure(s)
+[08:57:40.878] [INFO] TEST prefabs started
+[08:57:40.878] [INFO] TEST prefab serialization
+[08:57:40.882] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_12043000/PrefabGame)
+[08:57:40.888] [INFO]   pass: prefab created from a single entity: Created prefab Assets/Prefabs/Crate.prefab.yaml from 1 entity(ies)
+[08:57:40.888] [INFO]   pass: prefab file written
+[08:57:40.888] [INFO]   pass: human-readable versioned YAML with a Prefab header
+[08:57:40.888] [INFO]   pass: prefab files never contain instance links
+[08:57:40.889] [INFO]   pass: prefab deserializes: Loaded prefab 'Crate' (1 entities, revision 1)
+[08:57:40.889] [INFO]   pass: prefab metadata (name, revision, entity count)
+[08:57:40.889] [INFO]   pass: prefab entity restored
+[08:57:40.889] [INFO]   pass: prefab entities get their own prefab-local ids
+[08:57:40.889] [INFO]   pass: TransformComponent preserved
+[08:57:40.889] [INFO]   pass: SpriteRendererComponent preserved (texture handle kept)
+[08:57:40.889] [INFO]   pass: CameraComponent preserved
+[08:57:40.889] [INFO]   pass: RigidBody2DComponent preserved
+[08:57:40.889] [INFO]   pass: BoxCollider2DComponent preserved
+[08:57:40.889] [INFO]   pass: CircleCollider2DComponent preserved
+[08:57:40.889] [INFO]   pass: AudioSourceComponent preserved (clip handle kept)
+[08:57:40.889] [INFO]   pass: AnimationComponent preserved (clip handles kept)
+[08:57:40.890] [INFO]   pass: PythonScriptComponent preserved
+[08:57:40.891] [INFO]   pass: emit -> parse -> emit is stable
+[08:57:40.891] [INFO]   pass: rejected: malformed YAML (test.prefab.yaml: malformed YAML (yaml-cpp: error at line 1, column 1: end of sequence flow not found))
+[08:57:40.891] [INFO]   pass: rejected: missing header (test.prefab.yaml: not a prefab (missing 'Prefab' header))
+[08:57:40.891] [INFO]   pass: rejected: missing FormatVersion (test.prefab.yaml: missing Prefab.FormatVersion)
+[08:57:40.891] [INFO]   pass: rejected: unsupported newer format (test.prefab.yaml: unsupported prefab format version 99 (supported: 1-1))
+[08:57:40.892] [INFO]   pass: rejected: format version 0 (test.prefab.yaml: unsupported prefab format version 0 (supported: 1-1))
+[08:57:40.892] [INFO]   pass: rejected: missing name (test.prefab.yaml: missing Prefab.Name)
+[08:57:40.892] [INFO]   pass: rejected: no entities (test.prefab.yaml: a prefab needs a non-empty 'Entities' sequence)
+[08:57:40.892] [INFO]   pass: rejected: duplicate entity ids (test.prefab.yaml: duplicate or invalid entity id 1-2)
+[08:57:40.892] [INFO]   pass: rejected: entity without transform (test.prefab.yaml: entity 1-2 missing TransformComponent)
+[08:57:40.893] [INFO]   pass: rejected: nested prefab instance (test.prefab.yaml: nested prefabs are not supported (entity 1-2 is a prefab instance))
+[08:57:40.893] [INFO]   pass: rejected: bad revision (test.prefab.yaml: invalid Prefab.Revision)
+[08:57:40.894] [INFO]   pass: missing texture reported as a missing asset
+[08:57:40.895] [INFO]   pass: missing asset reference kept for when the asset returns
+[08:57:40.895] [INFO]   pass: saving over an existing prefab without permission is refused
+[08:57:40.895] [INFO]   pass: invalid prefab data is rejected before writing
+[08:57:40.895] [INFO]   pass: failed write (read-only folder) leaves the prefab intact
+[08:57:40.896] [INFO]   pass: no temporary files left behind
+[08:57:40.898] [INFO] TEST prefab creation and instantiation
+[08:57:40.903] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_94548755/PrefabGame)
+[08:57:40.908] [INFO]   pass: prefab created and linked
+[08:57:40.908] [INFO]   pass: prefab registered with a stable handle
+[08:57:40.908] [INFO]   pass: handle allocated through the registry
+[08:57:40.908] [INFO]   pass: Content Browser recognizes the prefab file
+[08:57:40.908] [INFO]   pass: source entity became the first instance (keeps its UUID)
+[08:57:40.908] [INFO]   pass: creating a prefab with an existing name is refused; nothing changes
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: ''
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: 'a/b'
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: '..'
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: '.hidden'
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: 'bad:name'
+[08:57:40.908] [INFO]   pass: invalid prefab name rejected: 'trailing '
+[08:57:40.908] [INFO]   pass: prefab folders cannot escape the asset directory
+[08:57:40.908] [INFO]   pass: a prefab needs at least one entity
+[08:57:40.911] [INFO]   pass: multi-entity prefab keeps entity order
+[08:57:40.911] [INFO]   pass: multi-entity sources share one instance id
+[08:57:40.911] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:40.911] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:40.911] [INFO]   pass: prefab instantiated twice
+[08:57:40.911] [INFO]   pass: each instance entity gets a unique UUID
+[08:57:40.911] [INFO]   pass: instances are distinct and point at their source entity
+[08:57:40.925] [INFO]   pass: instantiation restores every component exactly
+[08:57:40.925] [INFO]   pass: instance asset references resolve through the project registry
+[08:57:40.925] [INFO]   pass: modifying one instance does not affect another
+[08:57:40.925] [INFO]   pass: modifying an instance does not affect the prefab
+[08:57:40.925] [WARN] Duplicate entity name 'Left'; FindEntityByName returns the most recently created entity
+[08:57:40.925] [WARN] Duplicate entity name 'Right'; FindEntityByName returns the most recently created entity
+[08:57:40.925] [INFO]   pass: instantiating at a position keeps relative offsets and records the position override
+[08:57:40.925] [INFO]   pass: unknown prefab handle fails without creating entities
+[08:57:40.925] [INFO]   pass: a non-prefab asset cannot be instantiated
+[08:57:40.925] [WARN] Duplicate entity name 'Left'; FindEntityByName returns the most recently created entity
+[08:57:40.926] [INFO]   pass: instantiation failing after the first entity rolls back (no partial instance)
+[08:57:40.926] [WARN] Broken.prefab.yaml: a prefab needs a non-empty 'Entities' sequence
+[08:57:40.926] [INFO]   pass: an invalid prefab file fails gracefully
+[08:57:40.926] [INFO]   pass: renaming a prefab keeps its handle
+[08:57:40.927] [INFO]   pass: moving a prefab keeps its handle
+[08:57:40.928] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:40.928] [INFO]   pass: existing instances and new instantiations follow the moved prefab
+[08:57:40.932] [INFO] TEST prefab overrides
+[08:57:40.936] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_50500838/PrefabGame)
+[08:57:40.942] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:40.942] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:40.952] [INFO]   pass: position change detected
+[08:57:40.962] [INFO]   pass: rotation change detected
+[08:57:40.972] [INFO]   pass: scale change detected
+[08:57:40.982] [INFO]   pass: name change detected
+[08:57:40.992] [INFO]   pass: sprite color change detected
+[08:57:41.002] [INFO]   pass: sprite visibility change detected
+[08:57:41.012] [INFO]   pass: other sprite field marks the Sprite component
+[08:57:41.023] [INFO]   pass: rigid body change marks the component
+[08:57:41.032] [INFO]   pass: removing a component is tracked
+[08:57:41.042] [INFO]   pass: no change, no override
+[08:57:41.042] [INFO]   pass: other instance has no overrides
+[08:57:41.051] [INFO]   pass: recorded overrides match the actual differences from the prefab
+[08:57:41.061] [INFO]   pass: value restored by hand stops being an override
+[08:57:41.061] [INFO]   pass: reverting one property restores it and keeps the other overrides
+[08:57:41.061] [INFO]   pass: reverting a removed component restores it
+[08:57:41.061] [INFO]   pass: unknown property rejected
+[08:57:41.065] [INFO]   pass: scene with instances saved
+[08:57:41.070] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:41.070] [INFO]   pass: instance overrides preserved by scene save / load
+[08:57:41.070] [WARN] Duplicate entity name 'Crate'; FindEntityByName returns the most recently created entity
+[08:57:41.076] [INFO]   pass: apply writes a new prefab revision: Applied instance to prefab 'Crate' (revision 2). Other instances update only when refreshed.
+[08:57:41.076] [INFO]   pass: apply keeps the prefab handle and file
+[08:57:41.076] [INFO]   pass: prefab contains the applied values
+[08:57:41.078] [INFO]   pass: applied prefab persisted to disk
+[08:57:41.078] [INFO]   pass: applied instance has no overrides and is up to date
+[08:57:41.078] [INFO]   pass: the instance had overrides before applying
+[08:57:41.078] [INFO]   pass: other instances keep their values until refreshed (now outdated)
+[08:57:41.078] [INFO]   pass: refresh brings in prefab changes and keeps overrides
+[08:57:41.092] [INFO]   pass: revert all restores every property from the prefab
+[08:57:41.105] [INFO]   pass: failed apply: prefab file, cache and instance overrides unchanged
+[08:57:41.111] [INFO]   pass: prefab saved with an extra entity
+[08:57:41.111] [INFO]   pass: refresh adds entities that were added to the prefab
+[08:57:41.116] [INFO]   pass: prefab saved without it
+[08:57:41.117] [INFO]   pass: entities removed from the prefab are unlinked, never deleted
+[08:57:41.117] [INFO]   pass: unpack keeps the entity and removes the link
+[08:57:41.120] [INFO] TEST prefab scene integration
+[08:57:41.124] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_29090463/PrefabGame)
+[08:57:41.126] [WARN] Duplicate entity name 'Tree'; FindEntityByName returns the most recently created entity
+[08:57:41.129] [INFO]   pass: scene with prefab instances saved
+[08:57:41.129] [INFO]   pass: scene file stores prefab handle, instance identity and overrides
+[08:57:41.131] [WARN] Duplicate entity name 'Tree'; FindEntityByName returns the most recently created entity
+[08:57:41.131] [INFO]   pass: scene reopened
+[08:57:41.131] [INFO]   pass: instance entity UUIDs preserved
+[08:57:41.131] [INFO]   pass: prefab relationships and overrides restored
+[08:57:41.131] [INFO]   pass: restored instances can still revert
+[08:57:41.131] [INFO]   pass: old non-prefab scenes load unchanged
+[08:57:41.148] [INFO]   pass: the shipped sample scene still loads: 
+[08:57:41.149] [INFO]   pass: malformed prefab instance data is rejected
+[08:57:41.151] [WARN] Duplicate entity name 'Tree'; FindEntityByName returns the most recently created entity
+[08:57:41.151] [WARN] /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_29090463/PrefabGame/Scenes/Forest.scene.yaml: prefab asset e135b0225da0b50c is missing; its instances keep their data
+[08:57:41.151] [INFO]   pass: missing prefab asset: scene loads with a warning, instance data and link kept
+[08:57:41.151] [INFO]   pass: operations on instances of a missing prefab fail without touching the entity
+[08:57:41.153] [INFO] TEST prefab runtime integration
+[08:57:41.157] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_68212436/PrefabGame)
+[08:57:41.160] [WARN] Duplicate entity name 'Ball'; FindEntityByName returns the most recently created entity
+[08:57:41.167] [INFO] Play mode: started 'Main' (3 entities)
+[08:57:41.167] [INFO]   pass: play mode started
+[08:57:41.167] [INFO]   pass: runtime copy preserves prefab metadata
+[08:57:41.173] [INFO]   pass: runtime instance changes stay in the runtime copy
+[08:57:41.173] [WARN] Duplicate entity name 'Ball'; FindEntityByName returns the most recently created entity
+[08:57:41.173] [INFO]   pass: prefabs instantiated during play go into the runtime scene only
+[08:57:41.173] [INFO]   pass: runtime instances get physics bodies immediately
+[08:57:41.173] [INFO]   pass: prefab assets cannot be created from Play mode
+[08:57:41.173] [INFO]   pass: prefab editing is unavailable during play
+[08:57:41.173] [INFO] Play mode: stopped after 30 simulation frame(s)
+[08:57:41.175] [INFO]   pass: editable scene unchanged by runtime modifications
+[08:57:41.175] [INFO]   pass: prefab asset unchanged by runtime modifications
+[08:57:41.175] [INFO]   pass: after Stop the editable instance and its overrides are intact
+[08:57:41.177] [INFO] TEST prefab editing workflow
+[08:57:41.182] [INFO] Opened project 'PrefabGame' (3 assets, content root /private/var/folders/qs/fqcqp95936lfktltcszm_xj40000gn/T/xora2d_prefabs_80435729/PrefabGame)
+[08:57:41.185] [INFO]   pass: prefab opened for editing
+[08:57:41.185] [INFO]   pass: isolated editing scene
+[08:57:41.185] [INFO]   pass: prefab entity selected for the Inspector
+[08:57:41.185] [INFO]   pass: editing the prefab does not modify the open scene
+[08:57:41.185] [INFO]   pass: play is unavailable while editing a prefab
+[08:57:41.185] [INFO]   pass: no nested instances while editing a prefab
+[08:57:41.185] [INFO]   pass: scene save is blocked while editing a prefab
+[08:57:41.186] [INFO]   pass: cancel discards prefab edits and returns to the scene
+[08:57:41.186] [INFO]   pass: scene selection restored after cancel
+[08:57:41.189] [INFO]   pass: prefab saved from the editor: Saved prefab 'Lamp' (revision 2)
+[08:57:41.190] [INFO]   pass: saved prefab has the edits and a new revision
+[08:57:41.190] [INFO]   pass: prefab handle and path unchanged by editing
+[08:57:41.191] [INFO]   pass: scene instances untouched by prefab saves (outdated until refreshed)
+[08:57:41.192] [INFO]   pass: closing the project while editing a prefab discards the edits safely
+[08:57:41.193] [INFO] TEST prefabs finished with 0 failure(s)
+[08:57:41.193] [INFO] All Xora2D tests passed
 <end of output>
-Test time =   1.17 sec
+Test time =   2.46 sec
 ----------------------------------------------------------
 Test Passed.
-"Xora2D-Tests" end time: Nov 18 08:29 IST
-"Xora2D-Tests" time elapsed: 00:00:01
+"Xora2D-Tests" end time: Nov 18 08:57 IST
+"Xora2D-Tests" time elapsed: 00:00:02
 ----------------------------------------------------------
 
-End testing: Nov 18 08:29 IST
+End testing: Nov 18 08:57 IST
