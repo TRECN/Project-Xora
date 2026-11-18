@@ -34,6 +34,10 @@ std::string AssetTypeToString(AssetType type) {
         return "AnimationClip";
     case AssetType::Prefab:
         return "Prefab";
+    case AssetType::Tileset:
+        return "Tileset";
+    case AssetType::Tilemap:
+        return "Tilemap";
     default:
         return "Unknown";
     }
@@ -54,6 +58,12 @@ std::optional<AssetType> AssetTypeFromString(const std::string& text) {
     }
     if (text == "Prefab") {
         return AssetType::Prefab;
+    }
+    if (text == "Tileset") {
+        return AssetType::Tileset;
+    }
+    if (text == "Tilemap") {
+        return AssetType::Tilemap;
     }
     return std::nullopt;
 }

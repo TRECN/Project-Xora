@@ -19,6 +19,8 @@ public:
     const glm::vec2& GetPosition() const { return m_position; }
     float GetRotationRadians() const { return m_rotation; }
     float GetZoom() const { return m_zoom; }
+    float GetViewportWidth() const { return m_viewportWidth; }
+    float GetViewportHeight() const { return m_viewportHeight; }
 
     const glm::mat4& GetViewMatrix() const { return m_viewMatrix; }
     const glm::mat4& GetProjectionMatrix() const { return m_projectionMatrix; }

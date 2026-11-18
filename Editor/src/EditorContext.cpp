@@ -8,8 +8,11 @@
 #include "Xora2D/Assets/AssetRegistrySerializer.h"
 #include "Xora2D/Core/Logger.h"
 #include "Xora2D/Core/Paths.h"
+#include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Serialization/SceneSerializer.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapSerializer.h"
 
 #include <chrono>
 
@@ -45,6 +48,8 @@ std::string SceneNameFromPath(const std::string& contentRelativePath) {
 EditorContext::EditorContext() {
     m_scene = Xora2D::Scene::Create();
     m_scene->SetAssetManager(&m_assetManager);
+    // The editable scene never simulates (only the Play copy does): no physics bodies are built for it.
+    m_scene->GetPhysicsWorld().SetSimulationEnabled(false);
 }
 
 EditorContext::~EditorContext() {
@@ -78,6 +83,8 @@ void EditorContext::ResetContentServices() {
 
 void EditorContext::DeactivateContent() {
     ClosePrefabEditor();
+    m_tilemapEditor.Reset();
+    m_tilemapEditor.Enabled = false;
     (void)StopPlayMode();
     ResetContentServices();
     if (m_contentActive) {
@@ -413,6 +420,90 @@ void EditorContext::ClosePrefabEditor() {
     m_prefabEdit.SceneSelection.reset();
 }
 
+EditorSceneFileResult EditorContext::OpenTilemapAsset(Xora2D::AssetHandle tilemap) {
+    EditorSceneFileResult result{};
+    const Xora2D::AssetMetadata* meta = m_assetRegistry.FindByHandle(tilemap);
+    if (meta == nullptr || meta->Type != Xora2D::AssetType::Tilemap) {
+        result.Message = "Not a registered tilemap asset";
+        return result;
+    }
+    if (IsPlayModeActive()) {
+        result.Message = "Stop Play mode before editing tilemaps";
+        return result;
+    }
+    const std::shared_ptr<Xora2D::Scene> scene = GetScene();
+    for (const Xora2D::UUID& id : scene->GetEntityUUIDs()) {
+        const Xora2D::Entity entity = scene->FindEntityByUUID(id);
+        if (entity.HasComponent<Xora2D::TilemapComponent>() &&
+            entity.GetComponent<Xora2D::TilemapComponent>().Source == tilemap) {
+            SelectEntity(entity);
+            m_tilemapEditor.Enabled = true;
+            result.Success = true;
+            result.Message = "Editing tilemap '" + meta->Name + "' (entity '" + entity.GetName() + "')";
+            return result;
+        }
+    }
+    Xora2D::TilemapComponent data;
+    std::string name;
+    std::string error;
+    if (!Xora2D::TilemapSerializer::LoadAsset(Xora2D::ResolveAssetPath(meta->RelativePath), data, name, error)) {
+        result.Message = error;
+        return result;
+    }
+    data.Source = tilemap;
+    Xora2D::Entity entity = scene->CreateEntity(name.empty() ? meta->Name : name);
+    entity.AddComponent<Xora2D::TilemapComponent>() = std::move(data);
+    SelectEntity(entity);
+    m_tilemapEditor.Enabled = true;
+    result.Success = true;
+    result.Message = "Added tilemap '" + meta->Name + "' to the scene";
+    return result;
+}
+
+EditorSceneFileResult EditorContext::SaveTilemapAsset(Xora2D::Entity entity, const std::string& assetRelativePath) {
+    EditorSceneFileResult result{};
+    if (!entity.IsValid() || !entity.HasComponent<Xora2D::TilemapComponent>()) {
+        result.Message = "No tilemap selected";
+        return result;
+    }
+    if (IsPlayModeActive()) {
+        result.Message = "Stop Play mode first: runtime tilemaps are never saved";
+        return result;
+    }
+    auto& tilemap = entity.GetComponent<Xora2D::TilemapComponent>();
+    std::string relative = assetRelativePath;
+    bool overwrite = false;
+    if (relative.empty()) {
+        const Xora2D::AssetMetadata* meta = m_assetRegistry.FindByHandle(tilemap.Source);
+        if (meta == nullptr) {
+            result.Message = "This tilemap has no asset yet; choose a path";
+            return result;
+        }
+        relative = meta->RelativePath;
+        overwrite = true;
+    }
+    const std::optional<std::string> normalized = Xora2D::NormalizeAssetRelativePath(relative);
+    if (!normalized.has_value() || !Xora2D::IsSupportedTilemapExtension(*normalized)) {
+        result.Message = "Tilemap assets are Assets-relative *.tilemap.yaml paths";
+        return result;
+    }
+    std::string error;
+    if (!Xora2D::TilemapSerializer::SaveAsset(tilemap, entity.GetName(), Xora2D::ResolveAssetPath(*normalized), overwrite,
+                                              error)) {
+        result.Message = error;
+        return result;
+    }
+    const Xora2D::AssetResult registered = m_assetManager.RegisterTilemapAtRelativePath(*normalized, entity.GetName());
+    if (registered.Success) {
+        tilemap.Source = registered.Handle;
+        (void)PersistAssetRegistry();
+    }
+    NotifyContentChanged(ResourcePathFromAssetRelativePath(ParentResourceDirectory(*normalized)));
+    result.Success = true;
+    result.Message = "Saved tilemap asset Assets/" + *normalized;
+    return result;
+}
+
 EditorSceneFileResult EditorContext::SetStartupScene(const std::string& contentRelativePath) {
     EditorSceneFileResult result{};
     if (m_project == nullptr) {
@@ -465,6 +556,7 @@ void EditorContext::SetScene(const std::shared_ptr<Xora2D::Scene>& scene) {
     m_scene = scene;
     if (m_scene) {
         m_scene->SetAssetManager(&m_assetManager);
+        m_scene->GetPhysicsWorld().SetSimulationEnabled(false);
     }
     m_scenePath.clear();
     m_selection.OnSceneReplaced();

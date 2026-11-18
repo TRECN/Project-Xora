@@ -33,6 +33,9 @@ add_executable(Xora2D-Editor
     src/Panels/ContentBrowserPanel.cpp
     src/Panels/ConsolePanel.cpp
     src/Panels/ProjectSettingsPanel.cpp
+    src/Panels/TilemapEditorPanel.cpp
+    src/Panels/TilesetEditorPanel.cpp
+    src/Tilemap/TilemapEditorState.cpp
     src/Project/RecentProjects.cpp
     src/Project/ProjectManagerUI.cpp
 )

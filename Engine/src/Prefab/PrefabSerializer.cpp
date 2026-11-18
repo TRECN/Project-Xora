@@ -114,6 +114,13 @@ PrefabLoadResult PrefabSerializer::Parse(const std::string& yamlText, const std:
             CheckReference(assets, parsed.PythonScript->ScriptAsset, AssetType::PythonScript, "script", parsed.Tag,
                            result.MissingAssets);
         }
+        if (parsed.Tilemap.has_value()) {
+            CheckReference(assets, parsed.Tilemap->Tileset, AssetType::Tileset, "tileset", parsed.Tag,
+                           result.MissingAssets);
+            for (const TilemapLayer& layer : parsed.Tilemap->Layers) {
+                CheckReference(assets, layer.Tileset, AssetType::Tileset, "tileset", parsed.Tag, result.MissingAssets);
+            }
+        }
         if (parsed.Animation.has_value()) {
             CheckReference(assets, parsed.Animation->DefaultClip, AssetType::AnimationClip, "animation clip",
                            parsed.Tag, result.MissingAssets);

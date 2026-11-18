@@ -121,6 +121,12 @@ void EditorUI::RequestDeferredLayoutSave() {
 }
 
 void EditorUI::OnImGui(EditorContext& context, EditorApplication& application) {
+    if (const auto panelId = context.ConsumePanelRequest()) {
+        if (EditorPanel* panel = m_workspace.FindPanel(*panelId)) {
+            panel->SetVisible(true);
+            ImGui::SetWindowFocus(panel->GetTitle());
+        }
+    }
     for (const std::filesystem::path& file : m_projectDialog.ConsumeCompletedSelections()) {
         application.RequestOpenProject(file);
         break;
@@ -368,7 +374,8 @@ void EditorUI::DrawMainMenu(EditorContext& context, EditorApplication& applicati
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
-            for (const char* id : {"Viewport", "Hierarchy", "Inspector", "ContentBrowser", "Console", "ProjectSettings"}) {
+            for (const char* id : {"Viewport", "Hierarchy", "Inspector", "ContentBrowser", "Console", "ProjectSettings", "Tilemap",
+                                   "Tileset"}) {
                 if (EditorPanel* panel = m_workspace.FindPanel(id)) {
                     bool visible = panel->IsVisible();
                     if (ImGui::MenuItem(panel->GetTitle(), nullptr, visible)) {

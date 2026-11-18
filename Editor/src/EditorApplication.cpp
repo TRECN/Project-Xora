@@ -417,7 +417,11 @@ void EditorApplication::RenderSceneIntoTarget(Xora2D::ColorRenderTarget& target,
     target.Bind();
     GetRendererAPI().SetClearColor(clearColor);
     GetRendererAPI().Clear();
-    if (m_context.IsEditingPrefab()) {
+    if (const auto tileCamera = m_context.GetTilemapEditor().GetViewCamera(
+            m_context, static_cast<float>(target.GetWidth()), static_cast<float>(target.GetHeight()))) {
+        // Tile painting uses the editor camera (zoom / pan independent of the scene camera).
+        scene->OnRender(GetRenderer2D(), *tileCamera);
+    } else if (m_context.IsEditingPrefab()) {
         // Prefab content has no camera of its own: frame all of its entities.
         scene->OnRender(GetRenderer2D(), FramePrefabContent(*scene, static_cast<float>(target.GetWidth()),
                                                              static_cast<float>(target.GetHeight())));

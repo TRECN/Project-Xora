@@ -5,6 +5,9 @@
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Audio/AudioClip.h"
 #include "Xora2D/Audio/AudioEngine.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapSerializer.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include <stb_image.h>
 #include <yaml-cpp/yaml.h>
@@ -94,6 +97,80 @@ void GatherScene(const std::filesystem::path& file, AssetDetails& details) {
     } catch (const YAML::Exception& exception) {
         details.Error = std::string("Scene YAML is invalid: ") + exception.what();
     }
+}
+
+const Xora2D::AssetMetadata* FindInSnapshot(const std::vector<Xora2D::AssetMetadata>& registry, Xora2D::AssetHandle handle) {
+    for (const Xora2D::AssetMetadata& meta : registry) {
+        if (meta.Handle == handle) {
+            return &meta;
+        }
+    }
+    return nullptr;
+}
+
+// Worker-thread safe (no AssetManager access): parses the tileset and checks its texture against the snapshot.
+void GatherTileset(const std::filesystem::path& file, const std::vector<Xora2D::AssetMetadata>& registry,
+                   AssetDetails& details) {
+    const Xora2D::TilesetLoadResult load = Xora2D::TilesetSerializer::Load(file, nullptr);
+    if (!load.Success) {
+        details.Error = load.Message;
+        return;
+    }
+    const Xora2D::Tileset& tileset = *load.Loaded;
+    const Xora2D::TilesetSettings& settings = tileset.GetSettings();
+    TilesetDetails info{};
+    info.TilesetName = tileset.GetName();
+    info.TileWidth = settings.TileWidth;
+    info.TileHeight = settings.TileHeight;
+    info.Margin = settings.Margin;
+    info.Spacing = settings.Spacing;
+    info.Manual = settings.Mode == Xora2D::TilesetMode::Manual;
+    info.TextureWidth = settings.TextureWidth;
+    info.TextureHeight = settings.TextureHeight;
+    info.TileCount = tileset.GetTiles().size();
+    for (const Xora2D::TileDefinition& tile : tileset.GetTiles()) {
+        info.SolidTiles += tile.Collision == Xora2D::TileCollision::Solid ? 1 : 0;
+        info.OneWayTiles += tile.Collision == Xora2D::TileCollision::OneWay ? 1 : 0;
+    }
+    const Xora2D::AssetMetadata* texture = FindInSnapshot(registry, settings.Texture);
+    std::int32_t width = 0;
+    std::int32_t height = 0;
+    if (texture == nullptr) {
+        info.Texture = "missing texture " + settings.Texture.ToString();
+    } else if (!Xora2D::ReadImageSize(Xora2D::ResolveAssetPath(texture->RelativePath), width, height)) {
+        info.Texture = "Assets/" + texture->RelativePath + " (file missing)";
+    } else if (width != settings.TextureWidth || height != settings.TextureHeight) {
+        info.Texture = "Assets/" + texture->RelativePath + " (size changed: re-import the tileset)";
+    } else {
+        info.Texture = "Assets/" + texture->RelativePath;
+        info.TextureOk = true;
+    }
+    details.Tileset = std::move(info);
+}
+
+void GatherTilemap(const std::filesystem::path& file, const std::vector<Xora2D::AssetMetadata>& registry,
+                   AssetDetails& details) {
+    Xora2D::TilemapComponent tilemap;
+    std::string name;
+    std::string error;
+    if (!Xora2D::TilemapSerializer::LoadAsset(file, tilemap, name, error)) {
+        details.Error = error;
+        return;
+    }
+    TilemapDetails info{};
+    info.TilemapName = name;
+    info.TileWidth = tilemap.TileSize.x;
+    info.TileHeight = tilemap.TileSize.y;
+    info.TileCount = tilemap.GetTotalTileCount();
+    for (std::int32_t layer = 0; layer < static_cast<std::int32_t>(tilemap.Layers.size()); ++layer) {
+        info.Layers.push_back(tilemap.Layers[static_cast<std::size_t>(layer)].Name + " (" +
+                              std::to_string(tilemap.GetTileCount(layer)) + ")");
+    }
+    const Xora2D::AssetMetadata* tileset = FindInSnapshot(registry, tilemap.Tileset);
+    info.TilesetOk = tileset != nullptr && tileset->Type == Xora2D::AssetType::Tileset;
+    info.Tileset = info.TilesetOk ? "Assets/" + tileset->RelativePath
+                                  : (tilemap.Tileset.IsValid() ? "missing tileset " + tilemap.Tileset.ToString() : "none");
+    details.Tilemap = std::move(info);
 }
 
 // Worker-thread safe: reads the YAML only (no Scene / AssetManager access). Full validation happens on load.
@@ -257,6 +334,12 @@ AssetDetails GatherAssetDetails(const std::string& resourcePath,
         break;
     case ContentItemKind::Prefab:
         GatherPrefab(file, registrySnapshot, details);
+        break;
+    case ContentItemKind::Tileset:
+        GatherTileset(file, registrySnapshot, details);
+        break;
+    case ContentItemKind::Tilemap:
+        GatherTilemap(file, registrySnapshot, details);
         break;
     default:
         break;

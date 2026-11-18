@@ -118,6 +118,23 @@ bool IsSupportedPrefabExtension(const std::filesystem::path& path) {
     return lowered.ends_with(".prefab.yaml") && lowered.size() > std::string_view(".prefab.yaml").size();
 }
 
+namespace {
+bool HasCompoundExtension(const std::filesystem::path& path, std::string_view suffix) {
+    std::string lowered = path.filename().string();
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    return lowered.size() > suffix.size() && lowered.ends_with(suffix);
+}
+} // namespace
+
+bool IsSupportedTilesetExtension(const std::filesystem::path& path) {
+    return HasCompoundExtension(path, ".tileset.yaml");
+}
+
+bool IsSupportedTilemapExtension(const std::filesystem::path& path) {
+    return HasCompoundExtension(path, ".tilemap.yaml");
+}
+
 bool IsSupportedAnimationClipExtension(const std::filesystem::path& path) {
     const std::string filename = path.filename().string();
     std::string lowered = filename;

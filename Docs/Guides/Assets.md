@@ -12,7 +12,8 @@ Xora2D centralizes project assets through `AssetHandle`, `AssetRegistry`, and `A
 - **AssetHandle** — stable 64-bit id (`StableFromRelativePath` for deterministic handles, persisted in the registry). New assets get their handle from `AssetRegistry::AllocateHandleForPath`, which falls back to a deterministic alternate when a renamed/moved asset still owns the path-derived handle. Rename/move (`AssetRegistry::RelocateAssetPath`) preserves handles — see [AssetBrowser.md](AssetBrowser.md).
 - Supported audio extensions: `.wav` and `.mp3` (decoded by miniaudio).
 - **AssetType** — `Texture2D`, `Audio`, `PythonScript`, `AnimationClip`, `Prefab` (`.prefab.yaml`, see
-  [Prefabs.md](Prefabs.md)). `UnloadAll()` drops every cache, including animation clips and prefabs.
+  [Prefabs.md](Prefabs.md)), `Tileset` (`.tileset.yaml`) and `Tilemap` (`.tilemap.yaml`) (see
+  [Tilemaps.md](Tilemaps.md)). `UnloadAll()` drops every cache, including animation clips and prefabs.
 - **AssetMetadata** — handle, type, display name, relative path under `Resources/Assets/`, availability flag.
 
 ## Layout

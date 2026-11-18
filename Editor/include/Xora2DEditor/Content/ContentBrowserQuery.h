@@ -17,6 +17,7 @@ enum class ContentTypeFilter : std::uint8_t {
     Scenes,
     Animations,
     Prefabs,
+    Tilemaps,
     Missing,
     Count,
 };

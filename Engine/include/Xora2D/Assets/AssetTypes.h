@@ -11,6 +11,8 @@ enum class AssetType : std::uint8_t {
     PythonScript,
     AnimationClip,
     Prefab,
+    Tileset,
+    Tilemap,
 };
 
 } // namespace Xora2D

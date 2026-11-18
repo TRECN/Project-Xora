@@ -14,6 +14,11 @@
 #include "Xora2D/Renderer/Texture2D.h"
 #include "Xora2D/Scripting/ScriptTypes.h"
 
+#include "Xora2D/Assets/AssetPaths.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapSerializer.h"
+#include "Xora2D/Tilemap/Tileset.h"
+
 #include <imgui.h>
 
 #include <algorithm>
@@ -499,6 +504,128 @@ static void DrawAnimation(Xora2D::Entity entity, EditorContext& context) {
     ImGui::PopID();
 }
 
+static void DrawTilemap(Xora2D::Entity entity, EditorContext& context) {
+    if (!entity.HasComponent<Xora2D::TilemapComponent>()) {
+        return;
+    }
+    bool open = true;
+    if (DrawHeaderWithRemove("Tilemap", &open) && open) {
+        if (RemoveComponentFromEntity(*context.GetScene(), entity, SceneComponentKind::Tilemap) ==
+            EditorCommandStatus::Success) {
+            context.GetTilemapEditor().Enabled = false;
+            return;
+        }
+    }
+    if (!open) {
+        return;
+    }
+    auto& tilemap = entity.GetComponent<Xora2D::TilemapComponent>();
+    ImGui::PushID("Tilemap");
+    const Xora2D::AssetHandle tilesetBefore = tilemap.Tileset;
+    DrawAssetCombo("Tileset", tilemap.Tileset, Xora2D::AssetType::Tileset, context.GetAssetRegistry());
+    (void)AcceptAssetHandleDragDrop(tilemap.Tileset, Xora2D::AssetType::Tileset, context.GetAssetRegistry());
+    if (tilemap.Tileset != tilesetBefore) {
+        tilemap.MarkCollisionDirty();
+        if (tilemap.Tileset.IsValid() && context.GetAssetManager().LoadTileset(tilemap.Tileset).Success) {
+            const auto tileset = context.GetAssetManager().GetLoadedTileset(tilemap.Tileset);
+            tilemap.TileSize = {tileset->GetSettings().TileWidth, tileset->GetSettings().TileHeight};
+        }
+    }
+    int tileSize[2] = {tilemap.TileSize.x, tilemap.TileSize.y};
+    if (ImGui::DragInt2("Tile size (px)", tileSize, 0.25f, 1, 4096)) {
+        tilemap.TileSize = {std::clamp(tileSize[0], 1, 4096), std::clamp(tileSize[1], 1, 4096)};
+        tilemap.MarkCollisionDirty();
+    }
+    ImGui::SetItemTooltip("World size of one cell. Square by default; rectangular cells are allowed.");
+
+    if (!tilemap.Layers.empty()) {
+        const std::string preview = tilemap.IsValidLayer(tilemap.ActiveLayer)
+                                        ? tilemap.Layers[static_cast<std::size_t>(tilemap.ActiveLayer)].Name
+                                        : std::string("-");
+        if (ImGui::BeginCombo("Active layer", preview.c_str())) {
+            for (std::int32_t index = 0; index < static_cast<std::int32_t>(tilemap.Layers.size()); ++index) {
+                if (ImGui::Selectable((tilemap.Layers[static_cast<std::size_t>(index)].Name + "##" + std::to_string(index)).c_str(),
+                                      index == tilemap.ActiveLayer)) {
+                    tilemap.ActiveLayer = index;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::TreeNode("Layers")) {
+            for (std::int32_t index = static_cast<std::int32_t>(tilemap.Layers.size()) - 1; index >= 0; --index) {
+                Xora2D::TilemapLayer& layer = tilemap.Layers[static_cast<std::size_t>(index)];
+                ImGui::PushID(index);
+                ImGui::Checkbox("##Visible", &layer.Visible);
+                ImGui::SetItemTooltip("Visible");
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(80.0f);
+                ImGui::SliderFloat("##Opacity", &layer.Opacity, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine();
+                ImGui::Text("%s (%zu)", layer.Name.c_str(), tilemap.GetTileCount(index));
+                ImGui::PopID();
+            }
+            ImGui::TreePop();
+        }
+    }
+    ImGui::TextDisabled("%zu tiles in %zu layer(s)", tilemap.GetTotalTileCount(), tilemap.Layers.size());
+
+    if (ImGui::TreeNode("Collision")) {
+        bool changed = ImGui::Checkbox("Enabled", &tilemap.Collision.Enabled);
+        changed |= ImGui::DragFloat("Friction", &tilemap.Collision.Friction, 0.01f, 0.0f, 10.0f);
+        changed |= ImGui::DragFloat("Restitution", &tilemap.Collision.Restitution, 0.01f, 0.0f, 1.0f);
+        changed |= ImGui::InputScalar("Category bits", ImGuiDataType_U16, &tilemap.Collision.CategoryBits, nullptr, nullptr,
+                                      "%04X", ImGuiInputTextFlags_CharsHexadecimal);
+        changed |= ImGui::InputScalar("Mask bits", ImGuiDataType_U16, &tilemap.Collision.MaskBits, nullptr, nullptr, "%04X",
+                                      ImGuiInputTextFlags_CharsHexadecimal);
+        if (changed) {
+            tilemap.MarkCollisionDirty();
+        }
+        ImGui::TextDisabled("Solid / one-way tiles are set per tile in the tileset; layers opt in with 'Solid'.");
+        ImGui::TreePop();
+    }
+
+    // Tilemap asset (optional): the scene always stores the tiles; the asset is an explicit import / export.
+    const Xora2D::AssetMetadata* source = context.GetAssetRegistry().FindByHandle(tilemap.Source);
+    ImGui::TextDisabled("Asset: %s", source != nullptr ? ("Assets/" + source->RelativePath).c_str()
+                                                       : (tilemap.Source.IsValid() ? "(missing)" : "none"));
+    ImGui::BeginDisabled(context.IsPlayModeActive());
+    if (source != nullptr) {
+        if (ImGui::SmallButton("Save to Asset")) {
+            const auto saved = context.SaveTilemapAsset(entity);
+            context.GetTilemapEditor().Report(saved.Success, saved.Message);
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Reload from Asset")) {
+            Xora2D::TilemapComponent data;
+            std::string name;
+            std::string error;
+            if (Xora2D::TilemapSerializer::LoadAsset(Xora2D::ResolveAssetPath(source->RelativePath), data, name, error)) {
+                data.Source = tilemap.Source;
+                tilemap = std::move(data);
+                tilemap.MarkCollisionDirty();
+                context.GetTilemapEditor().Reset();
+                context.GetTilemapEditor().Report(true, "Reloaded from Assets/" + source->RelativePath);
+            } else {
+                context.GetTilemapEditor().Report(false, error);
+            }
+        }
+        ImGui::SameLine();
+    }
+    if (ImGui::SmallButton("Save As Asset...")) {
+        const auto saved = context.SaveTilemapAsset(entity, "Tilemaps/" + entity.GetName() + ".tilemap.yaml");
+        context.GetTilemapEditor().Report(saved.Success, saved.Message);
+    }
+    ImGui::EndDisabled();
+
+    ImGui::BeginDisabled(context.IsPlayModeActive());
+    if (ImGui::Button("Open Tilemap Editor")) {
+        context.GetTilemapEditor().Enabled = true;
+        context.RequestPanel("Tilemap");
+    }
+    ImGui::EndDisabled();
+    ImGui::PopID();
+}
+
 static void DrawAddComponentEntry(const char* label, SceneComponentKind kind, Xora2D::Entity entity, EditorContext& context) {
     const bool canAdd = CanAddComponent(entity, kind);
     if (!canAdd) {
@@ -551,6 +678,7 @@ void DrawEntityInspector(Xora2D::Entity entity, EditorContext& context) {
     DrawPythonScript(entity, context);
 #endif
     DrawAnimation(entity, context);
+    DrawTilemap(entity, context);
 
     ImGui::Spacing();
     DrawAddComponentMenu(entity, context);
@@ -577,6 +705,7 @@ void DrawAddComponentMenu(Xora2D::Entity entity, EditorContext& context) {
         DrawAddComponentEntry("Python Script", SceneComponentKind::PythonScript, entity, context);
 #endif
         DrawAddComponentEntry("Animation", SceneComponentKind::Animation, entity, context);
+        DrawAddComponentEntry("Tilemap", SceneComponentKind::Tilemap, entity, context);
         ImGui::EndPopup();
     }
     ImGui::PopID();

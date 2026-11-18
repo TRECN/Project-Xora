@@ -8,6 +8,8 @@
 #include "Xora2DEditor/Panels/InspectorPanel.h"
 #include "Xora2DEditor/Panels/ProjectSettingsPanel.h"
 #include "Xora2DEditor/Panels/SceneHierarchyPanel.h"
+#include "Xora2DEditor/Panels/TilemapEditorPanel.h"
+#include "Xora2DEditor/Panels/TilesetEditorPanel.h"
 #include "Xora2DEditor/Panels/ViewportPanel.h"
 
 #include <cmath>
@@ -25,6 +27,8 @@ void EditorLayer::BuildDefaultPanels() {
     m_workspace.RegisterPanel(CreateContentBrowserPanel());
     m_workspace.RegisterPanel(std::make_unique<ConsolePanel>());
     m_workspace.RegisterPanel(std::make_unique<ProjectSettingsPanel>());
+    m_workspace.RegisterPanel(std::make_unique<TilemapEditorPanel>());
+    m_workspace.RegisterPanel(std::make_unique<TilesetEditorPanel>());
 }
 
 void EditorLayer::Attach(EditorContext& context) {

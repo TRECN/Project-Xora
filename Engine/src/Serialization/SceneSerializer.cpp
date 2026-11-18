@@ -16,6 +16,7 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Tilemap/TilemapSerializer.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -537,6 +538,16 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.Animation = animation;
     }
 
+    if (const YAML::Node tilemapNode = node["TilemapComponent"]) {
+        TilemapComponent tilemap{};
+        std::string tilemapError;
+        if (!TilemapSerializer::ParseBody(tilemapNode, tilemap, tilemapError)) {
+            error = PathContext(filepath) + ": entity " + output.Id.ToString() + " TilemapComponent: " + tilemapError;
+            return false;
+        }
+        output.Tilemap = std::move(tilemap);
+    }
+
     if (const YAML::Node prefabNode = node["PrefabInstance"]) {
         PrefabInstanceComponent link{};
         const auto readUuid = [&](const char* key, UUID& target) {
@@ -705,6 +716,9 @@ Entity ApplyEntity(Scene& scene, const ParsedEntity& parsed, const UUID& id, Ass
     }
     if (parsed.PrefabInstance.has_value()) {
         entity.AddComponent<PrefabInstanceComponent>() = *parsed.PrefabInstance;
+    }
+    if (parsed.Tilemap.has_value()) {
+        entity.AddComponent<TilemapComponent>() = *parsed.Tilemap;
     }
     return entity;
 }
@@ -878,6 +892,12 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity, bool includePrefab
         emitter << YAML::EndMap;
     }
 
+    if (entity.HasComponent<TilemapComponent>()) {
+        emitter << YAML::Key << "TilemapComponent" << YAML::Value << YAML::BeginMap;
+        TilemapSerializer::EmitBody(emitter, entity.GetComponent<TilemapComponent>());
+        emitter << YAML::EndMap;
+    }
+
     if (includePrefabLink && entity.HasComponent<PrefabInstanceComponent>()) {
         const PrefabInstanceComponent& link = entity.GetComponent<PrefabInstanceComponent>();
         emitter << YAML::Key << "PrefabInstance" << YAML::Value << YAML::BeginMap;
@@ -982,6 +1002,14 @@ SceneSerializeResult SceneSerializer::Deserialize(Scene& scene, const std::files
     }
     std::vector<std::string> warnings;
     if (assetManager != nullptr) {
+        // Tilemaps: missing tilesets / textures and undefined tile ids are reported, never fatal.
+        for (const ParsedEntity& parsed : document.Entities) {
+            if (parsed.Tilemap.has_value()) {
+                for (const std::string& warning : TilemapSerializer::ValidateReferences(*parsed.Tilemap, *assetManager)) {
+                    warnings.push_back(PathContext(filepath) + ": tilemap '" + parsed.Tag + "': " + warning);
+                }
+            }
+        }
         std::unordered_set<AssetHandle> reported;
         for (const ParsedEntity& parsed : document.Entities) {
             if (!parsed.PrefabInstance.has_value()) {

@@ -23,6 +23,9 @@ bool IsSupportedAnimationClipExtension(const std::filesystem::path& path);
 bool IsSupportedSceneExtension(const std::filesystem::path& path);
 // "*.prefab.yaml"
 bool IsSupportedPrefabExtension(const std::filesystem::path& path);
+// "*.tileset.yaml" / "*.tilemap.yaml"
+bool IsSupportedTilesetExtension(const std::filesystem::path& path);
+bool IsSupportedTilemapExtension(const std::filesystem::path& path);
 
 // Rejects paths outside `root` (no .. escape).
 [[nodiscard]] bool IsAbsolutePathWithinRoot(const std::filesystem::path& absolute,

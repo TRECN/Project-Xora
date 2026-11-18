@@ -9,6 +9,7 @@
 #include "Xora2D/Scripting/PythonScriptAsset.h"
 #include "Xora2D/Prefab/Prefab.h"
 #include "Xora2D/Prefab/PrefabSerializer.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include <filesystem>
 #include <fstream>
@@ -563,6 +564,100 @@ AssetResult AssetManager::RegisterPrefabAtRelativePath(const std::string& normal
     return result;
 }
 
+AssetResult AssetManager::RegisterTypedAsset(const std::string& normalizedRelativePath, const std::string& displayName,
+                                             AssetType type, bool (*extensionCheck)(const std::filesystem::path&),
+                                             const char* expected) {
+    AssetResult result{};
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(normalizedRelativePath);
+    if (!normalized.has_value()) {
+        result.Message = "Invalid relative asset path";
+        return result;
+    }
+    if (const AssetMetadata* existing = m_registry.FindByRelativePath(*normalized)) {
+        result.Success = existing->Type == type;
+        result.Handle = existing->Handle;
+        result.Message = result.Success ? "Asset already registered" : "Path is registered as another asset type";
+        return result;
+    }
+    const std::filesystem::path absolute = ResolveAssetPath(*normalized);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Asset file does not exist: " + absolute.string();
+        return result;
+    }
+    if (!extensionCheck(absolute)) {
+        result.Message = std::string("Unsupported extension (expected ") + expected + ")";
+        return result;
+    }
+    AssetMetadata metadata{};
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
+    metadata.Type = type;
+    metadata.Name = displayName.empty() ? absolute.stem().stem().string() : displayName;
+    metadata.RelativePath = *normalized;
+    if (m_registry.Contains(metadata.Handle) || !m_registry.RegisterAsset(metadata)) {
+        result.Message = "Failed to register asset metadata";
+        return result;
+    }
+    result.Success = true;
+    result.Handle = metadata.Handle;
+    return result;
+}
+
+AssetResult AssetManager::RegisterTilesetAtRelativePath(const std::string& normalizedRelativePath,
+                                                        const std::string& displayName) {
+    return RegisterTypedAsset(normalizedRelativePath, displayName, AssetType::Tileset, &IsSupportedTilesetExtension,
+                              ".tileset.yaml");
+}
+
+AssetResult AssetManager::RegisterTilemapAtRelativePath(const std::string& normalizedRelativePath,
+                                                        const std::string& displayName) {
+    return RegisterTypedAsset(normalizedRelativePath, displayName, AssetType::Tilemap, &IsSupportedTilemapExtension,
+                              ".tilemap.yaml");
+}
+
+AssetResult AssetManager::LoadTileset(AssetHandle handle) {
+    return LoadTilesetInternal(handle, false);
+}
+
+AssetResult AssetManager::LoadTilesetInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    const AssetMetadata* metadata = handle.IsValid() ? m_registry.FindByHandle(handle) : nullptr;
+    if (metadata == nullptr || metadata->Type != AssetType::Tileset) {
+        result.Message = "Tileset " + handle.ToString() + " is not registered";
+        return result;
+    }
+    if (!forceReload && m_tilesetCache.contains(handle)) {
+        result.Success = true;
+        result.Handle = handle;
+        return result;
+    }
+    if (!forceReload) {
+        if (const auto failed = m_failedTilesets.find(handle); failed != m_failedTilesets.end()) {
+            result.Message = failed->second;
+            return result;
+        }
+    }
+    const TilesetLoadResult load = TilesetSerializer::Load(ResolveAssetPath(metadata->RelativePath), this);
+    if (!load.Success) {
+        result.Message = load.Message;
+        m_failedTilesets[handle] = load.Message;
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+    m_failedTilesets.erase(handle);
+    for (const std::string& warning : load.Warnings) {
+        XORA_LOG_WARN("Tileset '{}': {}", metadata->Name, warning);
+    }
+    m_tilesetCache[handle] = load.Loaded;
+    result.Success = true;
+    result.Handle = handle;
+    return result;
+}
+
+std::shared_ptr<const Tileset> AssetManager::GetLoadedTileset(AssetHandle handle) const {
+    const auto found = m_tilesetCache.find(handle);
+    return found == m_tilesetCache.end() ? nullptr : found->second;
+}
+
 AssetResult AssetManager::LoadPrefab(AssetHandle handle) {
     return LoadPrefabInternal(handle, false);
 }
@@ -606,7 +701,7 @@ std::shared_ptr<const Prefab> AssetManager::GetLoadedPrefab(AssetHandle handle) 
 
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
     return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle) ||
-           m_animationClipCache.contains(handle) || m_prefabCache.contains(handle);
+           m_animationClipCache.contains(handle) || m_prefabCache.contains(handle) || m_tilesetCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
@@ -615,12 +710,17 @@ void AssetManager::UnloadAsset(AssetHandle handle) {
     m_scriptCache.erase(handle);
     m_animationClipCache.erase(handle);
     m_prefabCache.erase(handle);
+    m_tilesetCache.erase(handle);
+    m_failedTilesets.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
     const AssetMetadata* metadata = m_registry.FindByHandle(handle);
     if (metadata != nullptr && metadata->Type == AssetType::Prefab) {
         return LoadPrefabInternal(handle, true);
+    }
+    if (metadata != nullptr && metadata->Type == AssetType::Tileset) {
+        return LoadTilesetInternal(handle, true);
     }
     return LoadTextureInternal(handle, true);
 }
@@ -632,6 +732,8 @@ void AssetManager::UnloadAll() {
     // Path-derived handles repeat across projects: every cache must be dropped on a project switch.
     m_animationClipCache.clear();
     m_prefabCache.clear();
+    m_tilesetCache.clear();
+    m_failedTilesets.clear();
 }
 
 void AssetManager::PrepareShutdown() {

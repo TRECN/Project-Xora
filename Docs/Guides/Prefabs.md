@@ -130,7 +130,7 @@ Overrides use an **explicit list of property paths**:
   `Sprite.Visible`, `Sprite.Size`, `Sprite.Texture`.
 - **Whole-component properties**, covering every serialized field and whether the component exists: `Sprite`,
   `Camera`, `RigidBody2D`, `BoxCollider2D`, `CircleCollider2D`, `AudioSource`, `AudioListener`, `PythonScript`,
-  `Animation`.
+  `Animation`, `Tilemap` (Milestone 19; tile painting on an instance marks it).
 
 An edit to a fine property marks that property. Any other edit inside a component (for example TilingFactor or a
 collider size), or adding or removing a component, marks the whole component. No instance change is ever untracked.

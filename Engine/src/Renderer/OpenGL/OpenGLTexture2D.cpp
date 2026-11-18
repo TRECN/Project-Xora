@@ -78,6 +78,9 @@ private:
 
 std::unique_ptr<Texture2D> Texture2D::CreateFromFile(const std::string& path) {
     stbi_set_flip_vertically_on_load(1);
+    // Also set this thread's override: other decoders (e.g. editor thumbnails) set a per-thread "no flip", which
+    // would otherwise win over the global flag and load textures upside down on that thread.
+    stbi_set_flip_vertically_on_load_thread(1);
 
     int width = 0;
     int height = 0;

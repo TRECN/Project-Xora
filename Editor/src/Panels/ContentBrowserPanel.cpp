@@ -14,6 +14,7 @@
 
 #include "Xora2D/Core/Paths.h"
 #include "Xora2D/Prefab/PrefabUtility.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include <imgui.h>
 
@@ -53,6 +54,10 @@ ImU32 KindColor(ContentItemKind kind) {
         return IM_COL32(181, 206, 108, 255);
     case ContentItemKind::Prefab:
         return IM_COL32(64, 196, 255, 255);
+    case ContentItemKind::Tileset:
+        return IM_COL32(236, 140, 64, 255);
+    case ContentItemKind::Tilemap:
+        return IM_COL32(120, 200, 120, 255);
     default:
         return IM_COL32(130, 136, 150, 255);
     }
@@ -72,6 +77,10 @@ const char* KindBadge(const ContentBrowserEntry& entry) {
         return "ANIM";
     case ContentItemKind::Prefab:
         return "PREFAB";
+    case ContentItemKind::Tileset:
+        return "TILESET";
+    case ContentItemKind::Tilemap:
+        return "TILEMAP";
     default:
         return "FILE";
     }
@@ -125,6 +134,17 @@ void DrawFileIcon(ImDrawList* drawList, ImVec2 min, float size, const ContentBro
     const ImVec2 pageMax(min.x + size - pad, min.y + size - pad * 0.6f);
     drawList->AddRectFilled(pageMin, pageMax, IM_COL32(52, 56, 66, 255), 4.0f);
     drawList->AddRect(pageMin, pageMax, KindColor(entry.Kind), 4.0f, 0, 1.5f);
+    if (entry.Kind == ContentItemKind::Tilemap) {
+        // Distinct tilemap glyph: a 3x3 tile grid.
+        const float cell = (pageMax.x - pageMin.x - 16.0f) / 3.0f;
+        for (int y = 0; y < 3; ++y) {
+            for (int x = 0; x < 3; ++x) {
+                const ImVec2 min(pageMin.x + 8.0f + static_cast<float>(x) * cell, pageMin.y + 8.0f + static_cast<float>(y) * cell);
+                const ImU32 color = (x + y) % 2 == 0 ? IM_COL32(120, 200, 120, 255) : IM_COL32(80, 150, 90, 255);
+                drawList->AddRectFilled(min, ImVec2(min.x + cell - 2.0f, min.y + cell - 2.0f), color, 1.0f);
+            }
+        }
+    }
     if (entry.Kind == ContentItemKind::Prefab) {
         // Distinct prefab glyph: an isometric cube.
         const float cx = (pageMin.x + pageMax.x) * 0.5f;
@@ -616,9 +636,31 @@ private:
         if (entry.Kind == ContentItemKind::Folder) {
             DrawFolderIcon(drawList, iconMin, thumb, KindColor(entry.Kind));
             drewThumbnail = true;
-        } else if (entry.Kind == ContentItemKind::Texture && !entry.IsMissing()) {
-            const AssetThumbnailCache::View view = context.GetThumbnailCache().Request(
-                entry.ResourceRelativePath, ResolveResourceRelativePath(entry.ResourceRelativePath), entry.LastModified);
+        } else if ((entry.Kind == ContentItemKind::Texture || entry.Kind == ContentItemKind::Tileset) &&
+                   !entry.IsMissing()) {
+            // Tilesets preview their source texture (with a tile grid drawn on top below).
+            std::string thumbnailKey = entry.ResourceRelativePath;
+            std::filesystem::path thumbnailFile = ResolveResourceRelativePath(entry.ResourceRelativePath);
+            std::filesystem::file_time_type thumbnailTime = entry.LastModified;
+            const Xora2D::Tileset* tileset = nullptr;
+            if (entry.Kind == ContentItemKind::Tileset) {
+                thumbnailFile.clear();
+                if (entry.RegisteredHandle.has_value() &&
+                    context.GetAssetManager().LoadTileset(*entry.RegisteredHandle).Success) {
+                    tileset = context.GetAssetManager().GetLoadedTileset(*entry.RegisteredHandle).get();
+                    if (const auto* textureMeta = context.GetAssetRegistry().FindByHandle(tileset->GetSettings().Texture)) {
+                        thumbnailKey = ResourcePathFromAssetRelativePath(textureMeta->RelativePath);
+                        thumbnailFile = ResolveResourceRelativePath(thumbnailKey);
+                        std::error_code timeError;
+                        thumbnailTime = std::filesystem::last_write_time(thumbnailFile, timeError);
+                    }
+                }
+            }
+            AssetThumbnailCache::View view{};
+            view.Status = AssetThumbnailCache::State::Failed;
+            if (!thumbnailFile.empty()) {
+                view = context.GetThumbnailCache().Request(thumbnailKey, thumbnailFile, thumbnailTime);
+            }
             if (view.Status == AssetThumbnailCache::State::Ready && view.Width > 0 && view.Height > 0) {
                 // Preserve aspect ratio inside the square tile.
                 const float scale = std::min(thumb / static_cast<float>(view.Width), thumb / static_cast<float>(view.Height));
@@ -626,6 +668,24 @@ private:
                 const ImVec2 min(iconMin.x + (thumb - size.x) * 0.5f, iconMin.y + (thumb - size.y) * 0.5f);
                 drawList->AddRectFilled(min, ImVec2(min.x + size.x, min.y + size.y), IM_COL32(40, 42, 50, 255));
                 drawList->AddImage(ToTextureId(view.RendererId), min, ImVec2(min.x + size.x, min.y + size.y));
+                if (tileset != nullptr && view.SourceWidth > 0) {
+                    // Tile grid over the preview + badge, so tilesets are distinct from plain textures.
+                    const float pixel = size.x / static_cast<float>(view.SourceWidth);
+                    if (pixel * static_cast<float>(tileset->GetSettings().TileWidth) >= 4.0f) {
+                        for (const Xora2D::TileDefinition& tile : tileset->GetTiles()) {
+                            const ImVec2 a(min.x + static_cast<float>(tile.Region.X) * pixel, min.y + static_cast<float>(tile.Region.Y) * pixel);
+                            drawList->AddRect(a, ImVec2(a.x + static_cast<float>(tile.Region.Width) * pixel,
+                                                        a.y + static_cast<float>(tile.Region.Height) * pixel),
+                                              IM_COL32(255, 255, 255, 60));
+                        }
+                    }
+                    const char* badge = "TILESET";
+                    const ImVec2 badgeSize = ImGui::CalcTextSize(badge);
+                    const ImVec2 badgeMin(iconMin.x + 2.0f, iconMin.y + thumb - badgeSize.y - 4.0f);
+                    drawList->AddRectFilled(badgeMin, ImVec2(badgeMin.x + badgeSize.x + 6.0f, badgeMin.y + badgeSize.y + 2.0f),
+                                            KindColor(ContentItemKind::Tileset), 3.0f);
+                    drawList->AddText(ImVec2(badgeMin.x + 3.0f, badgeMin.y + 1.0f), IM_COL32(20, 22, 28, 255), badge);
+                }
                 drewThumbnail = true;
             } else if (view.Status == AssetThumbnailCache::State::Pending) {
                 DrawFileIcon(drawList, iconMin, thumb, entry);
@@ -762,6 +822,17 @@ private:
             m_openScenePath = entry.ResourceRelativePath;
             m_openSceneConfirm = true;
         }
+        if (doubleClicked && entry.Kind == ContentItemKind::Tileset && !entry.IsMissing() && entry.RegisteredHandle.has_value()) {
+            context.RequestTilesetEditor({*entry.RegisteredHandle, {}});
+        }
+        if (doubleClicked && entry.Kind == ContentItemKind::Tilemap && !entry.IsMissing() &&
+            entry.RegisteredHandle.has_value()) {
+            const EditorSceneFileResult open = context.OpenTilemapAsset(*entry.RegisteredHandle);
+            SetStatus(open.Message, open.Success ? Severity::Success : Severity::Error);
+            if (open.Success) {
+                context.RequestPanel("Tilemap");
+            }
+        }
         if (doubleClicked && entry.Kind == ContentItemKind::Prefab && !entry.IsMissing() &&
             entry.RegisteredHandle.has_value() && !context.IsPlayModeActive()) {
             const EditorSceneFileResult open = context.OpenPrefabEditor(*entry.RegisteredHandle);
@@ -869,6 +940,25 @@ private:
         }
         if (ImGui::MenuItem("Show in Inspector")) {
             context.SelectContentItem(entry);
+        }
+        if (entry.Kind == ContentItemKind::Texture && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+            if (ImGui::MenuItem("Create Tileset...")) {
+                context.RequestTilesetEditor({{}, *entry.RegisteredHandle});
+            }
+        }
+        if (entry.Kind == ContentItemKind::Tileset && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+            if (ImGui::MenuItem("Edit Tileset")) {
+                context.RequestTilesetEditor({*entry.RegisteredHandle, {}});
+            }
+        }
+        if (entry.Kind == ContentItemKind::Tilemap && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+            if (ImGui::MenuItem("Open in Tilemap Editor", nullptr, false, !context.IsPlayModeActive())) {
+                const EditorSceneFileResult open = context.OpenTilemapAsset(*entry.RegisteredHandle);
+                SetStatus(open.Message, open.Success ? Severity::Success : Severity::Error);
+                if (open.Success) {
+                    context.RequestPanel("Tilemap");
+                }
+            }
         }
         if (entry.Kind == ContentItemKind::Prefab && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
             if (ImGui::MenuItem("Instantiate in Scene", nullptr, false, !context.IsEditingPrefab())) {

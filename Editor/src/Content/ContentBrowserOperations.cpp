@@ -16,6 +16,9 @@
 #include "Xora2D/Prefab/PrefabComponents.h"
 #include "Xora2D/Prefab/Prefab.h"
 #include "Xora2D/Prefab/PrefabSerializer.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapSerializer.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -448,7 +451,8 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
     }
 
     for (const std::string_view extension :
-         {std::string_view(".scene.yaml"), std::string_view(".anim.yaml"), std::string_view(".prefab.yaml")}) {
+         {std::string_view(".scene.yaml"), std::string_view(".anim.yaml"), std::string_view(".prefab.yaml"),
+          std::string_view(".tileset.yaml"), std::string_view(".tilemap.yaml")}) {
         for (const std::string& file : FindProjectFiles(extension)) {
             YAML::Node root;
             try {
@@ -457,7 +461,8 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
                 continue;
             }
             // Scenes and prefabs share the entity format (scene PrefabInstance blocks reference prefab handles).
-            if (extension != ".anim.yaml" && root["Entities"] && root["Entities"].IsSequence()) {
+            if ((extension == ".scene.yaml" || extension == ".prefab.yaml") && root["Entities"] &&
+                root["Entities"].IsSequence()) {
                 for (const YAML::Node& entity : root["Entities"]) {
                     if (!entity.IsMap()) {
                         continue;
@@ -517,6 +522,14 @@ std::vector<AssetReference> FindAssetReferences(const std::vector<Xora2D::AssetH
             }
             if (entity.HasComponent<Xora2D::PrefabInstanceComponent>()) {
                 add(entity.GetComponent<Xora2D::PrefabInstanceComponent>().Prefab, "Prefab instance", tag);
+            }
+            if (entity.HasComponent<Xora2D::TilemapComponent>()) {
+                const auto& tilemap = entity.GetComponent<Xora2D::TilemapComponent>();
+                add(tilemap.Tileset, "Tilemap (tileset)", tag);
+                add(tilemap.Source, "Tilemap (asset)", tag);
+                for (const Xora2D::TilemapLayer& layer : tilemap.Layers) {
+                    add(layer.Tileset, "Tilemap layer (tileset)", tag);
+                }
             }
             if (entity.HasComponent<Xora2D::AnimationComponent>()) {
                 const auto& animation = entity.GetComponent<Xora2D::AnimationComponent>();
@@ -610,6 +623,33 @@ FilesystemOperationResult RegisterExistingFile(const std::string& resourceRelati
     std::error_code errorCode;
     if (absolute.empty() || !std::filesystem::is_regular_file(absolute, errorCode)) {
         return Fail("File does not exist");
+    }
+    if (Xora2D::IsSupportedTilesetExtension(absolute) || Xora2D::IsSupportedTilemapExtension(absolute)) {
+        const bool isTileset = Xora2D::IsSupportedTilesetExtension(absolute);
+        std::string validation;
+        if (isTileset) {
+            const Xora2D::TilesetLoadResult check = Xora2D::TilesetSerializer::Load(absolute, &assetManager);
+            validation = check.Success ? std::string{} : check.Message;
+        } else {
+            Xora2D::TilemapComponent data;
+            std::string name;
+            if (!Xora2D::TilemapSerializer::LoadAsset(absolute, data, name, validation)) {
+                validation = validation.empty() ? "invalid tilemap" : validation;
+            } else {
+                validation.clear();
+            }
+        }
+        if (!validation.empty()) {
+            return Fail(std::string(isTileset ? "Invalid tileset: " : "Invalid tilemap: ") + validation);
+        }
+        const std::string relative = *AssetRelativePathFromResourcePath(*path);
+        const Xora2D::AssetResult registered = isTileset ? assetManager.RegisterTilesetAtRelativePath(relative)
+                                                         : assetManager.RegisterTilemapAtRelativePath(relative);
+        FilesystemOperationResult result{};
+        result.Success = registered.Success;
+        result.Message = registered.Success ? (isTileset ? "Tileset registered" : "Tilemap registered") : registered.Message;
+        result.ResultPath = *path;
+        return result;
     }
     if (Xora2D::IsSupportedPrefabExtension(absolute)) {
         // Prefab files already inside the project (copied in, or registry entry lost) are registered in place after

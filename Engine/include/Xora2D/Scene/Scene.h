@@ -6,6 +6,7 @@
 
 #include "Xora2D/Animation/AnimationEvents.h"
 #include "Xora2D/Physics/PhysicsEvents.h"
+#include "Xora2D/Tilemap/TilemapRendering.h"
 
 #include <cstdint>
 #include <functional>
@@ -63,6 +64,8 @@ public:
     void OnRender(Renderer2D& renderer);
     // Renders with an explicit camera instead of the scene's primary camera (e.g. editor views of prefab content).
     void OnRender(Renderer2D& renderer, const OrthographicCamera& camera);
+    // Tilemap work done by the last OnRender (chunks drawn / culled / rebuilt).
+    [[nodiscard]] const TilemapRenderStats& GetTilemapRenderStats() const { return m_tilemapStats; }
 
     // Stops physics simulation and suppresses gameplay collision callbacks (e.g. on application quit).
     void PrepareForShutdown();
@@ -141,6 +144,7 @@ private:
     std::unique_ptr<SceneAudioSystem> m_audioSystem;
     std::unique_ptr<ScenePythonScriptSystem> m_scriptSystem;
     std::unique_ptr<SceneAnimationSystem> m_animationSystem;
+    TilemapRenderStats m_tilemapStats;
 };
 
 } // namespace Xora2D

@@ -6,6 +6,10 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Assets/AssetManager.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapRendering.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_circle_shape.h>
@@ -15,6 +19,7 @@
 #include <box2d/b2_world.h>
 
 #include <entt/entt.hpp>
+#include <glm/common.hpp>
 
 #include "Scene/SceneRegistry.h"
 
@@ -24,6 +29,7 @@
 #include <limits>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Xora2D {
 namespace {
@@ -48,6 +54,32 @@ b2BodyType ToBoxBodyType(RigidBodyType2D type) {
     return b2_dynamicBody;
 }
 
+// Fixture user data marking one-way platform fixtures of tilemaps.
+constexpr std::uintptr_t kOneWayFixtureTag = 0x0E7A0001u;
+
+// Lowest / highest world Y of a fixture's shape (exact, unlike the fattened broad-phase AABB).
+float FixtureExtentY(const b2Fixture& fixture, bool top) {
+    const b2Transform& transform = fixture.GetBody()->GetTransform();
+    const b2Shape* shape = fixture.GetShape();
+    if (shape->GetType() == b2Shape::e_circle) {
+        const auto* circle = static_cast<const b2CircleShape*>(shape);
+        const b2Vec2 center = b2Mul(transform, circle->m_p);
+        return top ? center.y + circle->m_radius : center.y - circle->m_radius;
+    }
+    if (shape->GetType() == b2Shape::e_polygon) {
+        const auto* polygon = static_cast<const b2PolygonShape*>(shape);
+        float extent = top ? -std::numeric_limits<float>::max() : std::numeric_limits<float>::max();
+        for (int index = 0; index < polygon->m_count; ++index) {
+            const float y = b2Mul(transform, polygon->m_vertices[index]).y;
+            extent = top ? std::max(extent, y) : std::min(extent, y);
+        }
+        return extent;
+    }
+    b2AABB aabb;
+    shape->ComputeAABB(&aabb, transform, 0);
+    return top ? aabb.upperBound.y : aabb.lowerBound.y;
+}
+
 struct QueuedContact {
     std::uint32_t HandleA = Entity::kInvalidHandle;
     std::uint32_t HandleB = Entity::kInvalidHandle;
@@ -68,6 +100,25 @@ public:
             return;
         }
         Queue.push_back(MakeQueued(*contact, PhysicsCollisionPhase::Begin));
+    }
+
+    // One-way tilemap platforms: only collide with bodies coming from above.
+    void PreSolve(b2Contact* contact, const b2Manifold* /*oldManifold*/) override {
+        b2Fixture* fixtureA = contact->GetFixtureA();
+        b2Fixture* fixtureB = contact->GetFixtureB();
+        const bool platformIsA = fixtureA->GetUserData().pointer == kOneWayFixtureTag;
+        const bool platformIsB = fixtureB->GetUserData().pointer == kOneWayFixtureTag;
+        if (platformIsA == platformIsB) {
+            return;
+        }
+        const b2Fixture& platform = platformIsA ? *fixtureA : *fixtureB;
+        const b2Fixture& other = platformIsA ? *fixtureB : *fixtureA;
+        const float platformTop = FixtureExtentY(platform, true);
+        const float otherBottom = FixtureExtentY(other, false);
+        const float tolerance = 0.05f; // meters
+        if (other.GetBody()->GetLinearVelocity().y > 0.01f || otherBottom < platformTop - tolerance) {
+            contact->SetEnabled(false);
+        }
     }
 
     void EndContact(b2Contact* contact) override {
@@ -103,6 +154,21 @@ private:
 
 struct BodyRecord {
     b2Body* Body = nullptr;
+};
+
+struct TilemapChunkFixtures {
+    bool Built = false;
+    std::uint64_t Signature = 0;
+    std::vector<b2Fixture*> Fixtures;
+};
+
+struct TilemapBodyRecord {
+    b2Body* Body = nullptr;
+    std::unordered_map<std::uint64_t, TilemapChunkFixtures> Chunks;
+    // Settings the fixtures were built with; any change rebuilds every chunk.
+    TilemapCollisionSettings Settings;
+    glm::ivec2 TileSize{0};
+    glm::vec2 Scale{1.0f};
 };
 
 struct EntityContactPairKey {
@@ -144,6 +210,8 @@ struct PhysicsWorld2D::Impl {
     std::unique_ptr<b2World> World;
     ContactListener Listener;
     std::unordered_map<std::uint32_t, BodyRecord> Bodies;
+    std::unordered_map<std::uint32_t, TilemapBodyRecord> Tilemaps;
+    std::uint64_t TilemapChunkRebuilds = 0;
     std::unordered_map<EntityContactPairKey, std::uint32_t, EntityContactPairKeyHash> EntityContactDepth;
     float Accumulator = 0.0f;
     bool SimulationEnabled = true;
@@ -169,6 +237,12 @@ PhysicsWorld2D::~PhysicsWorld2D() {
             }
         }
         m_impl->Bodies.clear();
+        for (auto& pair : m_impl->Tilemaps) {
+            if (pair.second.Body != nullptr) {
+                m_impl->World->DestroyBody(pair.second.Body);
+            }
+        }
+        m_impl->Tilemaps.clear();
     }
 }
 
@@ -316,6 +390,123 @@ struct PhysicsWorld2DDetail {
         }
     }
 
+    // One static body per tilemap; fixtures are tracked per chunk and rebuilt only for chunks whose collision
+    // signature changed (see TilemapComponent::CollisionSignature). Adjacent cells are merged into rectangles.
+    static void SyncTilemapBodies(Scene& scene, PhysicsWorld2D::Impl& impl) {
+        auto& registry = scene.m_registry->Registry;
+        const float ppm = impl.Settings.PixelsPerMeter;
+        AssetManager* assets = scene.m_assetManager;
+        const auto getTileset = [assets](AssetHandle handle) -> const Tileset* {
+            if (assets == nullptr || !handle.IsValid() || !assets->LoadTileset(handle).Success) {
+                return nullptr;
+            }
+            return assets->GetLoadedTileset(handle).get();
+        };
+
+        std::unordered_set<std::uint32_t> alive;
+        for (const auto entity : registry.view<TilemapComponent, TransformComponent>()) {
+            const auto handle = static_cast<std::uint32_t>(entt::to_integral(entity));
+            const auto& tilemap = registry.get<TilemapComponent>(entity);
+            const auto& transform = registry.get<TransformComponent>(entity);
+            if (!tilemap.Collision.Enabled) {
+                continue;
+            }
+            alive.insert(handle);
+            auto [iterator, created] = impl.Tilemaps.try_emplace(handle);
+            TilemapBodyRecord& record = iterator->second;
+            const glm::vec2 positionMeters = PhysicsUtils::PixelsToMeters(transform.Translation, ppm);
+            if (created) {
+                b2BodyDef bodyDef{};
+                bodyDef.type = b2_staticBody;
+                bodyDef.position.Set(positionMeters.x, positionMeters.y);
+                bodyDef.angle = transform.RotationRadians;
+                bodyDef.userData.pointer = static_cast<std::uintptr_t>(handle);
+                record.Body = impl.World->CreateBody(&bodyDef);
+            } else {
+                const b2Vec2 current = record.Body->GetPosition();
+                if (current.x != positionMeters.x || current.y != positionMeters.y ||
+                    record.Body->GetAngle() != transform.RotationRadians) {
+                    record.Body->SetTransform(b2Vec2(positionMeters.x, positionMeters.y), transform.RotationRadians);
+                }
+            }
+            if (!(record.Settings == tilemap.Collision) || record.TileSize != tilemap.TileSize ||
+                record.Scale != transform.Scale) {
+                for (auto& [key, chunk] : record.Chunks) {
+                    (void)key;
+                    for (b2Fixture* fixture : chunk.Fixtures) {
+                        record.Body->DestroyFixture(fixture);
+                    }
+                }
+                record.Chunks.clear();
+                record.Settings = tilemap.Collision;
+                record.TileSize = tilemap.TileSize;
+                record.Scale = transform.Scale;
+            }
+
+            const std::vector<std::uint64_t> keys = CollectCollisionChunks(tilemap);
+            const std::unordered_set<std::uint64_t> present(keys.begin(), keys.end());
+            for (auto chunk = record.Chunks.begin(); chunk != record.Chunks.end();) {
+                if (!present.contains(chunk->first)) {
+                    for (b2Fixture* fixture : chunk->second.Fixtures) {
+                        record.Body->DestroyFixture(fixture);
+                    }
+                    chunk = record.Chunks.erase(chunk);
+                } else {
+                    ++chunk;
+                }
+            }
+            const glm::vec2 cellPixels = glm::vec2(tilemap.TileSize) * transform.Scale;
+            for (const std::uint64_t key : keys) {
+                const std::uint64_t signature = tilemap.CollisionSignature(key);
+                TilemapChunkFixtures& chunk = record.Chunks[key];
+                if (chunk.Built && chunk.Signature == signature) {
+                    continue;
+                }
+                for (b2Fixture* fixture : chunk.Fixtures) {
+                    record.Body->DestroyFixture(fixture);
+                }
+                chunk.Fixtures.clear();
+                chunk.Signature = signature;
+                chunk.Built = true;
+                ++impl.TilemapChunkRebuilds;
+                for (const TileCollisionRect& rect : BuildChunkCollisionRects(tilemap, key, getTileset)) {
+                    const glm::vec2 halfPixels = glm::abs(glm::vec2(rect.Width, rect.Height) * cellPixels) * 0.5f;
+                    const glm::vec2 centerPixels =
+                        glm::vec2(static_cast<float>(rect.X) + static_cast<float>(rect.Width) * 0.5f,
+                                  static_cast<float>(rect.Y) + static_cast<float>(rect.Height) * 0.5f) *
+                        cellPixels;
+                    const glm::vec2 centerMeters = PhysicsUtils::PixelsToMeters(centerPixels, ppm);
+                    b2PolygonShape shape;
+                    shape.SetAsBox(PhysicsUtils::PixelsToMeters(halfPixels.x, ppm),
+                                   PhysicsUtils::PixelsToMeters(halfPixels.y, ppm),
+                                   b2Vec2(centerMeters.x, centerMeters.y), 0.0f);
+                    b2FixtureDef fixtureDef{};
+                    fixtureDef.shape = &shape;
+                    fixtureDef.friction = tilemap.Collision.Friction;
+                    fixtureDef.restitution = tilemap.Collision.Restitution;
+                    fixtureDef.filter.categoryBits = tilemap.Collision.CategoryBits;
+                    fixtureDef.filter.maskBits = tilemap.Collision.MaskBits;
+                    if (rect.Kind == TileCollision::OneWay) {
+                        fixtureDef.userData.pointer = kOneWayFixtureTag;
+                    }
+                    chunk.Fixtures.push_back(record.Body->CreateFixture(&fixtureDef));
+                }
+            }
+        }
+        // Tilemaps whose component was removed or whose collision was switched off.
+        for (auto record = impl.Tilemaps.begin(); record != impl.Tilemaps.end();) {
+            if (!alive.contains(record->first)) {
+                if (record->second.Body != nullptr) {
+                    impl.World->DestroyBody(record->second.Body);
+                }
+                PurgeEntityContactPairs(impl, record->first);
+                record = impl.Tilemaps.erase(record);
+            } else {
+                ++record;
+            }
+        }
+    }
+
     static void PurgeEntityContactPairs(PhysicsWorld2D::Impl& impl, std::uint32_t handle) {
         for (auto iterator = impl.EntityContactDepth.begin(); iterator != impl.EntityContactDepth.end();) {
             const EntityContactPairKey& key = iterator->first;
@@ -392,6 +583,7 @@ void PhysicsWorld2D::SyncSceneBodies(Scene& scene) {
             PhysicsWorld2DDetail::BuildFixtures(scene, *m_impl, handle, body);
         }
     }
+    PhysicsWorld2DDetail::SyncTilemapBodies(scene, *m_impl);
 }
 
 void PhysicsWorld2D::SyncEcsToPhysics(Scene& scene) {
@@ -589,6 +781,13 @@ void PhysicsWorld2D::OnEntityDestroyed(Scene& /*scene*/, const Entity& entity) {
         return;
     }
     PhysicsWorld2DDetail::PurgeEntityContactPairs(*m_impl, entity.m_handle);
+    if (const auto tilemap = m_impl->Tilemaps.find(entity.m_handle); tilemap != m_impl->Tilemaps.end()) {
+        if (tilemap->second.Body != nullptr && m_impl->World) {
+            m_impl->World->DestroyBody(tilemap->second.Body);
+        }
+        m_impl->Tilemaps.erase(tilemap);
+        PhysicsWorld2DDetail::PurgeListenerQueueForHandle(*m_impl, entity.m_handle);
+    }
     const auto found = m_impl->Bodies.find(entity.m_handle);
     if (found == m_impl->Bodies.end()) {
         return;
@@ -598,6 +797,34 @@ void PhysicsWorld2D::OnEntityDestroyed(Scene& /*scene*/, const Entity& entity) {
     }
     m_impl->Bodies.erase(found);
     PhysicsWorld2DDetail::PurgeListenerQueueForHandle(*m_impl, entity.m_handle);
+}
+
+bool PhysicsWorld2D::HasTilemapBody(const Entity& entity) const {
+    return entity.IsValid() && m_impl->Tilemaps.contains(entity.m_handle);
+}
+
+std::size_t PhysicsWorld2D::GetTilemapFixtureCount(const Entity& entity) const {
+    if (!entity.IsValid()) {
+        return 0;
+    }
+    const auto found = m_impl->Tilemaps.find(entity.m_handle);
+    if (found == m_impl->Tilemaps.end()) {
+        return 0;
+    }
+    std::size_t count = 0;
+    for (const auto& [key, chunk] : found->second.Chunks) {
+        (void)key;
+        count += chunk.Fixtures.size();
+    }
+    return count;
+}
+
+std::uint64_t PhysicsWorld2D::GetTilemapChunkRebuildCount() const {
+    return m_impl->TilemapChunkRebuilds;
+}
+
+std::size_t PhysicsWorld2D::GetTilemapBodyCount() const {
+    return m_impl->Tilemaps.size();
 }
 
 void PhysicsWorld2D::ApplyForce(const Entity& entity, const glm::vec2& forceNewtons) {

@@ -36,6 +36,8 @@ enum class ContentItemKind : std::uint8_t {
     Scene,
     Animation,
     Prefab,
+    Tileset,
+    Tilemap,
     Other,
 };
 

@@ -10,6 +10,7 @@
 #include "Xora2DEditor/EditorHostServices.h"
 #include "Xora2DEditor/EditorPlaySession.h"
 #include "Xora2DEditor/EditorSelection.h"
+#include "Xora2DEditor/Tilemap/TilemapEditorState.h"
 
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Assets/AssetRegistry.h"
@@ -104,6 +105,34 @@ public:
     [[nodiscard]] Xora2D::AssetHandle GetEditedPrefab() const { return m_prefabEdit.Handle; }
     [[nodiscard]] std::string GetEditedPrefabName() const;
 
+    // Tilemaps -------------------------------------------------------------------------------------------------------
+    TilemapEditorState& GetTilemapEditor() { return m_tilemapEditor; }
+    // Asks the workspace to show (and focus) a panel by id at the start of the next UI frame.
+    void RequestPanel(std::string panelId) { m_panelRequest = std::move(panelId); }
+    std::optional<std::string> ConsumePanelRequest() {
+        auto request = std::move(m_panelRequest);
+        m_panelRequest.reset();
+        return request;
+    }
+    // Opens the Tileset editor for an existing tileset, or for a new tileset cut from a texture.
+    struct TilesetEditorRequest {
+        Xora2D::AssetHandle Tileset{};
+        Xora2D::AssetHandle Texture{};
+    };
+    void RequestTilesetEditor(const TilesetEditorRequest& request) {
+        m_tilesetRequest = request;
+        m_panelRequest = "Tileset"; // hidden panels are not drawn: show it so it can pick up the request
+    }
+    std::optional<TilesetEditorRequest> ConsumeTilesetEditorRequest() {
+        auto request = m_tilesetRequest;
+        m_tilesetRequest.reset();
+        return request;
+    }
+    // Creates an entity from a tilemap asset (or selects the entity already using it) and enables tile painting.
+    EditorSceneFileResult OpenTilemapAsset(Xora2D::AssetHandle tilemap);
+    // Writes the tilemap of `entity` to its Source asset (or a new asset at `assetRelativePath`).
+    EditorSceneFileResult SaveTilemapAsset(Xora2D::Entity entity, const std::string& assetRelativePath = {});
+
     // Replaces the editable scene (stops Play mode first if it is running).
     void SetScene(const std::shared_ptr<Xora2D::Scene>& scene);
     // The scene panels show and edit: the runtime copy while a play session is active, otherwise the editable scene.
@@ -185,6 +214,9 @@ private:
         std::optional<Xora2D::UUID> SceneSelection;
     };
     PrefabEditState m_prefabEdit;
+    TilemapEditorState m_tilemapEditor;
+    std::optional<TilesetEditorRequest> m_tilesetRequest;
+    std::optional<std::string> m_panelRequest;
 
     std::shared_ptr<Xora2D::Project> m_project;
     bool m_contentActive = false;

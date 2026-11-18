@@ -50,6 +50,32 @@ struct SceneDetails {
     std::size_t EntityCount = 0;
 };
 
+struct TilesetDetails {
+    std::string TilesetName;
+    int TileWidth = 0;
+    int TileHeight = 0;
+    int Margin = 0;
+    int Spacing = 0;
+    bool Manual = false;
+    int TextureWidth = 0;
+    int TextureHeight = 0;
+    std::size_t TileCount = 0;
+    std::size_t SolidTiles = 0;
+    std::size_t OneWayTiles = 0;
+    std::string Texture;      // registry path of the source texture, or a problem description
+    bool TextureOk = false;
+};
+
+struct TilemapDetails {
+    std::string TilemapName;
+    int TileWidth = 0;
+    int TileHeight = 0;
+    std::size_t TileCount = 0;
+    std::vector<std::string> Layers;
+    std::string Tileset;      // registry path of the tileset, or a problem description
+    bool TilesetOk = false;
+};
+
 struct PrefabDetails {
     std::string PrefabName;
     std::uint32_t Revision = 0;
@@ -88,6 +114,8 @@ struct AssetDetails {
     std::optional<SceneDetails> Scene;
     std::optional<AnimationDetails> Animation;
     std::optional<PrefabDetails> Prefab;
+    std::optional<TilesetDetails> Tileset;
+    std::optional<TilemapDetails> Tilemap;
     std::string Error; // type-specific metadata could not be read
 };
 

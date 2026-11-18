@@ -1,6 +1,9 @@
 #include "Xora2D/Scene/Scene.h"
 
 #include "Xora2D/Prefab/PrefabComponents.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Tilemap/TilemapRendering.h"
+#include "Xora2D/Tilemap/Tileset.h"
 
 #include "SceneAnimationSystem.h"
 #include "SceneAudioSystem.h"
@@ -85,7 +88,8 @@ std::shared_ptr<Scene> Scene::Copy(const Scene& source) {
         to.emplace<TagComponent>(created, TagComponent{tag != nullptr ? tag->Tag : std::string("Entity")});
         CopyComponents<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent,
                        BoxCollider2DComponent, CircleCollider2DComponent, AudioSourceComponent, AudioListenerComponent,
-                       PythonScriptComponent, AnimationComponent, PrefabInstanceComponent>(from, sourceEntity, to,
+                       PythonScriptComponent, AnimationComponent, PrefabInstanceComponent,
+                       TilemapComponent>(from, sourceEntity, to,
                                                                                            created);
         if (!to.all_of<TransformComponent>(created)) {
             to.emplace<TransformComponent>(created).RecalculateLocalMatrix();
@@ -447,6 +451,30 @@ void Scene::OnRender(Renderer2D& renderer, const OrthographicCamera& camera) {
     ResolveSpriteTextures();
     renderer.BeginScene(camera);
 
+    // Tilemaps: layers below sprites first, sprites, then layers marked AboveSprites.
+    m_tilemapStats = {};
+    TilemapRenderResources tilemapResources{};
+    tilemapResources.GetTileset = [this](AssetHandle handle) -> const Tileset* {
+        if (m_assetManager == nullptr || !handle.IsValid() || !m_assetManager->LoadTileset(handle).Success) {
+            return nullptr;
+        }
+        return m_assetManager->GetLoadedTileset(handle).get();
+    };
+    tilemapResources.GetTexture = [this](AssetHandle handle) -> const Texture2D* {
+        if (m_assetManager == nullptr || !handle.IsValid() || !m_assetManager->LoadTexture(handle).Success) {
+            return nullptr;
+        }
+        return m_assetManager->GetLoadedTexture(handle).get();
+    };
+    const auto drawTilemaps = [&](bool aboveSprites) {
+        for (auto [entity, transform, tilemap] : m_registry->Registry.view<TransformComponent, TilemapComponent>().each()) {
+            (void)entity;
+            RenderTilemap(renderer, tilemap, transform.ComputeMatrix(), camera, aboveSprites, tilemapResources,
+                          &m_tilemapStats);
+        }
+    };
+    drawTilemaps(false);
+
     auto& registry = m_registry->Registry;
     for (auto [entity, transform, sprite] : registry.view<TransformComponent, SpriteRendererComponent>().each()) {
         (void)entity;
@@ -473,6 +501,7 @@ void Scene::OnRender(Renderer2D& renderer, const OrthographicCamera& camera) {
         renderer.DrawQuad(drawTransform, *sprite.Texture, sprite.Color);
     }
 
+    drawTilemaps(true);
     renderer.EndScene();
 }
 

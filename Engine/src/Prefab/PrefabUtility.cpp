@@ -13,6 +13,7 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Scene.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
 
 #include "../Serialization/EntitySerialization.h"
 
@@ -90,7 +91,7 @@ std::map<std::string, std::string> EncodeComponents(const Entity& entity) {
         {"RigidBody2DComponent", "RigidBody2D"},     {"BoxCollider2DComponent", "BoxCollider2D"},
         {"CircleCollider2DComponent", "CircleCollider2D"}, {"AudioSourceComponent", "AudioSource"},
         {"AudioListenerComponent", "AudioListener"}, {"PythonScriptComponent", "PythonScript"},
-        {"AnimationComponent", "Animation"},
+        {"AnimationComponent", "Animation"},          {"TilemapComponent", "Tilemap"},
     };
     YAML::Emitter emitter;
     SerializationDetail::EmitEntityNode(emitter, entity, false);
@@ -165,6 +166,7 @@ const std::vector<PropertyDescriptor>& Descriptors() {
         {{"AudioListener", "Audio Listener", "AudioListener", true}, nullptr, CopyComponent<AudioListenerComponent>},
         {{"PythonScript", "Python Script", "PythonScript", true}, nullptr, CopyComponent<PythonScriptComponent>},
         {{"Animation", "Animation", "Animation", true}, nullptr, CopyComponent<AnimationComponent>},
+        {{"Tilemap", "Tilemap", "Tilemap", true}, nullptr, CopyComponent<TilemapComponent>},
     };
     return descriptors;
 }

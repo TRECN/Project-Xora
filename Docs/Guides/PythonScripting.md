@@ -74,3 +74,8 @@ Scripts are **trusted local project code**. This is not a sandbox for untrusted 
 ## Packaging (future)
 
 Ship `Python.framework` (macOS) or embedded `libpython` + standard library beside the game binary. Extension point: `third_party/python/Xora2D.cmake` documents discovery; exporter copies `PYTHONHOME` layout (not implemented here).
+## Tilemaps (Milestone 19)
+
+`self.entity.tilemap` reads and modifies tiles at runtime: `get_tile`, `set_tile` (with flips and rotation),
+`clear_tile`, `world_to_cell`, `cell_to_world`, `layer_names` and `tile_count`. Changes affect the runtime scene
+only, and collision and rendering of the touched chunk update automatically. See [Tilemaps.md](Tilemaps.md#python-api).

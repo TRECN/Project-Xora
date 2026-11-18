@@ -11,6 +11,7 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
 
 #include <glm/vec2.hpp>
 
@@ -47,6 +48,7 @@ struct ParsedEntity {
     std::optional<PythonScriptComponent> PythonScript;
     std::optional<AnimationComponent> Animation;
     std::optional<PrefabInstanceComponent> PrefabInstance;
+    std::optional<TilemapComponent> Tilemap;
 };
 
 // Parses one entry of an "Entities" sequence. `source` is only used in error messages.

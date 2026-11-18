@@ -4,6 +4,7 @@ set(XORA2D_EDITOR_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/src/EditorSelection.cpp
     ${CMAKE_SOURCE_DIR}/Editor/src/EditorSceneCommands.cpp
     ${CMAKE_SOURCE_DIR}/Editor/src/EditorPlaySession.cpp
+    ${CMAKE_SOURCE_DIR}/Editor/src/Tilemap/TilemapEditorState.cpp
     ${CMAKE_SOURCE_DIR}/Editor/src/EditorResourceAssets.cpp
     ${CMAKE_SOURCE_DIR}/Editor/src/EditorPaths.cpp
     ${CMAKE_SOURCE_DIR}/Editor/src/Project/RecentProjects.cpp
@@ -38,6 +39,7 @@ add_executable(Xora2D-Tests
     src/PlayModeTests.cpp
     src/ProjectTests.cpp
     src/PrefabTests.cpp
+    src/TilemapTests.cpp
     ${XORA2D_EDITOR_TEST_SOURCES}
 )
 

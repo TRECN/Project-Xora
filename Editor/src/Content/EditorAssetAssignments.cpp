@@ -7,6 +7,8 @@
 #include "Xora2D/Scene/Scene.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
 
+#include "Xora2D/Tilemap/TilemapComponent.h"
+
 #include <algorithm>
 
 namespace Xora2DEditor {
@@ -25,6 +27,8 @@ const char* AssignmentTargetLabel(Xora2D::AssetType type) {
 #endif
     case Xora2D::AssetType::AnimationClip:
         return "Animation";
+    case Xora2D::AssetType::Tileset:
+        return "Tilemap";
     default:
         return nullptr;
     }
@@ -82,6 +86,15 @@ AssetAssignmentResult AssignAssetToEntity(Xora2D::Scene& scene, Xora2D::Entity e
         if (std::find(animation.ClipAssets.begin(), animation.ClipAssets.end(), handle) == animation.ClipAssets.end()) {
             animation.ClipAssets.push_back(handle);
         }
+        break;
+    }
+    case Xora2D::AssetType::Tileset: {
+        if (!entity.HasComponent<Xora2D::TilemapComponent>()) {
+            entity.AddComponent<Xora2D::TilemapComponent>().CreateDefaultLayers();
+        }
+        auto& tilemap = entity.GetComponent<Xora2D::TilemapComponent>();
+        tilemap.Tileset = handle;
+        tilemap.MarkCollisionDirty();
         break;
     }
     default:

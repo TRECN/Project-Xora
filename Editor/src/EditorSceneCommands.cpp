@@ -1,5 +1,7 @@
 #include "Xora2DEditor/EditorSceneCommands.h"
 
+#include "Xora2D/Tilemap/TilemapComponent.h"
+
 #include "Xora2D/Animation/AnimationComponent.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Audio/AudioComponents.h"
@@ -54,6 +56,8 @@ static bool HasKind(const Xora2D::Entity& entity, SceneComponentKind kind) {
         return entity.HasComponent<Xora2D::PythonScriptComponent>();
     case SceneComponentKind::Animation:
         return entity.HasComponent<Xora2D::AnimationComponent>();
+    case SceneComponentKind::Tilemap:
+        return entity.HasComponent<Xora2D::TilemapComponent>();
     }
     return false;
 }
@@ -106,6 +110,9 @@ EditorCommandStatus AddComponentToEntity(Xora2D::Scene& scene, Xora2D::Entity& e
     case SceneComponentKind::Animation:
         entity.AddComponent<Xora2D::AnimationComponent>();
         break;
+    case SceneComponentKind::Tilemap:
+        entity.AddComponent<Xora2D::TilemapComponent>().CreateDefaultLayers();
+        break;
     }
     return EditorCommandStatus::Success;
 }
@@ -154,6 +161,9 @@ EditorCommandStatus RemoveComponentFromEntity(Xora2D::Scene& scene, Xora2D::Enti
         break;
     case SceneComponentKind::Animation:
         entity.RemoveComponent<Xora2D::AnimationComponent>();
+        break;
+    case SceneComponentKind::Tilemap:
+        entity.RemoveComponent<Xora2D::TilemapComponent>(); // its collision body is released on the next physics sync
         break;
     }
     return EditorCommandStatus::Success;

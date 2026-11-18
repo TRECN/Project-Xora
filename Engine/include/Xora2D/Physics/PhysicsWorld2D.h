@@ -71,6 +71,13 @@ public:
     float GetAccumulatedTimeSeconds() const;
     std::uint32_t GetLastSubStepCount() const;
 
+    // Tilemap collision (one static body per tilemap entity, merged rectangle fixtures per chunk).
+    [[nodiscard]] bool HasTilemapBody(const Entity& entity) const;
+    [[nodiscard]] std::size_t GetTilemapFixtureCount(const Entity& entity) const;
+    // Number of tilemap chunks whose collision was (re)built since the world was created (diagnostics / tests).
+    [[nodiscard]] std::uint64_t GetTilemapChunkRebuildCount() const;
+    [[nodiscard]] std::size_t GetTilemapBodyCount() const;
+
 private:
     friend class Scene;
     friend struct PhysicsWorld2DDetail;

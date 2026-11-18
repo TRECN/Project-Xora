@@ -38,6 +38,10 @@ void RegisterKnownResourceAssets(Xora2D::AssetManager& assetManager) {
 
         if (Xora2D::IsSupportedPrefabExtension(file)) {
             (void)assetManager.RegisterPrefabAtRelativePath(normalized, file.stem().stem().string());
+        } else if (Xora2D::IsSupportedTilesetExtension(file)) {
+            (void)assetManager.RegisterTilesetAtRelativePath(normalized, file.stem().stem().string());
+        } else if (Xora2D::IsSupportedTilemapExtension(file)) {
+            (void)assetManager.RegisterTilemapAtRelativePath(normalized, file.stem().stem().string());
         } else if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga") {
             (void)assetManager.RegisterTextureAtRelativePath(normalized, displayName);
         } else if (ext == ".wav" || ext == ".ogg") {

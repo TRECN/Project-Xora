@@ -16,6 +16,10 @@
 #include "Xora2D/Animation/AnimationPlayback.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Tilemap/TilemapComponent.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <glm/vec2.hpp>
 
@@ -46,13 +50,13 @@ bool ResolveEntity(const std::weak_ptr<Scene>& sceneWeak, const UUID& entityId, 
 class ScriptEntityRef {
 public:
     ScriptEntityRef(std::weak_ptr<Scene> scene, UUID entityId)
-        : m_scene(std::move(scene)), m_entityId(entityId), m_transform(this), m_physics(this) {}
+        : m_scene(std::move(scene)), m_entityId(entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
 
     ScriptEntityRef(const ScriptEntityRef& other)
-        : m_scene(other.m_scene), m_entityId(other.m_entityId), m_transform(this), m_physics(this) {}
+        : m_scene(other.m_scene), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
 
     ScriptEntityRef(ScriptEntityRef&& other) noexcept
-        : m_scene(std::move(other.m_scene)), m_entityId(other.m_entityId), m_transform(this), m_physics(this) {}
+        : m_scene(std::move(other.m_scene)), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
 
     ScriptEntityRef& operator=(const ScriptEntityRef&) = delete;
     ScriptEntityRef& operator=(ScriptEntityRef&&) = delete;
@@ -191,6 +195,104 @@ public:
         ScriptEntityRef* m_owner = nullptr;
     };
 
+    // entity.tilemap: read / modify tile ids at runtime (no renderer or Box2D access). Render geometry and collision of
+    // the touched chunk are rebuilt automatically on the next frame / physics step.
+    class TilemapBinding {
+    public:
+        explicit TilemapBinding(ScriptEntityRef* owner)
+            : m_owner(owner) {}
+
+        [[nodiscard]] bool Exists() const {
+            Entity entity;
+            return m_owner->Resolve(entity) && entity.HasComponent<TilemapComponent>();
+        }
+
+        // Layer by name; "" = the active layer. -1 when there is no tilemap / layer.
+        [[nodiscard]] int GetTile(int x, int y, const std::string& layer) const {
+            TilemapComponent* tilemap = Get();
+            const std::int32_t index = tilemap != nullptr ? ResolveLayer(*tilemap, layer) : -1;
+            return index < 0 ? -1 : static_cast<int>(tilemap->GetTile(index, {x, y}).Id);
+        }
+
+        bool SetTile(int x, int y, int tileId, const std::string& layer, bool flipX, bool flipY, int rotation) {
+            TilemapComponent* tilemap = Get();
+            const std::int32_t index = tilemap != nullptr ? ResolveLayer(*tilemap, layer) : -1;
+            if (index < 0 || tileId < 0) {
+                return false;
+            }
+            (void)tilemap->SetTile(index, {x, y}, TileCell::Make(static_cast<TileId>(tileId), flipX, flipY, rotation));
+            return true;
+        }
+
+        bool ClearTile(int x, int y, const std::string& layer) {
+            TilemapComponent* tilemap = Get();
+            const std::int32_t index = tilemap != nullptr ? ResolveLayer(*tilemap, layer) : -1;
+            return index >= 0 && tilemap->ClearTile(index, {x, y});
+        }
+
+        [[nodiscard]] py::tuple WorldToCell(float worldX, float worldY) const {
+            Entity entity;
+            TilemapComponent* tilemap = Get(&entity);
+            if (tilemap == nullptr) {
+                return py::make_tuple(0, 0);
+            }
+            const glm::mat4 inverse = glm::inverse(entity.GetComponent<TransformComponent>().ComputeMatrix());
+            const glm::vec4 local = inverse * glm::vec4(worldX, worldY, 0.0f, 1.0f);
+            const GridCoord cell = tilemap->LocalToCell({local.x, local.y});
+            return py::make_tuple(cell.X, cell.Y);
+        }
+
+        [[nodiscard]] py::tuple CellToWorld(int x, int y) const {
+            Entity entity;
+            TilemapComponent* tilemap = Get(&entity);
+            if (tilemap == nullptr) {
+                return py::make_tuple(0.0f, 0.0f);
+            }
+            const glm::vec2 center = tilemap->CellToLocal({x, y}) + glm::vec2(tilemap->TileSize) * 0.5f;
+            const glm::vec4 world =
+                entity.GetComponent<TransformComponent>().ComputeMatrix() * glm::vec4(center, 0.0f, 1.0f);
+            return py::make_tuple(world.x, world.y);
+        }
+
+        [[nodiscard]] std::vector<std::string> LayerNames() const {
+            std::vector<std::string> names;
+            if (const TilemapComponent* tilemap = Get()) {
+                for (const TilemapLayer& layer : tilemap->Layers) {
+                    names.push_back(layer.Name);
+                }
+            }
+            return names;
+        }
+
+        [[nodiscard]] int TileCount(const std::string& layer) const {
+            const TilemapComponent* tilemap = Get();
+            const std::int32_t index = tilemap != nullptr ? ResolveLayer(*tilemap, layer) : -1;
+            return index < 0 ? 0 : static_cast<int>(tilemap->GetTileCount(index));
+        }
+
+    private:
+        TilemapComponent* Get(Entity* out = nullptr) const {
+            Entity entity;
+            if (!m_owner->Resolve(entity) || !entity.HasComponent<TilemapComponent>()) {
+                return nullptr;
+            }
+            if (out != nullptr) {
+                *out = entity;
+            }
+            return &entity.GetComponent<TilemapComponent>();
+        }
+
+        static std::int32_t ResolveLayer(const TilemapComponent& tilemap, const std::string& layer) {
+            if (layer.empty()) {
+                return tilemap.IsValidLayer(tilemap.ActiveLayer) ? tilemap.ActiveLayer : -1;
+            }
+            return tilemap.FindLayer(layer);
+        }
+
+        ScriptEntityRef* m_owner = nullptr;
+    };
+
+    [[nodiscard]] TilemapBinding& Tilemap() { return m_tilemap; }
     [[nodiscard]] TransformBinding& Transform() { return m_transform; }
     [[nodiscard]] PhysicsBinding& Physics() { return m_physics; }
 
@@ -257,6 +359,7 @@ private:
     UUID m_entityId;
     TransformBinding m_transform;
     PhysicsBinding m_physics;
+    TilemapBinding m_tilemap;
 };
 
 struct Vector2 {
@@ -314,6 +417,18 @@ PYBIND11_EMBEDDED_MODULE(xora2d, module) {
         .def("get_linear_velocity", &ScriptEntityRef::PhysicsBinding::GetLinearVelocity)
         .def("set_gravity_scale", &ScriptEntityRef::PhysicsBinding::SetGravityScale);
 
+    py::class_<ScriptEntityRef::TilemapBinding>(module, "Tilemap")
+        .def_property_readonly("exists", &ScriptEntityRef::TilemapBinding::Exists)
+        .def("get_tile", &ScriptEntityRef::TilemapBinding::GetTile, py::arg("x"), py::arg("y"), py::arg("layer") = "")
+        .def("set_tile", &ScriptEntityRef::TilemapBinding::SetTile, py::arg("x"), py::arg("y"), py::arg("tile_id"),
+             py::arg("layer") = "", py::arg("flip_x") = false, py::arg("flip_y") = false, py::arg("rotation") = 0)
+        .def("clear_tile", &ScriptEntityRef::TilemapBinding::ClearTile, py::arg("x"), py::arg("y"),
+             py::arg("layer") = "")
+        .def("world_to_cell", &ScriptEntityRef::TilemapBinding::WorldToCell)
+        .def("cell_to_world", &ScriptEntityRef::TilemapBinding::CellToWorld)
+        .def("layer_names", &ScriptEntityRef::TilemapBinding::LayerNames)
+        .def("tile_count", &ScriptEntityRef::TilemapBinding::TileCount, py::arg("layer") = "");
+
     py::class_<ScriptEntityRef>(module, "Entity")
         .def_property_readonly("uuid",
                               [](const ScriptEntityRef& self) { return self.GetUuid().ToString(); })
@@ -325,6 +440,9 @@ PYBIND11_EMBEDDED_MODULE(xora2d, module) {
         .def_property_readonly("physics", [](ScriptEntityRef& entity) -> ScriptEntityRef::PhysicsBinding& {
             return entity.Physics();
         })
+        .def_property_readonly("tilemap", [](ScriptEntityRef& entity) -> ScriptEntityRef::TilemapBinding& {
+            return entity.Tilemap();
+        }, py::return_value_policy::reference_internal)
         .def("animation_play", &ScriptEntityRef::AnimationPlayClip)
         .def("animation_pause", &ScriptEntityRef::AnimationPauseClip)
         .def("animation_resume", &ScriptEntityRef::AnimationResumeClip)

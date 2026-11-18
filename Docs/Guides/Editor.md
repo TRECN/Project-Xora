@@ -1,4 +1,4 @@
-# Xora2D Editor (Milestones 13–18)
+# Xora2D Editor (Milestones 13–19)
 
 The **Xora2D Editor** is a separate executable that reuses the engine runtime (`Application`, `Window`, OpenGL, `Renderer2D`, `Scene`, assets) and layers **Dear ImGui** (docking branch commit `9dbcb2f1c`) for the UI.
 
@@ -209,9 +209,24 @@ The Content panel is a full asset browser: folder tree, breadcrumbs, grid/list v
 
 See [Prefabs.md](Prefabs.md).
 
+## Tilemaps (Milestone 19)
+
+- **Tilemap** panel (View > Tilemap): tools (Brush, Erase, Rect, Fill, Pick, Select), flips and rotation, undo/redo,
+  layers (add, duplicate, remove, rename, reorder, show/lock/solid/opacity) and the tile palette.
+- With *Paint in viewport* on, the viewport uses an editor camera (wheel zoom, right/middle-drag pan) and draws the
+  grid, the hovered cell, brush preview and selection.
+- Keys while hovering the viewport: B/E/R/G/I/S tools, X/Y flip, T rotate, arrows move the selection,
+  Delete/Backspace and Esc. Cmd/Ctrl+Z / Shift+Z / Y undo and redo; Cmd/Ctrl+C / X / V copy, cut and paste.
+- **Tileset** panel: create from a texture (Content > right-click > Create Tileset) or edit a `.tileset.yaml`.
+- **Inspector Tilemap section:** tileset (drag-and-drop), tile size, active layer, layer visibility and opacity,
+  collision settings, tilemap asset Save / Reload / Save As, and *Open Tilemap Editor*.
+
+See [Tilemaps.md](Tilemaps.md).
+
 ## Tests
 
-`Tests/src/PrefabTests.cpp` covers prefabs (serialization, creation and instantiation, overrides and
+`Tests/src/TilemapTests.cpp` covers tilemaps (tilesets, data, editing and undo, rendering including GPU pixel checks,
+collision, serialization, prefabs and runtime, Python, and a large map). `Tests/src/PrefabTests.cpp` covers prefabs (serialization, creation and instantiation, overrides and
 apply/revert/refresh, scenes, Play mode, and isolated editing). `Tests/src/ProjectTests.cpp` covers projects: creation, templates, loading/validation, recent history and project isolation. `Tests/src/PlayModeTests.cpp` covers Play mode: scene-copy isolation (UUIDs, ownership, runtime create/destroy, draw order), every state transition and repeated sessions, physics/animation/script/audio behaviour while playing, paused and stepping, input gating, selection safety, and cleanup including closing the editor while playing. `Tests/src/TransformInspectorTests.cpp` covers Inspector transform editing. `Tests/src/ContentBrowserTests.cpp` covers the asset browser (see AssetBrowser.md). `Tests/src/EditorTests.cpp` covers configuration round-trip, panel registration, `ColorRenderTarget` resize, and editor logic: UUID selection, scene replacement, entity create/delete/rename, component add/remove/duplicate prevention, and stale selection handling.
 
 ## Current limitations

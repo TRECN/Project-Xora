@@ -59,6 +59,12 @@ Entities:
       # ...
 ```
 
+## Tilemaps (Milestone 19)
+
+`TilemapComponent` stores its tileset handle, tile size, layers and run-length-encoded 32x32 chunks (ids and flags
+only). Malformed tile data fails the load transactionally. Unknown tile ids and missing tilesets are reported in
+`Warnings`. See [Tilemaps.md](Tilemaps.md).
+
 ## Prefab instances (Milestone 18)
 
 An entity created from a prefab carries an optional `PrefabInstance` block: the prefab handle, the instance id, the

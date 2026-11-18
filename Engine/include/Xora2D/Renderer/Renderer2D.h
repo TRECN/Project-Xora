@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Xora2D/Renderer/OrthographicCamera.h"
+#include "Xora2D/Renderer/QuadVertex.h"
 #include "Xora2D/Renderer/Renderer2DStats.h"
 #include "Xora2D/Renderer/Texture2D.h"
 
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
@@ -42,6 +44,10 @@ public:
                   const glm::vec4& tint = glm::vec4(1.0f));
     void DrawQuad(const Transform2D& transform, const Texture2D& texture, const glm::vec4& tint,
                   const glm::vec2 uvCorners[4]);
+    // Submits `vertexCount` pre-built vertices (4 per quad) using one texture, transformed by `model` and tinted.
+    // Goes through the normal batch (one draw call per kMaxQuads quads); nothing is allocated per call.
+    void DrawTexturedQuads(const Texture2D& texture, const TexturedQuadVertex* vertices, std::size_t vertexCount,
+                           const glm::mat4& model, const glm::vec4& tint = glm::vec4(1.0f));
 
     const Renderer2DStats& GetStats() const { return m_stats; }
     Renderer2DStats& GetStats() { return m_stats; }

@@ -191,6 +191,22 @@ void Renderer2D::DrawQuad(const Transform2D& transform, const Texture2D& texture
     }
 }
 
+void Renderer2D::DrawTexturedQuads(const Texture2D& texture, const TexturedQuadVertex* vertices,
+                                   std::size_t vertexCount, const glm::mat4& model, const glm::vec4& tint) {
+    const std::size_t quads = vertexCount / kVerticesPerQuad;
+    for (std::size_t quad = 0; quad < quads; ++quad) {
+        // Re-acquired per quad: a flush (full batch / slots) may happen in between.
+        const std::uint32_t slot = AcquireTextureSlot(texture);
+        const float slotValue = static_cast<float>(slot);
+        const TexturedQuadVertex* corner = vertices + quad * kVerticesPerQuad;
+        for (std::uint32_t index = 0; index < kVerticesPerQuad; ++index) {
+            const glm::vec4 world = model * glm::vec4(corner[index].Position, 0.0f, 1.0f);
+            m_texturedVertices.push_back(
+                TexturedVertex{glm::vec3(world), corner[index].Color * tint, corner[index].TexCoord, slotValue});
+        }
+    }
+}
+
 void Renderer2D::EnsureColoredCapacity() {
     if (m_coloredVertices.size() + kVerticesPerQuad > kMaxQuads * kVerticesPerQuad) {
         FlushColoredBatch();

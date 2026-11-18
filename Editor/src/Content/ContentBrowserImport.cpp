@@ -216,6 +216,11 @@ const char* ImportCategoryLabel(ImportCategory category) {
 
 std::optional<ImportCategory> ClassifyImportSource(const std::filesystem::path& source, std::string& reason) {
     const std::string extension = FullExtensionLower(source);
+    if (extension == ".tileset.yaml" || extension == ".tilemap.yaml") {
+        reason = "Tilesets and tilemaps reference project asset handles; create them inside the project "
+                 "(texture > Create Tileset, Inspector > Save As Asset)";
+        return std::nullopt;
+    }
     if (extension == ".prefab.yaml") {
         reason = "Prefabs reference project asset handles; create them in the project (Hierarchy > Create Prefab)";
         return std::nullopt;

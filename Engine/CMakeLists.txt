@@ -52,6 +52,11 @@ add_library(Xora2D STATIC
     src/Prefab/Prefab.cpp
     src/Prefab/PrefabSerializer.cpp
     src/Prefab/PrefabUtility.cpp
+    src/Tilemap/Tileset.cpp
+    src/Tilemap/TilemapComponent.cpp
+    src/Tilemap/TilemapEditing.cpp
+    src/Tilemap/TilemapRendering.cpp
+    src/Tilemap/TilemapSerializer.cpp
     src/Scripting/PythonScriptAsset.cpp
     src/Scripting/ScenePythonScriptSystem.cpp
 )

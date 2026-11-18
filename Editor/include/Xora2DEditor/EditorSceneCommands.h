@@ -20,6 +20,7 @@ enum class SceneComponentKind {
     AudioListener,
     PythonScript,
     Animation,
+    Tilemap,
 };
 
 enum class EditorCommandStatus {

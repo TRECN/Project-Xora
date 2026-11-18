@@ -218,6 +218,56 @@ void DrawSceneSection(EditorContext& context, const AssetDetails& details) {
     }
 }
 
+void DrawTilesetSection(EditorContext& context, const AssetDetails& details) {
+    ImGui::SeparatorText("Tileset");
+    if (details.Tileset && BeginProperties("TilesetProps")) {
+        const TilesetDetails& tileset = *details.Tileset;
+        PropertyRow("Tileset name", tileset.TilesetName);
+        PropertyRow("Tiles", std::to_string(tileset.TileCount) + (tileset.Manual ? " (manual regions)" : " (grid)"));
+        PropertyRow("Tile size", std::to_string(tileset.TileWidth) + " x " + std::to_string(tileset.TileHeight) + " px");
+        PropertyRow("Margin / spacing", std::to_string(tileset.Margin) + " / " + std::to_string(tileset.Spacing) + " px");
+        PropertyRow("Image", std::to_string(tileset.TextureWidth) + " x " + std::to_string(tileset.TextureHeight) + " px");
+        PropertyRow("Collision", std::to_string(tileset.SolidTiles) + " solid, " + std::to_string(tileset.OneWayTiles) +
+                                     " one-way");
+        ImGui::EndTable();
+        ImGui::TextColored(tileset.TextureOk ? ImVec4(0.6f, 0.65f, 0.72f, 1.0f) : ImVec4(1.0f, 0.75f, 0.35f, 1.0f),
+                           "Texture: %s", tileset.Texture.c_str());
+    }
+    if (details.Metadata && ImGui::Button("Edit Tileset")) {
+        context.RequestTilesetEditor({details.Metadata->Handle, {}});
+    }
+}
+
+void DrawTilemapSection(EditorContext& context, const AssetDetails& details) {
+    ImGui::SeparatorText("Tilemap");
+    if (details.Tilemap && BeginProperties("TilemapProps")) {
+        const TilemapDetails& tilemap = *details.Tilemap;
+        PropertyRow("Tilemap name", tilemap.TilemapName.empty() ? "-" : tilemap.TilemapName);
+        PropertyRow("Tiles", std::to_string(tilemap.TileCount));
+        PropertyRow("Tile size", std::to_string(tilemap.TileWidth) + " x " + std::to_string(tilemap.TileHeight) + " px");
+        std::string layers;
+        for (const std::string& layer : tilemap.Layers) {
+            layers += (layers.empty() ? "" : ", ") + layer;
+        }
+        PropertyRow("Layers", layers.empty() ? "-" : layers);
+        ImGui::EndTable();
+        ImGui::TextColored(tilemap.TilesetOk ? ImVec4(0.6f, 0.65f, 0.72f, 1.0f) : ImVec4(1.0f, 0.75f, 0.35f, 1.0f),
+                           "Tileset: %s", tilemap.Tileset.c_str());
+    }
+    ImGui::BeginDisabled(!details.Metadata || context.IsPlayModeActive());
+    if (ImGui::Button("Open in Tilemap Editor") && details.Metadata) {
+        const auto open = context.OpenTilemapAsset(details.Metadata->Handle);
+        InspectorUiState& state = UiState();
+        state.Message = open.Message;
+        state.MessageIsError = !open.Success;
+        state.MessageKey = details.ResourcePath;
+        if (open.Success) {
+            context.RequestPanel("Tilemap");
+        }
+    }
+    ImGui::EndDisabled();
+}
+
 void DrawPrefabSection(EditorContext& context, const AssetDetails& details) {
     ImGui::SeparatorText("Prefab");
     if (details.Prefab && BeginProperties("PrefabProps")) {
@@ -505,6 +555,12 @@ void DrawAssetInspector(EditorContext& context) {
             break;
         case ContentItemKind::Prefab:
             DrawPrefabSection(context, *details);
+            break;
+        case ContentItemKind::Tileset:
+            DrawTilesetSection(context, *details);
+            break;
+        case ContentItemKind::Tilemap:
+            DrawTilemapSection(context, *details);
             break;
         default:
             break;

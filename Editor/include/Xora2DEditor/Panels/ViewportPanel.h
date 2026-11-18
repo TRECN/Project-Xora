@@ -3,7 +3,10 @@
 #include "Xora2DEditor/EditorPanel.h"
 #include "Xora2DEditor/EditorPlaySession.h"
 
+#include "Xora2D/Core/UUID.h"
 #include "Xora2D/Renderer/ColorRenderTarget.h"
+
+#include <imgui.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -27,6 +30,12 @@ public:
     [[nodiscard]] bool HasValidTarget() const;
     // Game-view pixel (origin bottom-left) -> world position through the active scene's primary camera.
     [[nodiscard]] static glm::vec2 ViewToWorld(EditorContext& context, const glm::vec2& viewPixels);
+
+private:
+    void DrawTilemapTools(EditorContext& context, const ImVec2& imageMin, const ImVec2& imageMax);
+    Xora2D::UUID m_tilemapTarget{};
+
+public:
 
 private:
     std::unique_ptr<Xora2D::ColorRenderTarget> m_renderTarget;

@@ -38,6 +38,9 @@ struct TransformComponent {
     glm::vec2 Scale{1.0f};
 
     glm::mat4 GetLocalMatrix() const;
+    // Matrix built from the current Translation / RotationRadians / Scale (does not rely on the cached matrix being
+    // recalculated after direct field writes).
+    [[nodiscard]] glm::mat4 ComputeMatrix() const;
     void RecalculateLocalMatrix();
     const glm::mat4& GetMatrix() const { return m_matrix; }
 
