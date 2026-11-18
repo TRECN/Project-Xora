@@ -2,9 +2,15 @@
 
 Xora2D centralizes project assets through `AssetHandle`, `AssetRegistry`, and `AssetManager`.
 
+> **Projects (Milestone 17):** paths below written as `Resources/Assets/...` resolve against the *content root*
+> (`Xora2D::GetContentRoot()`). While a project is open that is the project folder, so assets live in
+> `<Project>/Assets/` and the registry in `<Project>/Assets/Registry/AssetRegistry.yaml`. Without a project (Sandbox,
+> engine samples) it is the engine's `Resources/` folder. See [Projects.md](Projects.md).
+
 ## Identity
 
-- **AssetHandle** — stable 64-bit id (`StableFromRelativePath` for deterministic handles, persisted in the registry).
+- **AssetHandle** — stable 64-bit id (`StableFromRelativePath` for deterministic handles, persisted in the registry). New assets get their handle from `AssetRegistry::AllocateHandleForPath`, which falls back to a deterministic alternate when a renamed/moved asset still owns the path-derived handle. Rename/move (`AssetRegistry::RelocateAssetPath`) preserves handles — see [AssetBrowser.md](AssetBrowser.md).
+- Supported audio extensions: `.wav` and `.mp3` (decoded by miniaudio).
 - **AssetType** — currently `Texture2D` only.
 - **AssetMetadata** — handle, type, display name, relative path under `Resources/Assets/`, availability flag.
 

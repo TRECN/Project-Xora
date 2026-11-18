@@ -30,6 +30,8 @@ std::string AssetTypeToString(AssetType type) {
         return "Audio";
     case AssetType::PythonScript:
         return "PythonScript";
+    case AssetType::AnimationClip:
+        return "AnimationClip";
     default:
         return "Unknown";
     }
@@ -44,6 +46,9 @@ std::optional<AssetType> AssetTypeFromString(const std::string& text) {
     }
     if (text == "PythonScript") {
         return AssetType::PythonScript;
+    }
+    if (text == "AnimationClip") {
+        return AssetType::AnimationClip;
     }
     return std::nullopt;
 }

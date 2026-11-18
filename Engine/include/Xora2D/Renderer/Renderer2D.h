@@ -40,6 +40,8 @@ public:
     void DrawQuad(const Transform2D& transform, const glm::vec4& color);
     void DrawQuad(const Transform2D& transform, const Texture2D& texture,
                   const glm::vec4& tint = glm::vec4(1.0f));
+    void DrawQuad(const Transform2D& transform, const Texture2D& texture, const glm::vec4& tint,
+                  const glm::vec2 uvCorners[4]);
 
     const Renderer2DStats& GetStats() const { return m_stats; }
     Renderer2DStats& GetStats() { return m_stats; }

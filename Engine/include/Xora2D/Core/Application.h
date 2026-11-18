@@ -4,7 +4,7 @@
 #include "Xora2D/Audio/AudioEngine.h"
 #include "Xora2D/Scripting/PythonScriptEngine.h"
 #include "Xora2D/Input/InputManager.h"
-#include "Xora2D/Platform/Window.h"
+#include "Xora2D/Platform/Window.h" // WindowProperties
 #include "Xora2D/Renderer/GraphicsDevice.h"
 
 #include <glm/vec4.hpp>
@@ -31,12 +31,14 @@ public:
 
     // Blocks until the window is closed or the process is asked to quit.
     // Returns EXIT_SUCCESS after a clean shutdown.
-    int Run();
+    virtual int Run();
 
     void SetClearColor(const glm::vec4& color);
     const GraphicsInfo& GetGraphicsInfo() const;
 
 protected:
+    explicit Application(const WindowProperties& windowProperties);
+
     virtual void OnUpdate(double deltaSeconds);
     virtual void OnRender();
 
@@ -65,8 +67,16 @@ protected:
 
     void Close();
 
-private:
-    void HandleEvent(Event& event);
+    RendererAPI& GetRendererAPI();
+    const RendererAPI& GetRendererAPI() const;
+    GraphicsContext& GetGraphicsContext();
+    const GraphicsContext& GetGraphicsContext() const;
+    Time& GetTime() { return m_time; }
+    const Time& GetTime() const { return m_time; }
+    bool IsRunning() const { return m_running; }
+
+protected:
+    virtual void HandleEvent(Event& event);
 
     bool m_running = true;
     glm::vec4 m_clearColor{0.08f, 0.09f, 0.12f, 1.0f};

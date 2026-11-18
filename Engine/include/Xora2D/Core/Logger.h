@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <format>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -24,6 +25,11 @@ public:
     static bool IsEnabled(LogLevel level);
 
     static void Log(LogLevel level, std::string_view message);
+
+    // Optional in-process subscribers (editor console). Not invoked when nullptr.
+    using Sink = std::function<void(LogLevel level, std::string_view message)>;
+    static void SetSink(Sink sink);
+    static void ClearSink();
 
     // Pure formatting helper so tests can check the line without capturing stderr.
     static std::string FormatLine(LogLevel level, std::string_view message,

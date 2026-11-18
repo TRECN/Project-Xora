@@ -1,0 +1,44 @@
+Version: 1
+Name: ExampleScene
+Entities:
+  - Entity: 1020304050607080-aabbccddeeff0011
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Translation: [320, 240]
+      RotationRadians: 0
+      Scale: [1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Size: [48, 48]
+      TilingFactor: 1
+      Visible: true
+    RigidBody2DComponent:
+      Type: Dynamic
+      FixedRotation: false
+      GravityScale: 1
+      LinearDamping: 0
+      AngularDamping: 0.05
+      AllowSleep: true
+      Bullet: false
+      Enabled: true
+      DriveTransformFromECS: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [48, 48]
+      Density: 1
+      Friction: 0.4
+      Restitution: 0
+      RestitutionThreshold: 2
+      IsSensor: false
+  - Entity: 90abcdef12345678-ffeeddccbbaa9988
+    TagComponent:
+      Tag: MainCamera
+    TransformComponent:
+      Translation: [640, 360]
+      RotationRadians: 0
+      Scale: [1, 1]
+    CameraComponent:
+      Enabled: true
+      Primary: true
+      Zoom: 1

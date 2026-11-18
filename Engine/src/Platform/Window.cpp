@@ -294,6 +294,7 @@ struct Window::Impl {
     int framebufferHeight = 0;
     bool opengl = false;
     EventCallback callback;
+    SdlEventHook sdlEventHook;
 
     ~Impl() {
         if (window != nullptr) {
@@ -339,6 +340,12 @@ Window::~Window() = default;
 void Window::PollEvents() {
     SDL_Event sdlEvent{};
     while (SDL_PollEvent(&sdlEvent)) {
+        // The raw hook (used by the editor's ImGui backend) must see every SDL event, not only the subset the
+        // engine translates: text input, mouse-leave, drop-file and display events are needed for UI widgets.
+        if (m_impl->sdlEventHook) {
+            m_impl->sdlEventHook(&sdlEvent);
+        }
+
         if (!IsForWindow(sdlEvent, m_impl->windowId)) {
             continue;
         }
@@ -399,6 +406,14 @@ int Window::GetFramebufferWidth() const {
 
 int Window::GetFramebufferHeight() const {
     return m_impl->framebufferHeight;
+}
+
+void* Window::GetNativeWindowHandle() const {
+    return m_impl->window;
+}
+
+void Window::SetSdlEventHook(SdlEventHook hook) {
+    m_impl->sdlEventHook = std::move(hook);
 }
 
 } // namespace Xora2D

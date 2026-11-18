@@ -31,6 +31,9 @@ public:
     virtual void SetWrap(TextureWrap wrapS, TextureWrap wrapT) = 0;
 
     static std::unique_ptr<Texture2D> CreateFromFile(const std::string& path);
+    // Creates a texture from tightly packed RGBA8 pixels (row 0 = top of the image). Returns null on bad input.
+    static std::unique_ptr<Texture2D> CreateFromRGBA8(std::uint32_t width, std::uint32_t height,
+                                                      const std::uint8_t* pixels);
     static std::unique_ptr<Texture2D> CreateSolid(std::uint8_t red, std::uint8_t green, std::uint8_t blue,
                                                   std::uint8_t alpha = 255);
 };

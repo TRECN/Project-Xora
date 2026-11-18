@@ -46,6 +46,53 @@ bool AssetRegistry::RegisterAsset(AssetMetadata metadata) {
     return true;
 }
 
+AssetHandle AssetRegistry::AllocateHandleForPath(const std::string& normalizedRelativePath) const {
+    AssetHandle candidate = AssetHandle::StableFromRelativePath(normalizedRelativePath);
+    for (int attempt = 1; attempt < 1024 && (!candidate.IsValid() || m_byHandle.contains(candidate)); ++attempt) {
+        candidate = AssetHandle::StableFromRelativePath(normalizedRelativePath + "#" + std::to_string(attempt));
+    }
+    return candidate;
+}
+
+bool AssetRegistry::RelocateAssetPath(AssetHandle handle, const std::string& newNormalizedRelativePath) {
+    const auto found = m_byHandle.find(handle);
+    if (found == m_byHandle.end()) {
+        return false;
+    }
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(newNormalizedRelativePath);
+    if (!normalized.has_value()) {
+        return false;
+    }
+    const auto pathConflict = m_byPath.find(*normalized);
+    if (pathConflict != m_byPath.end() && pathConflict->second != handle) {
+        return false;
+    }
+    m_byPath.erase(found->second.RelativePath);
+    found->second.RelativePath = *normalized;
+    m_byPath[*normalized] = handle;
+    return true;
+}
+
+bool AssetRegistry::SetAssetName(AssetHandle handle, const std::string& name) {
+    if (name.empty()) {
+        return false;
+    }
+    const auto found = m_byHandle.find(handle);
+    if (found == m_byHandle.end()) {
+        return false;
+    }
+    found->second.Name = name;
+    return true;
+}
+
+void AssetRegistry::SetAssetAvailable(AssetHandle handle, bool available) {
+    const auto found = m_byHandle.find(handle);
+    if (found == m_byHandle.end()) {
+        return;
+    }
+    found->second.Available = available;
+}
+
 bool AssetRegistry::RemoveAsset(AssetHandle handle) {
     const auto found = m_byHandle.find(handle);
     if (found == m_byHandle.end()) {

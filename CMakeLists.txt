@@ -18,6 +18,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(XORA2D_ENABLE_SCRIPTING "Embed CPython and enable Python gameplay scripting" ON)
+option(XORA2D_BUILD_EDITOR "Build the Xora2D visual editor" ON)
 
 enable_testing()
 
@@ -33,4 +34,8 @@ if(XORA2D_ENABLE_SCRIPTING)
 endif()
 add_subdirectory(Engine)
 add_subdirectory(Sandbox)
+if(XORA2D_BUILD_EDITOR)
+    include(${CMAKE_SOURCE_DIR}/third_party/imgui/Xora2D.cmake)
+    add_subdirectory(Editor)
+endif()
 add_subdirectory(Tests)

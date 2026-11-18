@@ -1,3 +1,6 @@
+#include "Xora2D/Animation/AnimationComponent.h"
+#include "Xora2D/Animation/AnimationEvents.h"
+#include "Xora2D/Animation/AnimationPlayback.h"
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Assets/AssetPaths.h"
 #include "Xora2D/Assets/AssetRegistrySerializer.h"
@@ -86,6 +89,7 @@ public:
         LoadInputMapping();
         BuildScene();
         InitializePythonDemo();
+        InitializeAnimationDemo();
         InitializeAudioDemo();
         m_scene->SetSceneName("SandboxPhysicsDemo");
         DemonstrateSceneSerialization();
@@ -95,10 +99,14 @@ public:
 protected:
     void OnShutdownRequested() override {
         m_playerEntity = {};
-        m_assetManager.PrepareShutdown();
+        m_animationEntity = {};
+        m_cameraEntity = {};
+        m_ecsMusicEntity = {};
         if (m_scene) {
             m_scene->PrepareForShutdown();
         }
+        Xora2D::Application::OnShutdownRequested();
+        m_assetManager.PrepareShutdown();
     }
 
     void OnUpdate(double deltaSeconds) override {
@@ -116,6 +124,7 @@ protected:
         // Step physics first so SyncSceneBodies creates bodies before gameplay applies forces.
         m_scene->OnUpdate(delta);
         UpdateInputGameplay(delta);
+        UpdateAnimationDemo();
         UpdateAudioDemo();
         UpdateCamera(delta);
         m_logCooldown -= delta;
@@ -274,6 +283,10 @@ private:
             m_playerPythonControl = m_playerEntity.HasComponent<Xora2D::PythonScriptComponent>();
         }
         m_ecsMusicEntity = m_scene->FindEntityByName("EcsMusicEmitter");
+        m_animationEntity = m_scene->FindEntityByName("AnimationDemo");
+        if (!m_animationEntity.IsValid()) {
+            XORA_LOG_WARN("Loaded scene has no AnimationDemo entity — animation hotkeys disabled");
+        }
         XORA_LOG_INFO("Active scene after reload: {} entities, camera UUID match: {}", m_scene->GetEntityCount(),
                       m_cameraEntity.GetUUID() == cameraUuid);
     }
@@ -334,6 +347,81 @@ private:
         sprite.Color = {0.92f, 0.40f + restitution * 0.3f, 0.28f, 1.0f};
         sprite.Size = {radius * 2.0f, radius * 2.0f};
         entity.GetComponent<Xora2D::TransformComponent>().Translation = position;
+    }
+
+    void InitializeAnimationDemo() {
+        (void)m_assetManager.RegisterTextureAtRelativePath("Textures/DemoSpriteSheet.png", "DemoSpriteSheet");
+        const Xora2D::AssetResult walk =
+            m_assetManager.RegisterAnimationClipAtRelativePath("Animations/DemoWalk.anim.yaml", "Walk");
+        const Xora2D::AssetResult idle =
+            m_assetManager.RegisterAnimationClipAtRelativePath("Animations/DemoIdle.anim.yaml", "Idle");
+        const Xora2D::AssetResult cheer =
+            m_assetManager.RegisterAnimationClipAtRelativePath("Animations/DemoCheer.anim.yaml", "Cheer");
+        if (!walk.Success || !idle.Success || !cheer.Success) {
+            XORA_LOG_WARN("Animation demo assets failed to register");
+            return;
+        }
+
+        m_scene->SetAnimationEventCallback([](const Xora2D::AnimationEvent& event) {
+            if (event.Type == Xora2D::AnimationEventType::Completed) {
+                XORA_LOG_INFO("Animation completed — {} on {}", event.ClipName, event.EntityId.ToString());
+            }
+        });
+
+        Xora2D::Entity staticSprite = m_scene->CreateEntity("StaticCompanion");
+        staticSprite.GetComponent<Xora2D::TransformComponent>().Translation = {900.0f, 520.0f};
+        auto& staticRender = staticSprite.AddComponent<Xora2D::SpriteRendererComponent>();
+        staticRender.Color = {0.4f, 0.8f, 1.0f, 1.0f};
+        staticRender.Size = {80.0f, 80.0f};
+
+        m_animationEntity = m_scene->CreateEntity("AnimationDemo");
+        m_animationEntity.GetComponent<Xora2D::TransformComponent>().Translation = {900.0f, 360.0f};
+        auto& sprite = m_animationEntity.AddComponent<Xora2D::SpriteRendererComponent>();
+        sprite.Size = {96.0f, 96.0f};
+        (void)m_assetManager.LoadTexture(
+            Xora2D::AssetHandle::StableFromRelativePath("Textures/DemoSpriteSheet.png"));
+
+        auto& animation = m_animationEntity.AddComponent<Xora2D::AnimationComponent>();
+        animation.ClipAssets = {walk.Handle, idle.Handle, cheer.Handle};
+        animation.DefaultClip = walk.Handle;
+        animation.Autoplay = true;
+        animation.Looping = true;
+
+        m_walkClip = walk.Handle;
+        m_idleClip = idle.Handle;
+        m_cheerClip = cheer.Handle;
+
+        XORA_LOG_INFO(
+            "Animation demo — 5: Walk (loop), 6: Idle (loop), 7: Cheer (one-shot), 8: Pause/Resume toggle");
+    }
+
+    void UpdateAnimationDemo() {
+        if (!m_animationEntity.IsValid()) {
+            return;
+        }
+        if (IsDemoDigitPressed(5)) {
+            (void)Xora2D::AnimationPlay(m_animationEntity, m_assetManager, m_walkClip);
+        }
+        if (IsDemoDigitPressed(6)) {
+            (void)Xora2D::AnimationPlay(m_animationEntity, m_assetManager, m_idleClip);
+        }
+        if (IsDemoDigitPressed(7)) {
+            if (!m_animationEntity.HasComponent<Xora2D::AnimationComponent>()) {
+                return;
+            }
+            auto& animation = m_animationEntity.GetComponent<Xora2D::AnimationComponent>();
+            animation.Looping = false;
+            (void)Xora2D::AnimationPlay(m_animationEntity, m_assetManager, m_cheerClip);
+        }
+        if (IsDemoDigitPressed(8)) {
+            if (Xora2D::AnimationIsPlaying(m_animationEntity)) {
+                Xora2D::AnimationPause(m_animationEntity);
+                XORA_LOG_INFO("Animation paused");
+            } else {
+                Xora2D::AnimationResume(m_animationEntity);
+                XORA_LOG_INFO("Animation resumed");
+            }
+        }
     }
 
     void InitializePythonDemo() {
@@ -595,6 +683,10 @@ private:
     bool m_sfxLooping = false;
     bool m_playerPythonControl = false;
     float m_logCooldown = 0.0f;
+    Xora2D::Entity m_animationEntity;
+    Xora2D::AssetHandle m_walkClip;
+    Xora2D::AssetHandle m_idleClip;
+    Xora2D::AssetHandle m_cheerClip;
 };
 
 } // namespace

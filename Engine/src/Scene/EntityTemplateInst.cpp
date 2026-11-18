@@ -1,3 +1,4 @@
+#include "Xora2D/Animation/AnimationComponent.h"
 #include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
@@ -32,6 +33,7 @@ XORA_ENTITY_INST_ADDABLE(CircleCollider2DComponent)
 XORA_ENTITY_INST_ADDABLE(AudioSourceComponent)
 XORA_ENTITY_INST_ADDABLE(AudioListenerComponent)
 XORA_ENTITY_INST_ADDABLE(PythonScriptComponent)
+XORA_ENTITY_INST_ADDABLE(AnimationComponent)
 
 #undef XORA_ENTITY_INST_ADDABLE
 #undef XORA_ENTITY_INST_ACCESS

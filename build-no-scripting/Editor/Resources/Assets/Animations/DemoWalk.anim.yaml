@@ -1,0 +1,14 @@
+Version: 1
+Name: Walk
+TextureRelativePath: Textures/DemoSpriteSheet.png
+Loop: true
+PlaybackSpeed: 1.0
+DefaultFrameDuration: 0.12
+SpriteSheet:
+  Columns: 4
+  Rows: 1
+  FrameWidth: 32
+  FrameHeight: 32
+  StartFrame: 0
+  FrameCount: 4
+  Order: RowMajor

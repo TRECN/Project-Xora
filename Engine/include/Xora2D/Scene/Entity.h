@@ -48,6 +48,7 @@ private:
     friend struct PhysicsWorld2DDetail;
     friend class PythonScriptEngine;
     friend class ScenePythonScriptSystem;
+    friend class SceneAnimationSystem;
 
     Entity(Scene* scene, std::uint32_t handle)
         : m_scene(scene), m_handle(handle) {}

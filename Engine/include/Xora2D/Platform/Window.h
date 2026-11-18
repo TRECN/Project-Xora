@@ -52,6 +52,12 @@ public:
     int GetFramebufferWidth() const;
     int GetFramebufferHeight() const;
 
+    // Opaque native window handle (SDL_Window*). For editor platform backends only.
+    void* GetNativeWindowHandle() const;
+
+    using SdlEventHook = std::function<void(const void* sdlEvent)>;
+    void SetSdlEventHook(SdlEventHook hook);
+
 private:
     struct Impl;
     std::unique_ptr<Impl> m_impl;

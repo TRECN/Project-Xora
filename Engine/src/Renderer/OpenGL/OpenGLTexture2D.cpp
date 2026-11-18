@@ -104,6 +104,14 @@ std::unique_ptr<Texture2D> Texture2D::CreateFromFile(const std::string& path) {
     return texture;
 }
 
+std::unique_ptr<Texture2D> Texture2D::CreateFromRGBA8(std::uint32_t width, std::uint32_t height,
+                                                      const std::uint8_t* pixels) {
+    if (width == 0 || height == 0 || pixels == nullptr) {
+        return nullptr;
+    }
+    return std::make_unique<OpenGLTexture2D>(width, height, GL_RGBA8, GL_RGBA, pixels);
+}
+
 std::unique_ptr<Texture2D> Texture2D::CreateSolid(std::uint8_t red, std::uint8_t green, std::uint8_t blue,
                                                   std::uint8_t alpha) {
     const std::uint8_t pixel[4] = {red, green, blue, alpha};

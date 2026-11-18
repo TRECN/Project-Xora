@@ -1,7 +1,15 @@
 #include "Xora2D/Scene/Scene.h"
 
+#include "SceneAnimationSystem.h"
 #include "SceneAudioSystem.h"
 #include "Scripting/ScenePythonScriptSystem.h"
+
+#include "Xora2D/Animation/AnimationClipAsset.h"
+#include "Xora2D/Animation/AnimationComponent.h"
+#include "Xora2D/Animation/SpriteSheetLayout.h"
+#include "Xora2D/Audio/AudioComponents.h"
+#include "Xora2D/Physics/PhysicsComponents.h"
+#include "Xora2D/Scripting/PythonScriptComponent.h"
 
 #include "Xora2D/Assets/AssetManager.h"
 #include "Xora2D/Audio/AudioEngine.h"
@@ -30,17 +38,66 @@ Transform2D ToRendererTransform(const TransformComponent& transform, const Sprit
     return output;
 }
 
+template <typename Component>
+void CopyComponentIfPresent(const entt::registry& source, entt::entity from, entt::registry& target, entt::entity to) {
+    if (const Component* component = source.try_get<Component>(from)) {
+        target.emplace_or_replace<Component>(to, *component);
+    }
+}
+
+// Every component type a scene can hold besides IDComponent/TagComponent (created with the entity).
+template <typename... Components>
+void CopyComponents(const entt::registry& source, entt::entity from, entt::registry& target, entt::entity to) {
+    (CopyComponentIfPresent<Components>(source, from, target, to), ...);
+}
+
 } // namespace
 
 std::shared_ptr<Scene> Scene::Create() {
     return std::shared_ptr<Scene>(new Scene());
 }
 
+std::shared_ptr<Scene> Scene::Copy(const Scene& source) {
+    std::shared_ptr<Scene> copy = Scene::Create();
+    copy->m_sceneName = source.m_sceneName;
+    copy->m_viewportWidth = source.m_viewportWidth;
+    copy->m_viewportHeight = source.m_viewportHeight;
+    copy->m_physics->Configure(source.m_physics->GetSettings());
+
+    const entt::registry& from = source.m_registry->Registry;
+    entt::registry& to = copy->m_registry->Registry;
+
+    // Views iterate newest-first; create in reverse so the copy keeps the source's creation (and draw) order.
+    std::vector<entt::entity> entities;
+    entities.reserve(source.m_uuidIndex.size());
+    for (const entt::entity entity : from.view<IDComponent>()) {
+        entities.push_back(entity);
+    }
+    for (auto it = entities.rbegin(); it != entities.rend(); ++it) {
+        const entt::entity sourceEntity = *it;
+        const entt::entity created = to.create();
+        const std::uint32_t handle = FromEntt(created);
+        const UUID uuid = from.get<IDComponent>(sourceEntity).ID;
+        to.emplace<IDComponent>(created, IDComponent{uuid});
+        const TagComponent* tag = from.try_get<TagComponent>(sourceEntity);
+        to.emplace<TagComponent>(created, TagComponent{tag != nullptr ? tag->Tag : std::string("Entity")});
+        CopyComponents<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent,
+                       BoxCollider2DComponent, CircleCollider2DComponent, AudioSourceComponent, AudioListenerComponent,
+                       PythonScriptComponent, AnimationComponent>(from, sourceEntity, to, created);
+        if (!to.all_of<TransformComponent>(created)) {
+            to.emplace<TransformComponent>(created).RecalculateLocalMatrix();
+        }
+        copy->IndexEntity(handle);
+    }
+    return copy;
+}
+
 Scene::Scene()
     : m_registry(std::make_unique<Registry>()),
       m_physics(std::make_unique<PhysicsWorld2D>()),
       m_audioSystem(std::make_unique<SceneAudioSystem>()),
-      m_scriptSystem(std::make_unique<ScenePythonScriptSystem>()) {}
+      m_scriptSystem(std::make_unique<ScenePythonScriptSystem>()),
+      m_animationSystem(std::make_unique<SceneAnimationSystem>()) {}
 
 Scene::~Scene() {
     PrepareForShutdown();
@@ -119,6 +176,9 @@ void Scene::ReplaceContentsFrom(Scene& source) {
     if (m_scriptSystem) {
         m_scriptSystem->Clear();
     }
+    if (m_animationSystem) {
+        m_animationSystem->Clear();
+    }
 }
 
 void Scene::Clear() {
@@ -141,6 +201,9 @@ void Scene::Clear() {
     if (m_scriptSystem) {
         m_scriptSystem->Clear();
     }
+    if (m_animationSystem) {
+        m_animationSystem->Clear();
+    }
 }
 
 void Scene::DestroyEntity(Entity entity) {
@@ -152,6 +215,9 @@ void Scene::DestroyEntity(Entity entity) {
     }
     if (m_scriptSystem) {
         m_scriptSystem->OnEntityDestroyed(entity.m_handle);
+    }
+    if (m_animationSystem) {
+        m_animationSystem->OnEntityDestroyed(entity.m_handle);
     }
     m_physics->OnEntityDestroyed(*this, entity);
     UnindexEntity(entity.m_handle);
@@ -190,6 +256,9 @@ void Scene::PrepareForShutdown() {
     if (m_scriptSystem) {
         m_scriptSystem->PrepareForShutdown();
     }
+    if (m_animationSystem) {
+        m_animationSystem->PrepareForShutdown();
+    }
     if (!m_physics) {
         return;
     }
@@ -201,6 +270,9 @@ void Scene::OnUpdate(float deltaSeconds) {
     m_physics->Step(*this, deltaSeconds);
     if (m_audioSystem) {
         m_audioSystem->OnSceneUpdate(*this, deltaSeconds);
+    }
+    if (m_animationSystem) {
+        m_animationSystem->OnSceneUpdate(*this, deltaSeconds);
     }
     if (m_scriptSystem) {
         m_scriptSystem->OnSceneUpdate(*this, deltaSeconds);
@@ -219,6 +291,12 @@ void Scene::SetPythonScriptEngine(PythonScriptEngine* scriptEngine) {
     }
 }
 
+void Scene::SetAnimationEventCallback(std::function<void(const AnimationEvent&)> callback) {
+    if (m_animationSystem) {
+        m_animationSystem->SetEventCallback(std::move(callback));
+    }
+}
+
 void Scene::SetAssetManager(AssetManager* assetManager) {
     m_assetManager = assetManager;
     if (m_audioSystem) {
@@ -226,6 +304,9 @@ void Scene::SetAssetManager(AssetManager* assetManager) {
     }
     if (m_scriptSystem) {
         m_scriptSystem->SetAssetManager(assetManager);
+    }
+    if (m_animationSystem) {
+        m_animationSystem->SetAssetManager(assetManager);
     }
 }
 
@@ -244,6 +325,28 @@ void Scene::StopLoopingAudio() {
 void Scene::StopEntityAudio(const Entity& entity) {
     if (m_audioSystem && IsValid(entity)) {
         m_audioSystem->StopEntityPlayback(entity.m_handle);
+    }
+}
+
+void Scene::ReleasePythonScriptInstance(const Entity& entity) {
+    if (m_scriptSystem && IsValid(entity)) {
+        m_scriptSystem->OnEntityDestroyed(entity.m_handle);
+    }
+}
+
+void Scene::SynchronizePhysicsBodies() {
+    m_physics->SyncSceneBodies(*this);
+}
+
+void Scene::PauseAudio() {
+    if (m_audioSystem) {
+        m_audioSystem->PauseAllEntityPlaybacks();
+    }
+}
+
+void Scene::ResumeAudio() {
+    if (m_audioSystem) {
+        m_audioSystem->ResumeAllEntityPlaybacks();
     }
 }
 
@@ -273,7 +376,29 @@ void Scene::ResolveSpriteTextures() {
     auto& registry = m_registry->Registry;
     for (const auto entity : registry.view<SpriteRendererComponent>()) {
         auto& sprite = registry.get<SpriteRendererComponent>(entity);
-        if (!sprite.Visible || !sprite.TextureAsset.IsValid()) {
+        if (!sprite.Visible) {
+            continue;
+        }
+        if (registry.all_of<AnimationComponent>(entity)) {
+            auto& animation = registry.get<AnimationComponent>(entity);
+            AssetHandle textureHandle = sprite.TextureAsset;
+            if (animation.ActiveClip.IsValid()) {
+                if (const std::shared_ptr<const AnimationClipAsset> clipAsset =
+                        m_assetManager->GetLoadedAnimationClip(animation.ActiveClip)) {
+                    textureHandle = clipAsset->GetClip().TextureAsset;
+                }
+            } else if (animation.DefaultClip.IsValid()) {
+                textureHandle = animation.DefaultClip;
+                if (const std::shared_ptr<const AnimationClipAsset> clipAsset =
+                        m_assetManager->GetLoadedAnimationClip(animation.DefaultClip)) {
+                    textureHandle = clipAsset->GetClip().TextureAsset;
+                }
+            }
+            if (textureHandle.IsValid()) {
+                sprite.TextureAsset = textureHandle;
+            }
+        }
+        if (!sprite.TextureAsset.IsValid()) {
             continue;
         }
         if (sprite.Texture != nullptr) {
@@ -328,7 +453,17 @@ void Scene::OnRender(Renderer2D& renderer) {
         if (!sprite.Visible || sprite.Texture == nullptr) {
             continue;
         }
-        renderer.DrawQuad(ToRendererTransform(transform, sprite), *sprite.Texture, sprite.Color);
+        const Transform2D drawTransform = ToRendererTransform(transform, sprite);
+        if (registry.all_of<AnimationComponent>(entity)) {
+            const auto& animation = registry.get<AnimationComponent>(entity);
+            if (animation.FrameUVValid) {
+                glm::vec2 uvCorners[4];
+                BuildQuadUvsFromRect(animation.FrameUV, uvCorners);
+                renderer.DrawQuad(drawTransform, *sprite.Texture, sprite.Color, uvCorners);
+                continue;
+            }
+        }
+        renderer.DrawQuad(drawTransform, *sprite.Texture, sprite.Color);
     }
 
     renderer.EndScene();

@@ -17,6 +17,11 @@ LogLevel& MinimumLevel() {
     return level;
 }
 
+Logger::Sink& ActiveSink() {
+    static Logger::Sink sink;
+    return sink;
+}
+
 std::string_view LevelLabel(LogLevel level) {
     switch (level) {
     case LogLevel::Trace:
@@ -62,6 +67,16 @@ std::string Logger::FormatLine(LogLevel level, std::string_view message,
                         localTime.tm_sec, millisecondCount, LevelLabel(level), message);
 }
 
+void Logger::SetSink(Sink sink) {
+    std::lock_guard lock(LogMutex());
+    ActiveSink() = std::move(sink);
+}
+
+void Logger::ClearSink() {
+    std::lock_guard lock(LogMutex());
+    ActiveSink() = nullptr;
+}
+
 void Logger::Log(LogLevel level, std::string_view message) {
     if (!IsEnabled(level)) {
         return;
@@ -69,6 +84,9 @@ void Logger::Log(LogLevel level, std::string_view message) {
 
     const std::string line = FormatLine(level, message, std::chrono::system_clock::now());
     std::lock_guard lock(LogMutex());
+    if (ActiveSink()) {
+        ActiveSink()(level, message);
+    }
     std::cerr << line << '\n';
 }
 

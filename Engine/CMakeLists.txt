@@ -3,12 +3,18 @@ add_library(Xora2D STATIC
     src/Core/Logger.cpp
     src/Core/Paths.cpp
     src/Core/Time.cpp
+    src/Core/Version.cpp
     src/Core/UUID.cpp
     src/Assets/AssetHandle.cpp
     src/Assets/AssetPaths.cpp
     src/Assets/AssetRegistry.cpp
     src/Assets/AssetRegistrySerializer.cpp
     src/Assets/AssetManager.cpp
+    src/Animation/AnimationClipAsset.cpp
+    src/Animation/AnimationController.cpp
+    src/Animation/AnimationPlayback.cpp
+    src/Animation/SpriteSheetLayout.cpp
+    src/Scene/SceneAnimationSystem.cpp
     src/Input/Input.cpp
     src/Input/InputCodes.cpp
     src/Input/InputManager.cpp
@@ -31,6 +37,7 @@ add_library(Xora2D STATIC
     src/Renderer/OpenGL/OpenGLVertexArray.cpp
     src/Renderer/OpenGL/OpenGLContext.cpp
     src/Renderer/OpenGL/OpenGLRendererAPI.cpp
+    src/Renderer/OpenGL/OpenGLColorRenderTarget.cpp
     src/Scene/Components.cpp
     src/Scene/Entity.cpp
     src/Scene/EntityTemplateInst.cpp
@@ -38,6 +45,10 @@ add_library(Xora2D STATIC
     src/Physics/PhysicsUtils.cpp
     src/Physics/PhysicsWorld2D.cpp
     src/Serialization/SceneSerializer.cpp
+    src/Project/ProjectConfig.cpp
+    src/Project/ProjectSerializer.cpp
+    src/Project/Project.cpp
+    src/Project/ProjectTemplates.cpp
     src/Scripting/PythonScriptAsset.cpp
     src/Scripting/ScenePythonScriptSystem.cpp
 )
@@ -54,7 +65,8 @@ target_include_directories(Xora2D
 
 target_compile_features(Xora2D PUBLIC cxx_std_20)
 
-target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources")
+target_compile_definitions(Xora2D PRIVATE XORA2D_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/Resources"
+    XORA2D_VERSION_STRING="${PROJECT_VERSION}")
 
 if(XORA2D_ENABLE_SCRIPTING)
     target_sources(Xora2D PRIVATE

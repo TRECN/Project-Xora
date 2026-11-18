@@ -13,6 +13,7 @@
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Scene/Components.h"
+#include "Xora2D/Animation/AnimationPlayback.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
 
@@ -193,6 +194,62 @@ public:
     [[nodiscard]] TransformBinding& Transform() { return m_transform; }
     [[nodiscard]] PhysicsBinding& Physics() { return m_physics; }
 
+    bool AnimationPlayClip(const std::string& clipName) {
+        Entity entity;
+        if (!Resolve(entity) || g_scriptServices == nullptr || g_scriptServices->Assets == nullptr) {
+            return false;
+        }
+        return AnimationPlayByName(entity, *g_scriptServices->Assets, clipName);
+    }
+
+    void AnimationPauseClip() {
+        Entity entity;
+        if (!Resolve(entity)) {
+            return;
+        }
+        AnimationPause(entity);
+    }
+
+    void AnimationResumeClip() {
+        Entity entity;
+        if (!Resolve(entity)) {
+            return;
+        }
+        AnimationResume(entity);
+    }
+
+    void AnimationStopClip() {
+        Entity entity;
+        if (!Resolve(entity)) {
+            return;
+        }
+        AnimationStop(entity);
+    }
+
+    [[nodiscard]] std::string AnimationCurrentClip() const {
+        Entity entity;
+        if (!Resolve(entity) || g_scriptServices == nullptr || g_scriptServices->Assets == nullptr) {
+            return {};
+        }
+        return AnimationGetCurrentClipName(entity, *g_scriptServices->Assets);
+    }
+
+    [[nodiscard]] int AnimationCurrentFrame() const {
+        Entity entity;
+        if (!Resolve(entity)) {
+            return 0;
+        }
+        return AnimationGetCurrentFrame(entity);
+    }
+
+    [[nodiscard]] bool AnimationIsPlayingClip() const {
+        Entity entity;
+        if (!Resolve(entity)) {
+            return false;
+        }
+        return AnimationIsPlaying(entity);
+    }
+
 private:
     [[nodiscard]] bool Resolve(Entity& entity) const { return ResolveEntity(m_scene, m_entityId, entity); }
 
@@ -267,7 +324,14 @@ PYBIND11_EMBEDDED_MODULE(xora2d, module) {
         })
         .def_property_readonly("physics", [](ScriptEntityRef& entity) -> ScriptEntityRef::PhysicsBinding& {
             return entity.Physics();
-        });
+        })
+        .def("animation_play", &ScriptEntityRef::AnimationPlayClip)
+        .def("animation_pause", &ScriptEntityRef::AnimationPauseClip)
+        .def("animation_resume", &ScriptEntityRef::AnimationResumeClip)
+        .def("animation_stop", &ScriptEntityRef::AnimationStopClip)
+        .def("animation_current_clip", &ScriptEntityRef::AnimationCurrentClip)
+        .def("animation_current_frame", &ScriptEntityRef::AnimationCurrentFrame)
+        .def("animation_is_playing", &ScriptEntityRef::AnimationIsPlayingClip);
 
     py::module input = module.def_submodule("Input", "Input state for the active frame");
     input.def("is_key_down", [](Key key) { return Input::IsKeyDown(key); });

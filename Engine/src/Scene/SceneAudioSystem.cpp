@@ -98,6 +98,30 @@ void SceneAudioSystem::ResumeEntityPlayback(std::uint32_t entityHandle) {
     }
 }
 
+void SceneAudioSystem::PauseAllEntityPlaybacks() {
+    if (m_audioEngine == nullptr) {
+        return;
+    }
+    for (const auto& [handle, voice] : m_entityVoices) {
+        (void)handle;
+        if (voice.PlaybackId != kInvalidAudioPlaybackId) {
+            m_audioEngine->PausePlayback(voice.PlaybackId);
+        }
+    }
+}
+
+void SceneAudioSystem::ResumeAllEntityPlaybacks() {
+    if (m_audioEngine == nullptr) {
+        return;
+    }
+    for (const auto& [handle, voice] : m_entityVoices) {
+        (void)handle;
+        if (voice.PlaybackId != kInvalidAudioPlaybackId) {
+            m_audioEngine->ResumePlayback(voice.PlaybackId);
+        }
+    }
+}
+
 bool SceneAudioSystem::IsEntityPlaybackActive(std::uint32_t entityHandle) const {
     const auto found = m_entityVoices.find(entityHandle);
     if (found == m_entityVoices.end() || m_audioEngine == nullptr) {
@@ -150,7 +174,10 @@ void SceneAudioSystem::OnSceneUpdate(Scene& scene, float /*deltaSeconds*/) {
         const auto& source = registry.get<AudioSourceComponent>(entity);
 
         EntityVoice& voice = m_entityVoices[handle];
-        if (voice.PlaybackId != kInvalidAudioPlaybackId && !m_audioEngine->IsPlaybackActive(voice.PlaybackId)) {
+        // Forget only finished voices. A paused voice reports "not active" but must stay tracked so it can be
+        // resumed or stopped later (scene pause, PauseEntityAudio).
+        if (voice.PlaybackId != kInvalidAudioPlaybackId && !m_audioEngine->IsPlaybackActive(voice.PlaybackId) &&
+            !m_audioEngine->IsPlaybackPaused(voice.PlaybackId)) {
             voice.PlaybackId = kInvalidAudioPlaybackId;
         }
 

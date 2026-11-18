@@ -9,6 +9,7 @@ enum class AssetType : std::uint8_t {
     Texture2D,
     Audio,
     PythonScript,
+    AnimationClip,
 };
 
 } // namespace Xora2D

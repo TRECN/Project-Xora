@@ -176,13 +176,18 @@ void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, cons
 }
 
 void Renderer2D::DrawQuad(const Transform2D& transform, const Texture2D& texture, const glm::vec4& tint) {
+    DrawQuad(transform, texture, tint, kUnitQuadUvs);
+}
+
+void Renderer2D::DrawQuad(const Transform2D& transform, const Texture2D& texture, const glm::vec4& tint,
+                          const glm::vec2 uvCorners[4]) {
     const std::uint32_t slot = AcquireTextureSlot(texture);
     const glm::mat4 model = BuildModelMatrix(transform);
 
     for (std::uint32_t corner = 0; corner < kVerticesPerQuad; ++corner) {
         const glm::vec4 world = model * glm::vec4(kUnitQuadCorners[corner], 0.0f, 1.0f);
         m_texturedVertices.push_back(
-            TexturedVertex{glm::vec3(world), tint, kUnitQuadUvs[corner], static_cast<float>(slot)});
+            TexturedVertex{glm::vec3(world), tint, uvCorners[corner], static_cast<float>(slot)});
     }
 }
 

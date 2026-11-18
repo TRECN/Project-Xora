@@ -23,6 +23,8 @@ public:
     void StopLoopingEntityPlaybacks(Scene& scene);
     void PauseEntityPlayback(std::uint32_t entityHandle);
     void ResumeEntityPlayback(std::uint32_t entityHandle);
+    void PauseAllEntityPlaybacks();
+    void ResumeAllEntityPlaybacks();
     [[nodiscard]] bool IsEntityPlaybackActive(std::uint32_t entityHandle) const;
     void PrepareForShutdown();
     void Clear();

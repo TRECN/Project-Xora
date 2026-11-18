@@ -1,0 +1,14 @@
+Version: 1
+Name: Cheer
+TextureRelativePath: Textures/DemoSpriteSheet.png
+Loop: false
+PlaybackSpeed: 1.0
+DefaultFrameDuration: 0.18
+SpriteSheet:
+  Columns: 4
+  Rows: 1
+  FrameWidth: 32
+  FrameHeight: 32
+  StartFrame: 2
+  FrameCount: 2
+  Order: RowMajor

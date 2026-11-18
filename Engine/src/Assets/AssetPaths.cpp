@@ -8,7 +8,7 @@
 namespace Xora2D {
 
 std::filesystem::path GetAssetRoot() {
-    return GetResourceRoot() / "Assets";
+    return GetContentRoot() / "Assets";
 }
 
 std::filesystem::path DefaultRegistryFilePath() {
@@ -70,7 +70,7 @@ bool IsSupportedAudioExtension(const std::filesystem::path& path) {
     std::string lowered = extension;
     std::transform(lowered.begin(), lowered.end(), lowered.begin(),
                    [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
-    return lowered == ".wav";
+    return lowered == ".wav" || lowered == ".mp3";
 }
 
 bool IsSupportedPythonScriptExtension(const std::filesystem::path& path) {
@@ -82,6 +82,40 @@ bool IsSupportedPythonScriptExtension(const std::filesystem::path& path) {
     std::transform(lowered.begin(), lowered.end(), lowered.begin(),
                    [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
     return lowered == ".py";
+}
+
+bool IsSupportedSceneExtension(const std::filesystem::path& path) {
+    const std::string filename = path.filename().string();
+    std::string lowered = filename;
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    return lowered.ends_with(".scene.yaml");
+}
+
+bool IsAbsolutePathWithinRoot(const std::filesystem::path& absolute, const std::filesystem::path& root) {
+    if (absolute.empty() || root.empty()) {
+        return false;
+    }
+    std::error_code errorCode;
+    const std::filesystem::path canonicalRoot = std::filesystem::weakly_canonical(root, errorCode);
+    if (errorCode) {
+        return false;
+    }
+    const std::filesystem::path canonicalAbsolute = std::filesystem::weakly_canonical(absolute, errorCode);
+    if (errorCode) {
+        return false;
+    }
+    auto [rootEnd, absEnd] = std::mismatch(canonicalRoot.begin(), canonicalRoot.end(), canonicalAbsolute.begin(),
+                                           canonicalAbsolute.end());
+    return rootEnd == canonicalRoot.end();
+}
+
+bool IsSupportedAnimationClipExtension(const std::filesystem::path& path) {
+    const std::string filename = path.filename().string();
+    std::string lowered = filename;
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    return lowered.ends_with(".anim.yaml");
 }
 
 } // namespace Xora2D

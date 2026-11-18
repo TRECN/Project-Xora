@@ -16,12 +16,15 @@
 namespace Xora2D {
 
 Application::Application()
-    : m_window(std::make_unique<Window>(WindowProperties{
+    : Application(WindowProperties{
           .title = "Xora2D Engine",
           .width = 1280,
           .height = 720,
           .enableOpenGL = true,
-      })) {
+      }) {}
+
+Application::Application(const WindowProperties& windowProperties)
+    : m_window(std::make_unique<Window>(windowProperties)) {
     m_window->SetEventCallback([this](Event& event) { HandleEvent(event); });
     m_context = m_window->CreateGraphicsContext();
     m_context->MakeCurrent();
@@ -129,6 +132,22 @@ const Window& Application::GetWindow() const {
 
 void Application::Close() {
     m_running = false;
+}
+
+RendererAPI& Application::GetRendererAPI() {
+    return *m_renderer;
+}
+
+const RendererAPI& Application::GetRendererAPI() const {
+    return *m_renderer;
+}
+
+GraphicsContext& Application::GetGraphicsContext() {
+    return *m_context;
+}
+
+const GraphicsContext& Application::GetGraphicsContext() const {
+    return *m_context;
 }
 
 void Application::HandleEvent(Event& event) {

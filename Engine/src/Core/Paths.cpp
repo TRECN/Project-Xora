@@ -3,8 +3,24 @@
 #include <SDL3/SDL.h>
 
 #include <cstdlib>
+#include <mutex>
+#include <optional>
 
 namespace Xora2D {
+
+namespace {
+
+std::mutex& ContentRootMutex() {
+    static std::mutex mutex;
+    return mutex;
+}
+
+std::optional<std::filesystem::path>& ContentRootOverride() {
+    static std::optional<std::filesystem::path> root;
+    return root;
+}
+
+} // namespace
 
 std::filesystem::path GetResourceRoot() {
     if (const char* environment = std::getenv("XORA2D_RESOURCES")) {
@@ -32,6 +48,35 @@ std::filesystem::path GetResourceRoot() {
 
 std::filesystem::path ResolveResourcePath(const std::string& relativePath) {
     return GetResourceRoot() / relativePath;
+}
+
+std::filesystem::path GetContentRoot() {
+    {
+        std::scoped_lock lock(ContentRootMutex());
+        if (ContentRootOverride().has_value()) {
+            return *ContentRootOverride();
+        }
+    }
+    return GetResourceRoot();
+}
+
+std::filesystem::path ResolveContentPath(const std::string& relativePath) {
+    return GetContentRoot() / relativePath;
+}
+
+void SetContentRoot(const std::filesystem::path& root) {
+    std::scoped_lock lock(ContentRootMutex());
+    ContentRootOverride() = root;
+}
+
+void ResetContentRoot() {
+    std::scoped_lock lock(ContentRootMutex());
+    ContentRootOverride().reset();
+}
+
+bool HasContentRootOverride() {
+    std::scoped_lock lock(ContentRootMutex());
+    return ContentRootOverride().has_value();
 }
 
 } // namespace Xora2D

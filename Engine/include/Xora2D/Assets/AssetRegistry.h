@@ -15,6 +15,16 @@ public:
     bool RegisterAsset(AssetMetadata metadata);
     bool RemoveAsset(AssetHandle handle);
 
+    // Updates the relative path index while preserving the stable handle (rename/move).
+    bool RelocateAssetPath(AssetHandle handle, const std::string& newNormalizedRelativePath);
+    bool SetAssetName(AssetHandle handle, const std::string& name);
+    void SetAssetAvailable(AssetHandle handle, bool available);
+
+    // Returns the stable path-derived handle for a new asset. When that handle is already owned by another
+    // asset (e.g. one that was renamed away from this path and kept its handle), a deterministic alternate
+    // derived from the same path is returned instead so references to the existing asset are never stolen.
+    [[nodiscard]] AssetHandle AllocateHandleForPath(const std::string& normalizedRelativePath) const;
+
     [[nodiscard]] bool Contains(AssetHandle handle) const;
     [[nodiscard]] bool ContainsPath(const std::string& normalizedRelativePath) const;
 

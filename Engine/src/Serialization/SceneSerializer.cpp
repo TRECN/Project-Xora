@@ -9,6 +9,7 @@
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Renderer/Texture2D.h"
 #include "Xora2D/Audio/AudioComponents.h"
+#include "Xora2D/Animation/AnimationComponent.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
@@ -54,6 +55,7 @@ struct ParsedEntity {
     std::optional<AudioSourceComponent> AudioSource;
     std::optional<AudioListenerComponent> AudioListener;
     std::optional<PythonScriptComponent> PythonScript;
+    std::optional<AnimationComponent> Animation;
 };
 
 struct ParsedScene {
@@ -508,6 +510,46 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.PythonScript = script;
     }
 
+    if (const YAML::Node animNode = node["AnimationComponent"]) {
+        AnimationComponent animation{};
+        if (animNode["DefaultClip"]) {
+            const std::optional<AssetHandle> handle =
+                AssetHandle::FromString(animNode["DefaultClip"].as<std::string>());
+            if (!handle.has_value()) {
+                error = PathContext(filepath) + ": invalid AnimationComponent.DefaultClip";
+                return false;
+            }
+            animation.DefaultClip = *handle;
+        }
+        if (animNode["DefaultClipName"]) {
+            animation.DefaultClipName = animNode["DefaultClipName"].as<std::string>();
+        }
+        if (animNode["PlaybackSpeed"]) {
+            animation.PlaybackSpeed = animNode["PlaybackSpeed"].as<float>();
+        }
+        if (animNode["Looping"]) {
+            animation.Looping = animNode["Looping"].as<bool>();
+        }
+        if (animNode["Autoplay"]) {
+            animation.Autoplay = animNode["Autoplay"].as<bool>();
+        }
+        if (const YAML::Node clips = animNode["ClipAssets"]) {
+            if (!clips.IsSequence()) {
+                error = PathContext(filepath) + ": AnimationComponent.ClipAssets must be a sequence";
+                return false;
+            }
+            for (const YAML::Node& clipNode : clips) {
+                const std::optional<AssetHandle> handle = AssetHandle::FromString(clipNode.as<std::string>());
+                if (!handle.has_value()) {
+                    error = PathContext(filepath) + ": invalid AnimationComponent clip handle";
+                    return false;
+                }
+                animation.ClipAssets.push_back(*handle);
+            }
+        }
+        output.Animation = animation;
+    }
+
     return true;
 }
 
@@ -561,7 +603,7 @@ bool ValidateTextureAssets(const ParsedScene& document, const std::filesystem::p
             continue;
         }
         if (!parsed.Sprite->TexturePath.empty()) {
-            const std::filesystem::path absolute = ResolveResourcePath(parsed.Sprite->TexturePath);
+            const std::filesystem::path absolute = ResolveContentPath(parsed.Sprite->TexturePath);
             if (!std::filesystem::exists(absolute)) {
                 std::ostringstream stream;
                 stream << PathContext(filepath) << ": texture asset not found '" << parsed.Sprite->TexturePath
@@ -618,6 +660,15 @@ bool ApplyParsedScene(Scene& scene, const ParsedScene& document, AssetManager* a
         }
         if (parsed.PythonScript.has_value()) {
             entity.AddComponent<PythonScriptComponent>() = *parsed.PythonScript;
+        }
+        if (parsed.Animation.has_value()) {
+            auto& animation = entity.AddComponent<AnimationComponent>();
+            animation = *parsed.Animation;
+            animation.ActiveClip = {};
+            animation.CurrentFrameIndex = 0;
+            animation.FrameUVValid = false;
+            animation.State = AnimationPlaybackState::Stopped;
+            animation.Controller.Reset();
         }
         if (parsed.AudioListener.has_value()) {
             entity.AddComponent<AudioListenerComponent>() = *parsed.AudioListener;
@@ -725,6 +776,28 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity) {
         const AudioListenerComponent& listener = entity.GetComponent<AudioListenerComponent>();
         emitter << YAML::Key << "AudioListenerComponent" << YAML::Value << YAML::BeginMap;
         emitter << YAML::Key << "Active" << YAML::Value << listener.Active;
+        emitter << YAML::EndMap;
+    }
+
+    if (entity.HasComponent<AnimationComponent>()) {
+        const AnimationComponent& animation = entity.GetComponent<AnimationComponent>();
+        emitter << YAML::Key << "AnimationComponent" << YAML::Value << YAML::BeginMap;
+        if (animation.DefaultClip.IsValid()) {
+            emitter << YAML::Key << "DefaultClip" << YAML::Value << animation.DefaultClip.ToString();
+        }
+        if (!animation.DefaultClipName.empty()) {
+            emitter << YAML::Key << "DefaultClipName" << YAML::Value << animation.DefaultClipName;
+        }
+        emitter << YAML::Key << "PlaybackSpeed" << YAML::Value << animation.PlaybackSpeed;
+        emitter << YAML::Key << "Looping" << YAML::Value << animation.Looping;
+        emitter << YAML::Key << "Autoplay" << YAML::Value << animation.Autoplay;
+        if (!animation.ClipAssets.empty()) {
+            emitter << YAML::Key << "ClipAssets" << YAML::Value << YAML::BeginSeq;
+            for (const AssetHandle& handle : animation.ClipAssets) {
+                emitter << handle.ToString();
+            }
+            emitter << YAML::EndSeq;
+        }
         emitter << YAML::EndMap;
     }
 

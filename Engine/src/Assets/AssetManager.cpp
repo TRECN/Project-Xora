@@ -5,9 +5,13 @@
 #include "Xora2D/Core/Paths.h"
 #include "Xora2D/Audio/AudioClip.h"
 #include "Xora2D/Renderer/Texture2D.h"
+#include "Xora2D/Animation/AnimationClipAsset.h"
 #include "Xora2D/Scripting/PythonScriptAsset.h"
 
 #include <filesystem>
+#include <fstream>
+
+#include <yaml-cpp/yaml.h>
 
 namespace Xora2D {
 
@@ -44,7 +48,7 @@ AssetResult AssetManager::RegisterTextureAtRelativePath(const std::string& norma
     }
 
     AssetMetadata metadata{};
-    metadata.Handle = AssetHandle::StableFromRelativePath(*normalized);
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
     metadata.Type = AssetType::Texture2D;
     metadata.Name = displayName.empty() ? absolute.stem().string() : displayName;
     metadata.RelativePath = *normalized;
@@ -102,7 +106,7 @@ AssetResult AssetManager::ImportTextureFile(const std::filesystem::path& sourceF
 }
 
 AssetResult AssetManager::EnsureLegacyTexturePath(const std::string& legacyResourceRelativePath) {
-    const std::filesystem::path legacyAbsolute = ResolveResourcePath(legacyResourceRelativePath);
+    const std::filesystem::path legacyAbsolute = ResolveContentPath(legacyResourceRelativePath);
     if (!std::filesystem::exists(legacyAbsolute)) {
         AssetResult result{};
         result.Message = "Legacy texture path not found";
@@ -156,7 +160,7 @@ AssetResult AssetManager::RegisterAudioAtRelativePath(const std::string& normali
     }
 
     AssetMetadata metadata{};
-    metadata.Handle = AssetHandle::StableFromRelativePath(*normalized);
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
     metadata.Type = AssetType::Audio;
     metadata.Name = displayName.empty() ? absolute.stem().string() : displayName;
     metadata.RelativePath = *normalized;
@@ -211,7 +215,7 @@ AssetResult AssetManager::RegisterPythonScriptAtRelativePath(const std::string& 
     }
 
     AssetMetadata metadata{};
-    metadata.Handle = AssetHandle::StableFromRelativePath(*normalized);
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
     metadata.Type = AssetType::PythonScript;
     metadata.Name = displayName.empty() ? absolute.stem().string() : displayName;
     metadata.RelativePath = *normalized;
@@ -233,6 +237,57 @@ AssetResult AssetManager::RegisterPythonScriptAtRelativePath(const std::string& 
 
 AssetResult AssetManager::LoadPythonScript(AssetHandle handle) {
     return LoadPythonScriptInternal(handle, false);
+}
+
+AssetResult AssetManager::RegisterAnimationClipAtRelativePath(const std::string& normalizedRelativePath,
+                                                              const std::string& displayName) {
+    AssetResult result{};
+    const std::optional<std::string> normalized = NormalizeAssetRelativePath(normalizedRelativePath);
+    if (!normalized.has_value()) {
+        result.Message = "Invalid relative asset path";
+        return result;
+    }
+
+    if (const AssetMetadata* existing = m_registry.FindByRelativePath(*normalized)) {
+        result.Success = true;
+        result.Handle = existing->Handle;
+        result.Message = "Asset already registered";
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(*normalized);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Asset file does not exist: " + absolute.string();
+        return result;
+    }
+    if (!IsSupportedAnimationClipExtension(absolute)) {
+        result.Message = "Unsupported animation clip extension";
+        return result;
+    }
+
+    AssetMetadata metadata{};
+    metadata.Handle = m_registry.AllocateHandleForPath(*normalized);
+    metadata.Type = AssetType::AnimationClip;
+    metadata.Name = displayName.empty() ? absolute.stem().stem().string() : displayName;
+    metadata.RelativePath = *normalized;
+    metadata.Available = true;
+
+    if (m_registry.Contains(metadata.Handle)) {
+        result.Message = "Duplicate asset handle for path";
+        return result;
+    }
+    if (!m_registry.RegisterAsset(metadata)) {
+        result.Message = "Failed to register asset metadata";
+        return result;
+    }
+
+    result.Success = true;
+    result.Handle = metadata.Handle;
+    return result;
+}
+
+AssetResult AssetManager::LoadAnimationClip(AssetHandle handle) {
+    return LoadAnimationClipInternal(handle, false);
 }
 
 AssetResult AssetManager::LoadTextureInternal(AssetHandle handle, bool forceReload) {
@@ -397,14 +452,87 @@ std::shared_ptr<const PythonScriptAsset> AssetManager::GetLoadedPythonScript(Ass
     return found->second;
 }
 
+AssetResult AssetManager::LoadAnimationClipInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    if (!handle.IsValid()) {
+        result.Message = "Invalid asset handle";
+        return result;
+    }
+
+    const AssetMetadata* metadata = m_registry.FindByHandle(handle);
+    if (metadata == nullptr) {
+        result.Message = "Asset handle is not registered";
+        return result;
+    }
+    if (metadata->Type != AssetType::AnimationClip) {
+        result.Message = "Asset is not an animation clip";
+        return result;
+    }
+
+    if (!forceReload && m_animationClipCache.contains(handle)) {
+        result.Success = true;
+        result.Handle = handle;
+        return result;
+    }
+
+    const std::filesystem::path absolute = ResolveAssetPath(metadata->RelativePath);
+    if (!std::filesystem::exists(absolute)) {
+        result.Message = "Animation clip file missing on disk: " + absolute.string();
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+
+    std::filesystem::path texturePath;
+    AssetHandle textureHandle{};
+    {
+        std::ifstream yamlFile(absolute);
+        YAML::Node root = YAML::Load(yamlFile);
+        if (root["TextureAssetHandle"]) {
+            if (const std::optional<AssetHandle> parsed =
+                    AssetHandle::FromString(root["TextureAssetHandle"].as<std::string>())) {
+                textureHandle = *parsed;
+            }
+        }
+    }
+    if (textureHandle.IsValid()) {
+        if (const AssetMetadata* textureMeta = m_registry.FindByHandle(textureHandle)) {
+            texturePath = ResolveAssetPath(textureMeta->RelativePath);
+        }
+    }
+
+    auto clipAsset = std::make_shared<AnimationClipAsset>();
+    const AssetResult loadResult =
+        AnimationClipAsset::LoadFromFile(absolute, metadata->RelativePath, *clipAsset, texturePath);
+    if (!loadResult.Success || !clipAsset->IsValid()) {
+        m_animationClipCache.erase(handle);
+        result.Message = loadResult.Message.empty() ? "Failed to load animation clip" : loadResult.Message;
+        return result;
+    }
+
+    m_animationClipCache[handle] = std::move(clipAsset);
+    result.Success = true;
+    result.Handle = handle;
+    return result;
+}
+
+std::shared_ptr<const AnimationClipAsset> AssetManager::GetLoadedAnimationClip(AssetHandle handle) const {
+    const auto found = m_animationClipCache.find(handle);
+    if (found == m_animationClipCache.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
-    return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle);
+    return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle) ||
+           m_animationClipCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
     m_textureCache.erase(handle);
     m_audioCache.erase(handle);
     m_scriptCache.erase(handle);
+    m_animationClipCache.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {

@@ -1,7 +1,97 @@
 Version: 1
 Assets:
+  - Handle: 160db83c98ee25e8
+    Type: PythonScript
+    Name: _audit_replace
+    RelativePath: Scripts/_audit_replace.py
+    Available: true
+  - Handle: 3e727fae7d4f737a
+    Type: PythonScript
+    Name: PhysicsController
+    RelativePath: Scripts/PhysicsController.py
+    Available: true
+  - Handle: 3e9afd09188d7f6e
+    Type: Audio
+    Name: sfx_click
+    RelativePath: Audio/sfx_click.wav
+    Available: true
+  - Handle: 4123b1be39166dfa
+    Type: Texture2D
+    Name: DemoSpriteSheet
+    RelativePath: Textures/DemoSpriteSheet.png
+    Available: true
+  - Handle: 4af893abc7227f34
+    Type: PythonScript
+    Name: _audit_lifecycle
+    RelativePath: Scripts/_audit_lifecycle.py
+    Available: true
+  - Handle: 4f10974bb70c2c76
+    Type: Audio
+    Name: sfx_beep
+    RelativePath: Audio/sfx_beep.wav
+    Available: true
+  - Handle: 5013a4a40564c522
+    Type: PythonScript
+    Name: _audit_disabled
+    RelativePath: Scripts/_audit_disabled.py
+    Available: true
+  - Handle: 606fa2825da01bc3
+    Type: PythonScript
+    Name: _audit_syntax
+    RelativePath: Scripts/_audit_syntax.py
+    Available: true
+  - Handle: 6cdf1ddba7a6a75a
+    Type: PythonScript
+    Name: Rotator
+    RelativePath: Scripts/Rotator.py
+    Available: true
+  - Handle: 78b33ce13c57e145
+    Type: PythonScript
+    Name: _audit_reload
+    RelativePath: Scripts/_audit_reload.py
+    Available: true
+  - Handle: 7dff3e02cde398ee
+    Type: PythonScript
+    Name: _audit_serialize
+    RelativePath: Scripts/_audit_serialize.py
+    Available: true
+  - Handle: 874e978c9f80a94
+    Type: Audio
+    Name: music_loop
+    RelativePath: Audio/music_loop.wav
+    Available: true
+  - Handle: 94918296161a010e
+    Type: PythonScript
+    Name: PlayerController
+    RelativePath: Scripts/PlayerController.py
+    Available: true
+  - Handle: 9e1d8cfce5126e1d
+    Type: PythonScript
+    Name: _audit_good_update
+    RelativePath: Scripts/_audit_good_update.py
+    Available: true
   - Handle: b0d9d4831317bc4f
     Type: Texture2D
     Name: Xora2D_Logo
     RelativePath: Textures/Xora2D_Logo.png
+    Available: true
+  - Handle: d37e688e91f1050b
+    Type: PythonScript
+    Name: AudioTrigger
+    RelativePath: Scripts/AudioTrigger.py
+    Available: true
+  - Handle: d8ec660da5fe12bd
+    Type: PythonScript
+    Name: _audit_bad_update
+    RelativePath: Scripts/_audit_bad_update.py
+    Available: true
+  - Handle: dbaede21ba91edc0
+    Type: PythonScript
+    Name: _audit_twin
+    RelativePath: Scripts/_audit_twin.py
+    Available: true
+  - Handle: f54b764c11e20e58
+    Type: PythonScript
+    Name: _audit_bindings
+    RelativePath: Scripts/_audit_bindings.py
     Available: true
