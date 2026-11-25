@@ -45,6 +45,8 @@ const char* ContentTypeFilterLabel(ContentTypeFilter filter) {
         return "Prefabs";
     case ContentTypeFilter::Tilemaps:
         return "Tilesets & Tilemaps";
+    case ContentTypeFilter::ParticleEffects:
+        return "Particle Effects";
     case ContentTypeFilter::Missing:
         return "Missing";
     default:
@@ -86,6 +88,8 @@ bool MatchesTypeFilter(const ContentBrowserEntry& entry, ContentTypeFilter filte
         return entry.Kind == ContentItemKind::Prefab;
     case ContentTypeFilter::Tilemaps:
         return entry.Kind == ContentItemKind::Tileset || entry.Kind == ContentItemKind::Tilemap;
+    case ContentTypeFilter::ParticleEffects:
+        return entry.Kind == ContentItemKind::ParticleEffect;
     case ContentTypeFilter::Missing:
         return entry.IsMissing();
     default:

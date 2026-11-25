@@ -8,6 +8,8 @@
 #include "SceneAnimationSystem.h"
 #include "SceneAudioSystem.h"
 #include "Scripting/ScenePythonScriptSystem.h"
+#include "Particles/SceneParticleSystem.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 
 #include "Xora2D/Animation/AnimationClipAsset.h"
 #include "Xora2D/Animation/AnimationComponent.h"
@@ -89,8 +91,7 @@ std::shared_ptr<Scene> Scene::Copy(const Scene& source) {
         CopyComponents<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent,
                        BoxCollider2DComponent, CircleCollider2DComponent, AudioSourceComponent, AudioListenerComponent,
                        PythonScriptComponent, AnimationComponent, PrefabInstanceComponent,
-                       TilemapComponent>(from, sourceEntity, to,
-                                                                                           created);
+                       TilemapComponent, ParticleSystemComponent>(from, sourceEntity, to, created);
         if (!to.all_of<TransformComponent>(created)) {
             to.emplace<TransformComponent>(created).RecalculateLocalMatrix();
         }
@@ -104,7 +105,8 @@ Scene::Scene()
       m_physics(std::make_unique<PhysicsWorld2D>()),
       m_audioSystem(std::make_unique<SceneAudioSystem>()),
       m_scriptSystem(std::make_unique<ScenePythonScriptSystem>()),
-      m_animationSystem(std::make_unique<SceneAnimationSystem>()) {}
+      m_animationSystem(std::make_unique<SceneAnimationSystem>()),
+      m_particleSystem(std::make_unique<SceneParticleSystem>()) {}
 
 Scene::~Scene() {
     PrepareForShutdown();
@@ -186,6 +188,28 @@ void Scene::ReplaceContentsFrom(Scene& source) {
     if (m_animationSystem) {
         m_animationSystem->Clear();
     }
+    if (source.m_particleSystem) {
+        source.m_particleSystem->Clear();
+    }
+    if (m_particleSystem) {
+        m_particleSystem->Clear();
+    }
+}
+
+void Scene::PauseParticles() {
+    if (!m_particleSystem) return;
+    auto& registry = m_registry->Registry;
+    for (auto [entity, comp] : registry.view<ParticleSystemComponent>().each()) {
+        comp.Pause();
+    }
+}
+
+void Scene::ResumeParticles() {
+    if (!m_particleSystem) return;
+    auto& registry = m_registry->Registry;
+    for (auto [entity, comp] : registry.view<ParticleSystemComponent>().each()) {
+        comp.Resume();
+    }
 }
 
 void Scene::Clear() {
@@ -211,6 +235,9 @@ void Scene::Clear() {
     if (m_animationSystem) {
         m_animationSystem->Clear();
     }
+    if (m_particleSystem) {
+        m_particleSystem->Clear();
+    }
 }
 
 void Scene::DestroyEntity(Entity entity) {
@@ -225,6 +252,9 @@ void Scene::DestroyEntity(Entity entity) {
     }
     if (m_animationSystem) {
         m_animationSystem->OnEntityDestroyed(entity.m_handle);
+    }
+    if (m_particleSystem) {
+        m_particleSystem->OnEntityDestroyed(entity.m_handle);
     }
     m_physics->OnEntityDestroyed(*this, entity);
     UnindexEntity(entity.m_handle);
@@ -266,6 +296,9 @@ void Scene::PrepareForShutdown() {
     if (m_animationSystem) {
         m_animationSystem->PrepareForShutdown();
     }
+    if (m_particleSystem) {
+        m_particleSystem->PrepareForShutdown();
+    }
     if (!m_physics) {
         return;
     }
@@ -283,6 +316,9 @@ void Scene::OnUpdate(float deltaSeconds) {
     }
     if (m_scriptSystem) {
         m_scriptSystem->OnSceneUpdate(*this, deltaSeconds);
+    }
+    if (m_particleSystem) {
+        m_particleSystem->OnSceneUpdate(*this, deltaSeconds);
     }
 }
 
@@ -314,6 +350,9 @@ void Scene::SetAssetManager(AssetManager* assetManager) {
     }
     if (m_animationSystem) {
         m_animationSystem->SetAssetManager(assetManager);
+    }
+    if (m_particleSystem) {
+        m_particleSystem->SetAssetManager(assetManager);
     }
 }
 
@@ -502,6 +541,12 @@ void Scene::OnRender(Renderer2D& renderer, const OrthographicCamera& camera) {
     }
 
     drawTilemaps(true);
+
+    // Particle systems (rendered after all sprites and foreground tiles)
+    if (m_particleSystem) {
+        m_particleSystem->OnSceneRender(*this, renderer, camera);
+    }
+
     renderer.EndScene();
 }
 

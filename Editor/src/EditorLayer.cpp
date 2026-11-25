@@ -9,6 +9,7 @@
 #include "Xora2DEditor/Panels/ProjectSettingsPanel.h"
 #include "Xora2DEditor/Panels/SceneHierarchyPanel.h"
 #include "Xora2DEditor/Panels/TilemapEditorPanel.h"
+#include "Xora2DEditor/Panels/ParticleEditorPanel.h"
 #include "Xora2DEditor/Panels/TilesetEditorPanel.h"
 #include "Xora2DEditor/Panels/ViewportPanel.h"
 
@@ -29,6 +30,7 @@ void EditorLayer::BuildDefaultPanels() {
     m_workspace.RegisterPanel(std::make_unique<ProjectSettingsPanel>());
     m_workspace.RegisterPanel(std::make_unique<TilemapEditorPanel>());
     m_workspace.RegisterPanel(std::make_unique<TilesetEditorPanel>());
+    m_workspace.RegisterPanel(std::make_unique<ParticleEditorPanel>());
 }
 
 void EditorLayer::Attach(EditorContext& context) {

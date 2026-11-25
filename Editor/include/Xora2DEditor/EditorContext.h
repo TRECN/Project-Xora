@@ -10,6 +10,7 @@
 #include "Xora2DEditor/EditorHostServices.h"
 #include "Xora2DEditor/EditorPlaySession.h"
 #include "Xora2DEditor/EditorSelection.h"
+#include "Xora2DEditor/Particles/ParticleEditorState.h"
 #include "Xora2DEditor/Tilemap/TilemapEditorState.h"
 
 #include "Xora2D/Assets/AssetManager.h"
@@ -104,6 +105,15 @@ public:
     [[nodiscard]] bool IsEditingPrefab() const { return m_prefabEdit.Working != nullptr; }
     [[nodiscard]] Xora2D::AssetHandle GetEditedPrefab() const { return m_prefabEdit.Handle; }
     [[nodiscard]] std::string GetEditedPrefabName() const;
+
+    // Particles ----------------------------------------------------------------------------------------------------
+    ParticleEditorState& GetParticleEditor() { return m_particleEditor; }
+    void RequestParticleEditor(Xora2D::AssetHandle effectAsset);
+    std::optional<Xora2D::AssetHandle> ConsumeParticleEditorRequest() {
+        auto req = m_particleEditorRequest;
+        m_particleEditorRequest.reset();
+        return req;
+    }
 
     // Tilemaps -------------------------------------------------------------------------------------------------------
     TilemapEditorState& GetTilemapEditor() { return m_tilemapEditor; }
@@ -214,6 +224,8 @@ private:
         std::optional<Xora2D::UUID> SceneSelection;
     };
     PrefabEditState m_prefabEdit;
+    ParticleEditorState m_particleEditor;
+    std::optional<Xora2D::AssetHandle> m_particleEditorRequest;
     TilemapEditorState m_tilemapEditor;
     std::optional<TilesetEditorRequest> m_tilesetRequest;
     std::optional<std::string> m_panelRequest;

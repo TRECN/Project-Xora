@@ -40,6 +40,7 @@ add_executable(Xora2D-Tests
     src/ProjectTests.cpp
     src/PrefabTests.cpp
     src/TilemapTests.cpp
+    src/ParticleTests.cpp
     ${XORA2D_EDITOR_TEST_SOURCES}
 )
 

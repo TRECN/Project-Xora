@@ -3,6 +3,7 @@
 #include "Xora2D/Tilemap/TilemapComponent.h"
 
 #include "Xora2D/Animation/AnimationComponent.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Physics/PhysicsWorld2D.h"
 #include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
@@ -58,6 +59,8 @@ static bool HasKind(const Xora2D::Entity& entity, SceneComponentKind kind) {
         return entity.HasComponent<Xora2D::AnimationComponent>();
     case SceneComponentKind::Tilemap:
         return entity.HasComponent<Xora2D::TilemapComponent>();
+    case SceneComponentKind::ParticleSystem:
+        return entity.HasComponent<Xora2D::ParticleSystemComponent>();
     }
     return false;
 }
@@ -113,6 +116,9 @@ EditorCommandStatus AddComponentToEntity(Xora2D::Scene& scene, Xora2D::Entity& e
     case SceneComponentKind::Tilemap:
         entity.AddComponent<Xora2D::TilemapComponent>().CreateDefaultLayers();
         break;
+    case SceneComponentKind::ParticleSystem:
+        entity.AddComponent<Xora2D::ParticleSystemComponent>();
+        break;
     }
     return EditorCommandStatus::Success;
 }
@@ -164,6 +170,9 @@ EditorCommandStatus RemoveComponentFromEntity(Xora2D::Scene& scene, Xora2D::Enti
         break;
     case SceneComponentKind::Tilemap:
         entity.RemoveComponent<Xora2D::TilemapComponent>(); // its collision body is released on the next physics sync
+        break;
+    case SceneComponentKind::ParticleSystem:
+        entity.RemoveComponent<Xora2D::ParticleSystemComponent>();
         break;
     }
     return EditorCommandStatus::Success;

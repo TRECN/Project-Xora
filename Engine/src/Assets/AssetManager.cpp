@@ -10,6 +10,7 @@
 #include "Xora2D/Prefab/Prefab.h"
 #include "Xora2D/Prefab/PrefabSerializer.h"
 #include "Xora2D/Tilemap/Tileset.h"
+#include "Xora2D/Particles/ParticleEffectAsset.h"
 
 #include <filesystem>
 #include <fstream>
@@ -614,6 +615,12 @@ AssetResult AssetManager::RegisterTilemapAtRelativePath(const std::string& norma
                               ".tilemap.yaml");
 }
 
+AssetResult AssetManager::RegisterParticleEffectAtRelativePath(const std::string& normalizedRelativePath,
+                                                               const std::string& displayName) {
+    return RegisterTypedAsset(normalizedRelativePath, displayName, AssetType::ParticleEffect,
+                              &IsSupportedParticleEffectExtension, ".particle.yaml");
+}
+
 AssetResult AssetManager::LoadTileset(AssetHandle handle) {
     return LoadTilesetInternal(handle, false);
 }
@@ -701,7 +708,8 @@ std::shared_ptr<const Prefab> AssetManager::GetLoadedPrefab(AssetHandle handle) 
 
 bool AssetManager::IsAssetLoaded(AssetHandle handle) const {
     return m_textureCache.contains(handle) || m_audioCache.contains(handle) || m_scriptCache.contains(handle) ||
-           m_animationClipCache.contains(handle) || m_prefabCache.contains(handle) || m_tilesetCache.contains(handle);
+           m_animationClipCache.contains(handle) || m_prefabCache.contains(handle) ||
+           m_tilesetCache.contains(handle) || m_particleEffectCache.contains(handle);
 }
 
 void AssetManager::UnloadAsset(AssetHandle handle) {
@@ -711,7 +719,9 @@ void AssetManager::UnloadAsset(AssetHandle handle) {
     m_animationClipCache.erase(handle);
     m_prefabCache.erase(handle);
     m_tilesetCache.erase(handle);
+    m_particleEffectCache.erase(handle);
     m_failedTilesets.erase(handle);
+    m_failedParticleEffects.erase(handle);
 }
 
 AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
@@ -721,6 +731,9 @@ AssetResult AssetManager::ReloadAsset(AssetHandle handle) {
     }
     if (metadata != nullptr && metadata->Type == AssetType::Tileset) {
         return LoadTilesetInternal(handle, true);
+    }
+    if (metadata != nullptr && metadata->Type == AssetType::ParticleEffect) {
+        return LoadParticleEffectInternal(handle, true);
     }
     return LoadTextureInternal(handle, true);
 }
@@ -733,7 +746,52 @@ void AssetManager::UnloadAll() {
     m_animationClipCache.clear();
     m_prefabCache.clear();
     m_tilesetCache.clear();
+    m_particleEffectCache.clear();
     m_failedTilesets.clear();
+    m_failedParticleEffects.clear();
+}
+
+AssetResult AssetManager::LoadParticleEffect(AssetHandle handle) {
+    return LoadParticleEffectInternal(handle, false);
+}
+
+AssetResult AssetManager::LoadParticleEffectInternal(AssetHandle handle, bool forceReload) {
+    AssetResult result{};
+    const AssetMetadata* metadata = handle.IsValid() ? m_registry.FindByHandle(handle) : nullptr;
+    if (metadata == nullptr || metadata->Type != AssetType::ParticleEffect) {
+        result.Message = "ParticleEffect " + handle.ToString() + " is not registered";
+        return result;
+    }
+    if (!forceReload && m_particleEffectCache.contains(handle)) {
+        result.Success = true;
+        result.Handle  = handle;
+        return result;
+    }
+    if (!forceReload) {
+        if (const auto failed = m_failedParticleEffects.find(handle); failed != m_failedParticleEffects.end()) {
+            result.Message = failed->second;
+            return result;
+        }
+    }
+    auto asset = std::make_shared<ParticleEffectAsset>();
+    const AssetResult load = ParticleEffectAsset::LoadFromFile(
+        ResolveAssetPath(metadata->RelativePath), metadata->RelativePath, *asset);
+    if (!load.Success) {
+        result.Message = load.Message;
+        m_failedParticleEffects[handle] = load.Message;
+        XORA_LOG_WARN("{}", result.Message);
+        return result;
+    }
+    m_failedParticleEffects.erase(handle);
+    m_particleEffectCache[handle] = std::move(asset);
+    result.Success = true;
+    result.Handle  = handle;
+    return result;
+}
+
+std::shared_ptr<const ParticleEffectAsset> AssetManager::GetLoadedParticleEffect(AssetHandle handle) const {
+    const auto found = m_particleEffectCache.find(handle);
+    return found == m_particleEffectCache.end() ? nullptr : found->second;
 }
 
 void AssetManager::PrepareShutdown() {

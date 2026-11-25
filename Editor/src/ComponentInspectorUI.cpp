@@ -15,6 +15,7 @@
 #include "Xora2D/Scripting/ScriptTypes.h"
 
 #include "Xora2D/Assets/AssetPaths.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Tilemap/TilemapComponent.h"
 #include "Xora2D/Tilemap/TilemapSerializer.h"
 #include "Xora2D/Tilemap/Tileset.h"
@@ -626,6 +627,44 @@ static void DrawTilemap(Xora2D::Entity entity, EditorContext& context) {
     ImGui::PopID();
 }
 
+static void DrawParticleSystem(Xora2D::Entity entity, EditorContext& context) {
+    if (!entity.HasComponent<Xora2D::ParticleSystemComponent>()) {
+        return;
+    }
+    bool open = true;
+    if (DrawHeaderWithRemove("Particle System", &open) && open) {
+        if (RemoveComponentFromEntity(*context.GetScene(), entity, SceneComponentKind::ParticleSystem) ==
+            EditorCommandStatus::Success) {
+            return;
+        }
+    }
+    if (!open) return;
+    auto& ps = entity.GetComponent<Xora2D::ParticleSystemComponent>();
+    ImGui::PushID("ParticleSystem");
+    DrawAssetCombo("Effect Asset", ps.EffectAsset, Xora2D::AssetType::ParticleEffect, context.GetAssetRegistry());
+    if (AcceptAssetHandleDragDrop(ps.EffectAsset, Xora2D::AssetType::ParticleEffect, context.GetAssetRegistry())) {
+        ps.Clear();
+    }
+    ImGui::Checkbox("Emission Enabled", &ps.EmissionEnabled);
+    ImGui::DragFloat("Playback Speed", &ps.PlaybackSpeed, 0.01f, 0.0f, 10.0f);
+    ImGui::Checkbox("Loop", &ps.Loop);
+    ImGui::Separator();
+    if (ImGui::Button("Play")) { ps.Play(); }
+    ImGui::SameLine();
+    if (ImGui::Button("Pause")) { ps.Pause(); }
+    ImGui::SameLine();
+    if (ImGui::Button("Stop")) { ps.Stop(); }
+    ImGui::SameLine();
+    if (ImGui::Button("Restart")) { ps.Restart(); }
+    ImGui::Text("Active: %u / %u", ps.Stats.ActiveParticles, ps.Stats.PoolCapacity);
+    if (ps.EffectAsset.IsValid()) {
+        if (ImGui::Button("Open in Particle Editor")) {
+            context.RequestParticleEditor(ps.EffectAsset);
+        }
+    }
+    ImGui::PopID();
+}
+
 static void DrawAddComponentEntry(const char* label, SceneComponentKind kind, Xora2D::Entity entity, EditorContext& context) {
     const bool canAdd = CanAddComponent(entity, kind);
     if (!canAdd) {
@@ -679,6 +718,7 @@ void DrawEntityInspector(Xora2D::Entity entity, EditorContext& context) {
 #endif
     DrawAnimation(entity, context);
     DrawTilemap(entity, context);
+    DrawParticleSystem(entity, context);
 
     ImGui::Spacing();
     DrawAddComponentMenu(entity, context);
@@ -706,6 +746,7 @@ void DrawAddComponentMenu(Xora2D::Entity entity, EditorContext& context) {
 #endif
         DrawAddComponentEntry("Animation", SceneComponentKind::Animation, entity, context);
         DrawAddComponentEntry("Tilemap", SceneComponentKind::Tilemap, entity, context);
+        DrawAddComponentEntry("Particle System", SceneComponentKind::ParticleSystem, entity, context);
         ImGui::EndPopup();
     }
     ImGui::PopID();

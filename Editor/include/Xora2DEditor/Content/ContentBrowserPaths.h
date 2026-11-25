@@ -38,6 +38,7 @@ enum class ContentItemKind : std::uint8_t {
     Prefab,
     Tileset,
     Tilemap,
+    ParticleEffect,
     Other,
 };
 

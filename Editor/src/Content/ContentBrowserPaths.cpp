@@ -202,6 +202,9 @@ ContentItemKind ClassifyContentFile(const std::filesystem::path& file) {
     if (Xora2D::IsSupportedPrefabExtension(file)) {
         return ContentItemKind::Prefab;
     }
+    if (Xora2D::IsSupportedParticleEffectExtension(file)) {
+        return ContentItemKind::ParticleEffect;
+    }
     if (Xora2D::IsSupportedTilesetExtension(file)) {
         return ContentItemKind::Tileset;
     }
@@ -242,6 +245,8 @@ Xora2D::AssetType AssetTypeForKind(ContentItemKind kind) {
         return Xora2D::AssetType::Tileset;
     case ContentItemKind::Tilemap:
         return Xora2D::AssetType::Tilemap;
+    case ContentItemKind::ParticleEffect:
+        return Xora2D::AssetType::ParticleEffect;
     default:
         return Xora2D::AssetType::Unknown;
     }
@@ -267,6 +272,8 @@ const char* ContentItemKindLabel(ContentItemKind kind) {
         return "Tileset";
     case ContentItemKind::Tilemap:
         return "Tilemap";
+    case ContentItemKind::ParticleEffect:
+        return "Particle Effect";
     default:
         return "File";
     }

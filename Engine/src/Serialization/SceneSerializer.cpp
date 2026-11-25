@@ -16,6 +16,7 @@
 #include "Xora2D/Scene/Components.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Tilemap/TilemapSerializer.h"
 
 #include <yaml-cpp/yaml.h>
@@ -548,6 +549,25 @@ bool ParseEntity(const YAML::Node& node, ParsedEntity& output, const std::filesy
         output.Tilemap = std::move(tilemap);
     }
 
+    if (const YAML::Node particleNode = node["ParticleSystemComponent"]) {
+        ParticleSystemComponent comp{};
+        if (particleNode["EffectAsset"]) {
+            if (const auto handle = AssetHandle::FromString(particleNode["EffectAsset"].as<std::string>())) {
+                comp.EffectAsset = *handle;
+            }
+        }
+        if (particleNode["EmissionEnabled"]) {
+            comp.EmissionEnabled = particleNode["EmissionEnabled"].as<bool>();
+        }
+        if (particleNode["PlaybackSpeed"]) {
+            comp.PlaybackSpeed = particleNode["PlaybackSpeed"].as<float>();
+        }
+        if (particleNode["Loop"]) {
+            comp.Loop = particleNode["Loop"].as<bool>();
+        }
+        output.ParticleSystem = std::move(comp);
+    }
+
     if (const YAML::Node prefabNode = node["PrefabInstance"]) {
         PrefabInstanceComponent link{};
         const auto readUuid = [&](const char* key, UUID& target) {
@@ -719,6 +739,9 @@ Entity ApplyEntity(Scene& scene, const ParsedEntity& parsed, const UUID& id, Ass
     }
     if (parsed.Tilemap.has_value()) {
         entity.AddComponent<TilemapComponent>() = *parsed.Tilemap;
+    }
+    if (parsed.ParticleSystem.has_value()) {
+        entity.AddComponent<ParticleSystemComponent>() = *parsed.ParticleSystem;
     }
     return entity;
 }
@@ -895,6 +918,18 @@ void EmitEntity(YAML::Emitter& emitter, const Entity& entity, bool includePrefab
     if (entity.HasComponent<TilemapComponent>()) {
         emitter << YAML::Key << "TilemapComponent" << YAML::Value << YAML::BeginMap;
         TilemapSerializer::EmitBody(emitter, entity.GetComponent<TilemapComponent>());
+        emitter << YAML::EndMap;
+    }
+
+    if (entity.HasComponent<ParticleSystemComponent>()) {
+        const auto& ps = entity.GetComponent<ParticleSystemComponent>();
+        emitter << YAML::Key << "ParticleSystemComponent" << YAML::Value << YAML::BeginMap;
+        if (ps.EffectAsset.IsValid()) {
+            emitter << YAML::Key << "EffectAsset" << YAML::Value << ps.EffectAsset.ToString();
+        }
+        emitter << YAML::Key << "EmissionEnabled" << YAML::Value << ps.EmissionEnabled;
+        emitter << YAML::Key << "PlaybackSpeed" << YAML::Value << ps.PlaybackSpeed;
+        emitter << YAML::Key << "Loop" << YAML::Value << ps.Loop;
         emitter << YAML::EndMap;
     }
 

@@ -6,6 +6,7 @@
 #include "Xora2D/Animation/AnimationComponent.h"
 #include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Core/UUID.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
 #include "Xora2D/Prefab/PrefabComponents.h"
 #include "Xora2D/Scene/Components.h"
@@ -49,6 +50,7 @@ struct ParsedEntity {
     std::optional<AnimationComponent> Animation;
     std::optional<PrefabInstanceComponent> PrefabInstance;
     std::optional<TilemapComponent> Tilemap;
+    std::optional<ParticleSystemComponent> ParticleSystem;
 };
 
 // Parses one entry of an "Entities" sequence. `source` is only used in error messages.

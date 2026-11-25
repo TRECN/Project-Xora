@@ -26,6 +26,8 @@ bool IsSupportedPrefabExtension(const std::filesystem::path& path);
 // "*.tileset.yaml" / "*.tilemap.yaml"
 bool IsSupportedTilesetExtension(const std::filesystem::path& path);
 bool IsSupportedTilemapExtension(const std::filesystem::path& path);
+// "*.particle.yaml"
+bool IsSupportedParticleEffectExtension(const std::filesystem::path& path);
 
 // Rejects paths outside `root` (no .. escape).
 [[nodiscard]] bool IsAbsolutePathWithinRoot(const std::filesystem::path& absolute,

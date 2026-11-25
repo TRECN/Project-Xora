@@ -22,6 +22,7 @@ class AudioEngine;
 class PhysicsWorld2D;
 class SceneAudioSystem;
 class SceneAnimationSystem;
+class SceneParticleSystem;
 struct PhysicsWorld2DDetail;
 class Renderer2D;
 class OrthographicCamera;
@@ -97,6 +98,10 @@ public:
     void ReleasePythonScriptInstance(const Entity& entity);
     void ResolveSpriteTextures();
 
+    // Particle system integration
+    void PauseParticles();
+    void ResumeParticles();
+
     const std::string& GetSceneName() const { return m_sceneName; }
     void SetSceneName(std::string name) { m_sceneName = std::move(name); }
 
@@ -109,6 +114,7 @@ private:
     friend class SceneAudioSystem;
     friend class ScenePythonScriptSystem;
     friend class SceneAnimationSystem;
+    friend class SceneParticleSystem;
 
     template <typename Component, typename... Args>
     Component& EmplaceComponent(std::uint32_t handle, Args&&... args);
@@ -144,6 +150,7 @@ private:
     std::unique_ptr<SceneAudioSystem> m_audioSystem;
     std::unique_ptr<ScenePythonScriptSystem> m_scriptSystem;
     std::unique_ptr<SceneAnimationSystem> m_animationSystem;
+    std::unique_ptr<SceneParticleSystem> m_particleSystem;
     TilemapRenderStats m_tilemapStats;
 };
 

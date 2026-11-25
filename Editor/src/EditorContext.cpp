@@ -420,6 +420,11 @@ void EditorContext::ClosePrefabEditor() {
     m_prefabEdit.SceneSelection.reset();
 }
 
+void EditorContext::RequestParticleEditor(Xora2D::AssetHandle effectAsset) {
+    m_particleEditorRequest = effectAsset;
+    m_panelRequest = "Particle Editor";
+}
+
 EditorSceneFileResult EditorContext::OpenTilemapAsset(Xora2D::AssetHandle tilemap) {
     EditorSceneFileResult result{};
     const Xora2D::AssetMetadata* meta = m_assetRegistry.FindByHandle(tilemap);

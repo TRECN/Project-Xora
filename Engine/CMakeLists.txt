@@ -59,6 +59,11 @@ add_library(Xora2D STATIC
     src/Tilemap/TilemapSerializer.cpp
     src/Scripting/PythonScriptAsset.cpp
     src/Scripting/ScenePythonScriptSystem.cpp
+    src/Particles/ParticleTypes.cpp
+    src/Particles/ParticleEffectAsset.cpp
+    src/Particles/ParticleSystemComponent.cpp
+    src/Particles/ParticleRendering.cpp
+    src/Particles/SceneParticleSystem.cpp
 )
 
 add_library(Xora2D::Xora2D ALIAS Xora2D)

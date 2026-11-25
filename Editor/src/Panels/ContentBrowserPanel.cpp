@@ -58,6 +58,8 @@ ImU32 KindColor(ContentItemKind kind) {
         return IM_COL32(236, 140, 64, 255);
     case ContentItemKind::Tilemap:
         return IM_COL32(120, 200, 120, 255);
+    case ContentItemKind::ParticleEffect:
+        return IM_COL32(255, 160, 80, 255);
     default:
         return IM_COL32(130, 136, 150, 255);
     }
@@ -81,6 +83,8 @@ const char* KindBadge(const ContentBrowserEntry& entry) {
         return "TILESET";
     case ContentItemKind::Tilemap:
         return "TILEMAP";
+    case ContentItemKind::ParticleEffect:
+        return "FX";
     default:
         return "FILE";
     }
@@ -833,6 +837,10 @@ private:
                 context.RequestPanel("Tilemap");
             }
         }
+        if (doubleClicked && entry.Kind == ContentItemKind::ParticleEffect && !entry.IsMissing() &&
+            entry.RegisteredHandle.has_value()) {
+            context.RequestParticleEditor(*entry.RegisteredHandle);
+        }
         if (doubleClicked && entry.Kind == ContentItemKind::Prefab && !entry.IsMissing() &&
             entry.RegisteredHandle.has_value() && !context.IsPlayModeActive()) {
             const EditorSceneFileResult open = context.OpenPrefabEditor(*entry.RegisteredHandle);
@@ -958,6 +966,11 @@ private:
                 if (open.Success) {
                     context.RequestPanel("Tilemap");
                 }
+            }
+        }
+        if (entry.Kind == ContentItemKind::ParticleEffect && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {
+            if (ImGui::MenuItem("Open in Particle Editor")) {
+                context.RequestParticleEditor(*entry.RegisteredHandle);
             }
         }
         if (entry.Kind == ContentItemKind::Prefab && entry.RegisteredHandle.has_value() && !entry.IsMissing()) {

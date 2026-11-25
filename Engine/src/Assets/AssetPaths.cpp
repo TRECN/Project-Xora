@@ -135,6 +135,10 @@ bool IsSupportedTilemapExtension(const std::filesystem::path& path) {
     return HasCompoundExtension(path, ".tilemap.yaml");
 }
 
+bool IsSupportedParticleEffectExtension(const std::filesystem::path& path) {
+    return HasCompoundExtension(path, ".particle.yaml");
+}
+
 bool IsSupportedAnimationClipExtension(const std::filesystem::path& path) {
     const std::string filename = path.filename().string();
     std::string lowered = filename;

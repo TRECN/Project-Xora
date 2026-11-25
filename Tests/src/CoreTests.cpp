@@ -345,6 +345,7 @@ int RunPlayModeTests();
 int RunProjectTests();
 int RunPrefabTests();
 int RunTilemapTests();
+int RunParticleTests();
 
 int main() {
     XORA_LOG_INFO("Xora2D tests starting");
@@ -370,6 +371,7 @@ int main() {
     g_failures += RunProjectTests();
     g_failures += RunPrefabTests();
     g_failures += RunTilemapTests();
+    g_failures += RunParticleTests();
 
     if (g_failures != 0) {
         XORA_LOG_ERROR("{} test check(s) failed", g_failures);

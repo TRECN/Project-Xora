@@ -13,6 +13,7 @@ enum class AssetType : std::uint8_t {
     Prefab,
     Tileset,
     Tilemap,
+    ParticleEffect,
 };
 
 } // namespace Xora2D

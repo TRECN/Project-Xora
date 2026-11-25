@@ -21,6 +21,7 @@ enum class SceneComponentKind {
     PythonScript,
     Animation,
     Tilemap,
+    ParticleSystem,
 };
 
 enum class EditorCommandStatus {

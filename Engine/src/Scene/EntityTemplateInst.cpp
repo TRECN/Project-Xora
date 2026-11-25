@@ -2,8 +2,10 @@
 #include "Xora2D/Audio/AudioComponents.h"
 #include "Xora2D/Scripting/PythonScriptComponent.h"
 #include "Xora2D/Physics/PhysicsComponents.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Prefab/PrefabComponents.h"
 #include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
 
@@ -38,6 +40,7 @@ XORA_ENTITY_INST_ADDABLE(PythonScriptComponent)
 XORA_ENTITY_INST_ADDABLE(AnimationComponent)
 XORA_ENTITY_INST_ADDABLE(PrefabInstanceComponent)
 XORA_ENTITY_INST_ADDABLE(TilemapComponent)
+XORA_ENTITY_INST_ADDABLE(ParticleSystemComponent)
 
 #undef XORA_ENTITY_INST_ADDABLE
 #undef XORA_ENTITY_INST_ACCESS

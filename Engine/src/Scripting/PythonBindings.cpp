@@ -17,6 +17,7 @@
 #include "Xora2D/Scene/Entity.h"
 #include "Xora2D/Scene/Scene.h"
 #include "Xora2D/Tilemap/TilemapComponent.h"
+#include "Xora2D/Particles/ParticleSystemComponent.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
@@ -50,13 +51,13 @@ bool ResolveEntity(const std::weak_ptr<Scene>& sceneWeak, const UUID& entityId, 
 class ScriptEntityRef {
 public:
     ScriptEntityRef(std::weak_ptr<Scene> scene, UUID entityId)
-        : m_scene(std::move(scene)), m_entityId(entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
+        : m_scene(std::move(scene)), m_entityId(entityId), m_transform(this), m_physics(this), m_tilemap(this), m_particles(this) {}
 
     ScriptEntityRef(const ScriptEntityRef& other)
-        : m_scene(other.m_scene), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
+        : m_scene(other.m_scene), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this), m_particles(this) {}
 
     ScriptEntityRef(ScriptEntityRef&& other) noexcept
-        : m_scene(std::move(other.m_scene)), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this) {}
+        : m_scene(std::move(other.m_scene)), m_entityId(other.m_entityId), m_transform(this), m_physics(this), m_tilemap(this), m_particles(this) {}
 
     ScriptEntityRef& operator=(const ScriptEntityRef&) = delete;
     ScriptEntityRef& operator=(ScriptEntityRef&&) = delete;
@@ -292,9 +293,58 @@ public:
         ScriptEntityRef* m_owner = nullptr;
     };
 
+    // ----- Particle binding -----
+    struct ParticleBinding {
+        explicit ParticleBinding(ScriptEntityRef* owner) : m_owner(owner) {}
+
+        [[nodiscard]] bool Exists() const {
+            Entity entity;
+            return m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>();
+        }
+        void Play() {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                entity.GetComponent<ParticleSystemComponent>().Play();
+            }
+        }
+        void Stop() {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                entity.GetComponent<ParticleSystemComponent>().Stop();
+            }
+        }
+        void Pause() {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                entity.GetComponent<ParticleSystemComponent>().Pause();
+            }
+        }
+        void Resume() {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                entity.GetComponent<ParticleSystemComponent>().Resume();
+            }
+        }
+        void Restart() {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                entity.GetComponent<ParticleSystemComponent>().Restart();
+            }
+        }
+        [[nodiscard]] int ActiveCount() const {
+            Entity entity;
+            if (m_owner->Resolve(entity) && entity.HasComponent<ParticleSystemComponent>()) {
+                return static_cast<int>(entity.GetComponent<ParticleSystemComponent>().Stats.ActiveParticles);
+            }
+            return 0;
+        }
+        ScriptEntityRef* m_owner = nullptr;
+    };
+
     [[nodiscard]] TilemapBinding& Tilemap() { return m_tilemap; }
     [[nodiscard]] TransformBinding& Transform() { return m_transform; }
     [[nodiscard]] PhysicsBinding& Physics() { return m_physics; }
+    [[nodiscard]] ParticleBinding& Particles() { return m_particles; }
 
     bool AnimationPlayClip(const std::string& clipName) {
         Entity entity;
@@ -360,6 +410,7 @@ private:
     TransformBinding m_transform;
     PhysicsBinding m_physics;
     TilemapBinding m_tilemap;
+    ParticleBinding m_particles;
 };
 
 struct Vector2 {
@@ -429,6 +480,15 @@ PYBIND11_EMBEDDED_MODULE(xora2d, module) {
         .def("layer_names", &ScriptEntityRef::TilemapBinding::LayerNames)
         .def("tile_count", &ScriptEntityRef::TilemapBinding::TileCount, py::arg("layer") = "");
 
+    py::class_<ScriptEntityRef::ParticleBinding>(module, "Particles")
+        .def_property_readonly("exists", &ScriptEntityRef::ParticleBinding::Exists)
+        .def("play", &ScriptEntityRef::ParticleBinding::Play)
+        .def("stop", &ScriptEntityRef::ParticleBinding::Stop)
+        .def("pause", &ScriptEntityRef::ParticleBinding::Pause)
+        .def("resume", &ScriptEntityRef::ParticleBinding::Resume)
+        .def("restart", &ScriptEntityRef::ParticleBinding::Restart)
+        .def_property_readonly("active_count", &ScriptEntityRef::ParticleBinding::ActiveCount);
+
     py::class_<ScriptEntityRef>(module, "Entity")
         .def_property_readonly("uuid",
                               [](const ScriptEntityRef& self) { return self.GetUuid().ToString(); })
@@ -442,6 +502,9 @@ PYBIND11_EMBEDDED_MODULE(xora2d, module) {
         })
         .def_property_readonly("tilemap", [](ScriptEntityRef& entity) -> ScriptEntityRef::TilemapBinding& {
             return entity.Tilemap();
+        }, py::return_value_policy::reference_internal)
+        .def_property_readonly("particles", [](ScriptEntityRef& entity) -> ScriptEntityRef::ParticleBinding& {
+            return entity.Particles();
         }, py::return_value_policy::reference_internal)
         .def("animation_play", &ScriptEntityRef::AnimationPlayClip)
         .def("animation_pause", &ScriptEntityRef::AnimationPauseClip)
